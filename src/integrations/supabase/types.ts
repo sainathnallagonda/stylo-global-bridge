@@ -393,6 +393,51 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_foods: {
+        Row: {
+          category: string
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_available: boolean
+          name: string
+          preparation_time: number
+          price: number
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean
+          name: string
+          preparation_time?: number
+          price: number
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean
+          name?: string
+          preparation_time?: number
+          price?: number
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

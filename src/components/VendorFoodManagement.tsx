@@ -23,6 +23,7 @@ interface VendorFood {
   category: string;
   is_available: boolean;
   preparation_time: number;
+  vendor_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -58,8 +59,9 @@ const VendorFoodManagement = () => {
     if (!user) return;
 
     try {
+      // Use dynamic query to avoid TypeScript issues with table types
       const { data, error } = await supabase
-        .from('vendor_foods')
+        .from('vendor_foods' as any)
         .select('*')
         .eq('vendor_id', user.id)
         .order('created_at', { ascending: false });
@@ -94,7 +96,7 @@ const VendorFoodManagement = () => {
     try {
       if (editingFood.id) {
         const { error } = await supabase
-          .from('vendor_foods')
+          .from('vendor_foods' as any)
           .update({
             name: editingFood.name,
             description: editingFood.description,
@@ -111,7 +113,7 @@ const VendorFoodManagement = () => {
         if (error) throw error;
       } else {
         const { error } = await supabase
-          .from('vendor_foods')
+          .from('vendor_foods' as any)
           .insert({
             vendor_id: user.id,
             name: editingFood.name,
@@ -148,7 +150,7 @@ const VendorFoodManagement = () => {
   const deleteFood = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('vendor_foods')
+        .from('vendor_foods' as any)
         .delete()
         .eq('id', id);
 
@@ -173,7 +175,7 @@ const VendorFoodManagement = () => {
   const toggleAvailability = async (id: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
-        .from('vendor_foods')
+        .from('vendor_foods' as any)
         .update({ 
           is_available: !currentStatus,
           updated_at: new Date().toISOString()
