@@ -3,10 +3,12 @@ import { ArrowRight, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLocation } from "@/contexts/LocationContext";
 import CountrySelector from "./CountrySelector";
 
 const Hero = () => {
   const { user } = useAuth();
+  const { toCountry } = useLocation();
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
@@ -34,11 +36,11 @@ const Hero = () => {
           <div className="space-y-8">
             <h1 className="text-5xl md:text-7xl font-bold text-gray-900 leading-tight">
               Send Love to
-              <span className="block text-blue-600 mt-2">USA</span>
+              <span className="block text-blue-600 mt-2">{toCountry}</span>
             </h1>
             
             <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
-              Order premium American products and services for your loved ones in the USA, pay in INR with no hidden fees.
+              Order premium {toCountry === 'USA' ? 'American' : 'Indian'} products and services for your loved ones in {toCountry === 'USA' ? 'the USA' : 'India'}, pay in {toCountry === 'USA' ? 'INR' : 'USD'} with no hidden fees.
             </p>
             
             <div className="space-y-6">
