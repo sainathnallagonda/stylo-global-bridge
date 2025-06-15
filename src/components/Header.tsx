@@ -4,7 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Menu, X, User, LogOut, ShoppingCart, LayoutDashboard } from "lucide-react";
-import CurrencyToggle from "./CurrencyToggle";
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -62,8 +61,6 @@ const Header = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            <CurrencyToggle />
-            
             <div className="flex items-center space-x-2">
               <Button 
                 variant="ghost" 
@@ -148,10 +145,6 @@ const Header = () => {
                 </button>
               ))}
               
-              <div className="pt-4 border-t border-gray-100">
-                <CurrencyToggle />
-              </div>
-              
               {user ? (
                 <div className="flex flex-col space-y-2">
                   <Button
@@ -179,7 +172,7 @@ const Header = () => {
                   <Button
                     onClick={() => {
                       handleSignOut();
-                      setIsMenuOpen(false);
+                      setIsMenuOut(false);
                     }}
                     variant="ghost"
                     className="justify-start text-red-600 hover:bg-red-50"
