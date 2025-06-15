@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLocation } from "@/contexts/LocationContext";
+import FavoriteButton from "@/components/FavoriteButton";
 
 const Gifts = () => {
   const navigate = useNavigate();
@@ -160,6 +161,9 @@ const Gifts = () => {
                   <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
                     <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                     <span className="text-sm font-bold text-gray-800">{gift.rating}</span>
+                  </div>
+                  <div className="absolute top-3 left-3">
+                    <FavoriteButton item={gift} serviceType="gifts" className="bg-white/90 backdrop-blur-sm rounded-full" />
                   </div>
                   <div className="absolute bottom-3 left-3 bg-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium">
                     {gift.delivery}

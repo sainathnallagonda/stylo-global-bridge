@@ -18,7 +18,7 @@ const Header = () => {
 
   const handleAuthClick = () => {
     if (user) {
-      navigate("/dashboard");
+      navigate("/profile");
     } else {
       navigate("/auth");
     }
@@ -65,7 +65,12 @@ const Header = () => {
             <CurrencyToggle />
             
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="icon" className="relative hover:bg-gray-100">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative hover:bg-gray-100"
+                onClick={() => navigate("/orders")}
+              >
                 <ShoppingCart className="h-5 w-5 text-gray-600" />
                 <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   3
@@ -75,13 +80,13 @@ const Header = () => {
               {user ? (
                 <div className="flex items-center space-x-2">
                   <Button
-                    onClick={() => navigate("/dashboard")}
+                    onClick={() => navigate("/profile")}
                     variant="ghost"
                     size="sm"
                     className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
                   >
                     <User className="h-4 w-4 mr-2" />
-                    Dashboard
+                    Profile
                   </Button>
                   <Button
                     onClick={handleSignOut}
@@ -142,14 +147,14 @@ const Header = () => {
                 <div className="flex flex-col space-y-2">
                   <Button
                     onClick={() => {
-                      navigate("/dashboard");
+                      navigate("/profile");
                       setIsMenuOpen(false);
                     }}
                     variant="ghost"
                     className="justify-start hover:bg-blue-50"
                   >
                     <User className="h-4 w-4 mr-2" />
-                    Dashboard
+                    Profile
                   </Button>
                   <Button
                     onClick={() => {

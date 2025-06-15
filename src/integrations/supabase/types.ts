@@ -9,6 +9,119 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          apartment_unit: string | null
+          city: string
+          country: string
+          created_at: string
+          id: string
+          is_default: boolean | null
+          label: string
+          phone: string | null
+          postal_code: string
+          state_province: string
+          street_address: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          apartment_unit?: string | null
+          city: string
+          country: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          label: string
+          phone?: string | null
+          postal_code: string
+          state_province: string
+          street_address: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          apartment_unit?: string | null
+          city?: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          label?: string
+          phone?: string | null
+          postal_code?: string
+          state_province?: string
+          street_address?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      favorites: {
+        Row: {
+          created_at: string
+          id: string
+          item_data: Json
+          service_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_data: Json
+          service_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_data?: Json
+          service_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      loyalty_points: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string | null
+          points: number
+          transaction_reason: string
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          points?: number
+          transaction_reason: string
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          points?: number
+          transaction_reason?: string
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_points_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_tracking: {
         Row: {
           id: string
@@ -104,38 +217,94 @@ export type Database = {
       profiles: {
         Row: {
           address: Json | null
+          avatar_url: string | null
           country: string | null
           created_at: string
+          date_of_birth: string | null
           email: string | null
           full_name: string | null
+          gender: string | null
           id: string
+          notification_preferences: Json | null
           phone: string | null
           preferred_currency: string | null
           updated_at: string
         }
         Insert: {
           address?: Json | null
+          avatar_url?: string | null
           country?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
           full_name?: string | null
+          gender?: string | null
           id: string
+          notification_preferences?: Json | null
           phone?: string | null
           preferred_currency?: string | null
           updated_at?: string
         }
         Update: {
           address?: Json | null
+          avatar_url?: string | null
           country?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
+          notification_preferences?: Json | null
           phone?: string | null
           preferred_currency?: string | null
           updated_at?: string
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          order_id: string | null
+          rating: number
+          review_text: string | null
+          service_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          order_id?: string | null
+          rating: number
+          review_text?: string | null
+          service_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          order_id?: string | null
+          rating?: number
+          review_text?: string | null
+          service_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -150,6 +319,10 @@ export type Database = {
           location?: string
         }
         Returns: string
+      }
+      get_user_loyalty_points: {
+        Args: { user_uuid: string }
+        Returns: number
       }
     }
     Enums: {
