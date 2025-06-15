@@ -1,25 +1,43 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Search, ShoppingCart } from 'lucide-react';
-import FoodCard from './FoodCard';
+import { ShoppingCart } from 'lucide-react';
+import EnhancedFoodCard from './EnhancedFoodCard';
+import SearchAndFilter from './SearchAndFilter';
 import { useToast } from '@/hooks/use-toast';
 import type { Tables } from '@/integrations/supabase/types';
 
 type VendorFood = Tables<'vendor_foods'>;
 
+interface SearchFilters {
+  searchTerm: string;
+  category: string;
+  priceRange: [number, number];
+  rating: number;
+  dietaryRestrictions: string[];
+  spiceLevel: number[];
+  preparationTime: number;
+  sortBy: string;
+}
+
 const CustomerFoodDisplay = () => {
   const [foods, setFoods] = useState<VendorFood[]>([]);
   const [filteredFoods, setFilteredFoods] = useState<VendorFood[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [cartItems, setCartItems] = useState<VendorFood[]>([]);
   const { toast } = useToast();
+
+  const [filters, setFilters] = useState<SearchFilters>({
+    searchTerm: '',
+    category: 'all',
+    priceRange: [0, 100],
+    rating: 0,
+    dietaryRestrictions: [],
+    spiceLevel: [],
+    preparationTime: 120,
+    sortBy: 'relevance'
+  });
 
   const categories = [
     'Fast Food',
@@ -39,15 +57,22 @@ const CustomerFoodDisplay = () => {
   }, []);
 
   useEffect(() => {
-    filterFoods();
-  }, [foods, searchTerm, selectedCategory]);
+    filterAndSortFoods();
+  }, [foods, filters]);
 
   const fetchFoods = async () => {
     try {
       console.log('Fetching foods...');
       const { data, error } = await supabase
         .from('vendor_foods')
-        .select('*')
+        .select(`
+          *,
+          vendor_info:vendor_id (
+            business_name,
+            average_rating,
+            total_reviews
+          )
+        `)
         .eq('is_available', true)
         .order('created_at', { ascending: false });
 
@@ -70,24 +95,76 @@ const CustomerFoodDisplay = () => {
     }
   };
 
-  const filterFoods = () => {
+  const filterAndSortFoods = () => {
     try {
       let filtered = foods;
 
-      if (searchTerm) {
+      // Search filter
+      if (filters.searchTerm) {
         filtered = filtered.filter(food => 
-          food.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          food.description?.toLowerCase().includes(searchTerm.toLowerCase())
+          food.name?.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+          food.description?.toLowerCase().includes(filters.searchTerm.toLowerCase())
         );
       }
 
-      if (selectedCategory !== 'all') {
-        filtered = filtered.filter(food => food.category === selectedCategory);
+      // Category filter
+      if (filters.category !== 'all') {
+        filtered = filtered.filter(food => food.category === filters.category);
+      }
+
+      // Price range filter
+      filtered = filtered.filter(food => 
+        food.price >= filters.priceRange[0] && food.price <= filters.priceRange[1]
+      );
+
+      // Preparation time filter
+      if (filters.preparationTime < 120) {
+        filtered = filtered.filter(food => 
+          (food.preparation_time || 30) <= filters.preparationTime
+        );
+      }
+
+      // Dietary restrictions filter
+      if (filters.dietaryRestrictions.length > 0) {
+        filtered = filtered.filter(food => 
+          filters.dietaryRestrictions.some(restriction => 
+            food.dietary_restrictions?.includes(restriction)
+          )
+        );
+      }
+
+      // Spice level filter
+      if (filters.spiceLevel.length > 0) {
+        filtered = filtered.filter(food => 
+          food.spice_level && filters.spiceLevel.includes(food.spice_level)
+        );
+      }
+
+      // Sorting
+      switch (filters.sortBy) {
+        case 'price-low':
+          filtered.sort((a, b) => a.price - b.price);
+          break;
+        case 'price-high':
+          filtered.sort((a, b) => b.price - a.price);
+          break;
+        case 'rating':
+          filtered.sort((a, b) => (b.vendor_info?.average_rating || 0) - (a.vendor_info?.average_rating || 0));
+          break;
+        case 'preparation-time':
+          filtered.sort((a, b) => (a.preparation_time || 30) - (b.preparation_time || 30));
+          break;
+        case 'newest':
+          filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+          break;
+        default:
+          // relevance - keep original order
+          break;
       }
 
       setFilteredFoods(filtered);
     } catch (error) {
-      console.error('Error in filterFoods:', error);
+      console.error('Error in filterAndSortFoods:', error);
       setFilteredFoods([]);
     }
   };
@@ -136,38 +213,16 @@ const CustomerFoodDisplay = () => {
         </div>
       </div>
 
-      {/* Search and Filter Controls */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Search & Filter</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search for food items..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map(category => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+      <SearchAndFilter 
+        filters={filters}
+        onFiltersChange={setFilters}
+        categories={categories}
+      />
+
+      {/* Results Summary */}
+      <div className="text-sm text-gray-600">
+        Showing {filteredFoods.length} of {foods.length} items
+      </div>
 
       {/* Food Items Grid */}
       {filteredFoods.length === 0 ? (
@@ -185,7 +240,7 @@ const CustomerFoodDisplay = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredFoods.map((food) => (
-            <FoodCard 
+            <EnhancedFoodCard 
               key={food.id} 
               food={food} 
               onAddToCart={addToCart}

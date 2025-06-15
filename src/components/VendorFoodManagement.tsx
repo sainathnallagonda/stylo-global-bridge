@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,7 +9,9 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Edit, Trash2, Clock, DollarSign } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Slider } from '@/components/ui/slider';
+import { Plus, Edit, Trash2, Clock, DollarSign, Flame } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
@@ -37,6 +38,28 @@ const VendorFoodManagement = () => {
     'Healthy',
     'Pizza',
     'Burgers'
+  ];
+
+  const dietaryOptions = [
+    'vegetarian',
+    'vegan',
+    'gluten-free',
+    'dairy-free',
+    'nut-free',
+    'keto',
+    'low-carb',
+    'organic'
+  ];
+
+  const allergenOptions = [
+    'nuts',
+    'dairy',
+    'eggs',
+    'soy',
+    'wheat',
+    'shellfish',
+    'fish',
+    'sesame'
   ];
 
   useEffect(() => {
@@ -72,7 +95,6 @@ const VendorFoodManagement = () => {
   const saveFood = async () => {
     if (!user || !editingFood) return;
 
-    // Validate required fields
     if (!editingFood.name || !editingFood.price || !editingFood.category) {
       toast({
         title: "Error",
@@ -93,6 +115,10 @@ const VendorFoodManagement = () => {
           category: editingFood.category,
           is_available: editingFood.is_available ?? true,
           preparation_time: editingFood.preparation_time || 30,
+          nutritional_info: editingFood.nutritional_info,
+          dietary_restrictions: editingFood.dietary_restrictions,
+          allergens: editingFood.allergens,
+          spice_level: editingFood.spice_level,
           updated_at: new Date().toISOString()
         };
 
@@ -112,7 +138,11 @@ const VendorFoodManagement = () => {
           image_url: editingFood.image_url,
           category: editingFood.category!,
           is_available: editingFood.is_available ?? true,
-          preparation_time: editingFood.preparation_time || 30
+          preparation_time: editingFood.preparation_time || 30,
+          nutritional_info: editingFood.nutritional_info,
+          dietary_restrictions: editingFood.dietary_restrictions,
+          allergens: editingFood.allergens,
+          spice_level: editingFood.spice_level
         };
 
         const { error } = await supabase
@@ -193,6 +223,22 @@ const VendorFoodManagement = () => {
     }
   };
 
+  const toggleDietaryRestriction = (restriction: string) => {
+    const current = editingFood?.dietary_restrictions || [];
+    const updated = current.includes(restriction)
+      ? current.filter(r => r !== restriction)
+      : [...current, restriction];
+    setEditingFood(prev => ({ ...prev, dietary_restrictions: updated }));
+  };
+
+  const toggleAllergen = (allergen: string) => {
+    const current = editingFood?.allergens || [];
+    const updated = current.includes(allergen)
+      ? current.filter(a => a !== allergen)
+      : [...current, allergen];
+    setEditingFood(prev => ({ ...prev, allergens: updated }));
+  };
+
   if (loading) {
     return (
       <Card>
@@ -226,7 +272,10 @@ const VendorFoodManagement = () => {
                     currency: 'USD',
                     category: '',
                     is_available: true,
-                    preparation_time: 30
+                    preparation_time: 30,
+                    dietary_restrictions: [],
+                    allergens: [],
+                    spice_level: 0
                   });
                 }}
               >
@@ -234,21 +283,41 @@ const VendorFoodManagement = () => {
                 Add Food Item
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
                   {editingFood?.id ? 'Edit Food Item' : 'Add New Food Item'}
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Name *</label>
-                  <Input
-                    value={editingFood?.name || ''}
-                    onChange={(e) => setEditingFood(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Food item name"
-                  />
+                {/* Basic Information */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium">Name *</label>
+                    <Input
+                      value={editingFood?.name || ''}
+                      onChange={(e) => setEditingFood(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Food item name"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Category *</label>
+                    <Select 
+                      value={editingFood?.category || ''} 
+                      onValueChange={(value) => setEditingFood(prev => ({ ...prev, category: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map(category => (
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
+
                 <div>
                   <label className="text-sm font-medium">Description</label>
                   <Textarea
@@ -257,7 +326,9 @@ const VendorFoodManagement = () => {
                     placeholder="Describe your food item"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+
+                {/* Price and Time */}
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="text-sm font-medium">Price *</label>
                     <Input
@@ -284,23 +355,75 @@ const VendorFoodManagement = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div>
+                    <label className="text-sm font-medium">Prep Time (min)</label>
+                    <Input
+                      type="number"
+                      value={editingFood?.preparation_time || 30}
+                      onChange={(e) => setEditingFood(prev => ({ ...prev, preparation_time: parseInt(e.target.value) }))}
+                    />
+                  </div>
                 </div>
+
+                {/* Spice Level */}
                 <div>
-                  <label className="text-sm font-medium">Category *</label>
-                  <Select 
-                    value={editingFood?.category || ''} 
-                    onValueChange={(value) => setEditingFood(prev => ({ ...prev, category: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map(category => (
-                        <SelectItem key={category} value={category}>{category}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <label className="text-sm font-medium mb-2 block">
+                    Spice Level: {editingFood?.spice_level || 0} 
+                    {editingFood?.spice_level && editingFood.spice_level > 0 && (
+                      <span className="ml-2">
+                        {Array.from({ length: editingFood.spice_level }, (_, i) => (
+                          <Flame key={i} className="inline h-3 w-3 text-red-500 fill-current" />
+                        ))}
+                      </span>
+                    )}
+                  </label>
+                  <Slider
+                    value={[editingFood?.spice_level || 0]}
+                    onValueChange={(value) => setEditingFood(prev => ({ ...prev, spice_level: value[0] }))}
+                    max={5}
+                    step={1}
+                    className="mt-2"
+                  />
                 </div>
+
+                {/* Dietary Restrictions */}
+                <div>
+                  <label className="text-sm font-medium mb-3 block">Dietary Information</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {dietaryOptions.map(option => (
+                      <div key={option} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`diet-${option}`}
+                          checked={editingFood?.dietary_restrictions?.includes(option) || false}
+                          onCheckedChange={() => toggleDietaryRestriction(option)}
+                        />
+                        <label htmlFor={`diet-${option}`} className="text-sm capitalize">
+                          {option.replace('-', ' ')}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Allergens */}
+                <div>
+                  <label className="text-sm font-medium mb-3 block">Contains Allergens</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {allergenOptions.map(allergen => (
+                      <div key={allergen} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`allergen-${allergen}`}
+                          checked={editingFood?.allergens?.includes(allergen) || false}
+                          onCheckedChange={() => toggleAllergen(allergen)}
+                        />
+                        <label htmlFor={`allergen-${allergen}`} className="text-sm capitalize">
+                          {allergen}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <div>
                   <label className="text-sm font-medium">Image URL</label>
                   <Input
@@ -309,14 +432,7 @@ const VendorFoodManagement = () => {
                     placeholder="https://example.com/image.jpg"
                   />
                 </div>
-                <div>
-                  <label className="text-sm font-medium">Preparation Time (minutes)</label>
-                  <Input
-                    type="number"
-                    value={editingFood?.preparation_time || 30}
-                    onChange={(e) => setEditingFood(prev => ({ ...prev, preparation_time: parseInt(e.target.value) }))}
-                  />
-                </div>
+
                 <div className="flex items-center space-x-2">
                   <Switch
                     checked={editingFood?.is_available ?? true}
@@ -324,6 +440,7 @@ const VendorFoodManagement = () => {
                   />
                   <label className="text-sm font-medium">Available</label>
                 </div>
+
                 <Button onClick={saveFood} className="w-full">
                   {editingFood?.id ? 'Update Food Item' : 'Add Food Item'}
                 </Button>
@@ -367,12 +484,24 @@ const VendorFoodManagement = () => {
                     </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mb-2">
+                
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
                   <Badge variant="outline">{food.category}</Badge>
                   <Badge className={food.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
                     {food.is_available ? 'Available' : 'Unavailable'}
                   </Badge>
+                  {food.dietary_restrictions?.map(restriction => (
+                    <Badge key={restriction} className="bg-blue-100 text-blue-800 text-xs">
+                      {restriction}
+                    </Badge>
+                  ))}
+                  {food.spice_level && food.spice_level > 0 && (
+                    <Badge className="bg-red-100 text-red-800 text-xs">
+                      {Array.from({ length: food.spice_level }, (_, i) => '🌶️').join('')}
+                    </Badge>
+                  )}
                 </div>
+                
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <span className="font-bold text-blue-600">
@@ -388,6 +517,12 @@ const VendorFoodManagement = () => {
                     onCheckedChange={() => toggleAvailability(food.id, food.is_available)}
                   />
                 </div>
+                
+                {food.allergens && food.allergens.length > 0 && (
+                  <div className="mt-2 text-xs text-orange-600">
+                    ⚠️ Contains: {food.allergens.join(', ')}
+                  </div>
+                )}
               </div>
             ))}
           </div>
