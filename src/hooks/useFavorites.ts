@@ -76,7 +76,7 @@ export const useFavorites = (serviceType?: string) => {
         .insert({
           user_id: user.id,
           service_type: serviceType,
-          item_data: item
+          item_data: item as any
         });
 
       if (error) throw error;
@@ -124,7 +124,7 @@ export const useFavorites = (serviceType?: string) => {
     }
   };
 
-  const isFavorite = (itemId: string): boolean => {
+  const isFavorite = (itemId: string) => {
     return favorites.some(item => item.id === itemId);
   };
 

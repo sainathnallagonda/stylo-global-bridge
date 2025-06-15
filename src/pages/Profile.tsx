@@ -27,9 +27,9 @@ const Profile = () => {
     if (profile) {
       setFormData({
         full_name: profile.full_name || '',
-        phone: profile.phone || '',
-        country: profile.country || '',
-        preferred_currency: profile.preferred_currency || 'USD'
+        phone: (profile as any).phone || '',
+        country: (profile as any).country || '',
+        preferred_currency: (profile as any).preferred_currency || 'USD'
       });
     }
   }, [profile]);
@@ -68,9 +68,9 @@ const Profile = () => {
     if (profile) {
       setFormData({
         full_name: profile.full_name || '',
-        phone: profile.phone || '',
-        country: profile.country || '',
-        preferred_currency: profile.preferred_currency || 'USD'
+        phone: (profile as any).phone || '',
+        country: (profile as any).country || '',
+        preferred_currency: (profile as any).preferred_currency || 'USD'
       });
     }
     setEditing(false);
