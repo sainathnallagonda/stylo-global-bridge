@@ -1,67 +1,78 @@
 
-import { ShoppingBag, Gift, Car, Coffee, Plane, Heart } from "lucide-react";
+import { ShoppingBag, Gift, Car, Coffee, Plane, Heart, Package } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-
-const services = [
-  {
-    icon: Coffee,
-    title: "Food Delivery",
-    description: "Order from restaurants via Zomato for your loved ones",
-    price: "₹299 ($3.59)",
-    gradient: "from-orange-400 to-red-500",
-    partner: "Powered by Zomato",
-    route: "/food-delivery"
-  },
-  {
-    icon: ShoppingBag,
-    title: "Groceries",
-    description: "Fresh groceries delivered via Zepto in minutes",
-    price: "₹899 ($10.79)",
-    gradient: "from-green-400 to-blue-500",
-    partner: "Powered by Zepto",
-    route: "/groceries"
-  },
-  {
-    icon: Gift,
-    title: "Gifts & Cakes",
-    description: "Surprise them with thoughtful gifts and fresh cakes",
-    price: "₹1,499 ($17.99)",
-    gradient: "from-purple-400 to-pink-500",
-    partner: "Curated Selection",
-    route: "/gifts"
-  },
-  {
-    icon: Car,
-    title: "Ride Booking",
-    description: "Book rides via Ola/Uber for safe travel",
-    price: "₹399 ($4.79)",
-    gradient: "from-blue-400 to-indigo-500",
-    partner: "Powered by Ola & Uber",
-    route: "/rides"
-  },
-  {
-    icon: Plane,
-    title: "Travel Companions",
-    description: "Find trusted travel buddies for international flights",
-    price: "₹2,999 ($35.99)",
-    gradient: "from-teal-400 to-cyan-500",
-    partner: "Verified Network",
-    route: "/travel"
-  },
-  {
-    icon: Heart,
-    title: "Care Services",
-    description: "Wellness checks and care services for elderly",
-    price: "₹599 ($7.19)",
-    gradient: "from-rose-400 to-red-500",
-    partner: "Trusted Partners",
-    route: "/care"
-  }
-];
+import { useLocation } from "@/contexts/LocationContext";
 
 const Services = () => {
   const navigate = useNavigate();
+  const { toCountry, getCurrencyDisplay } = useLocation();
+
+  const services = [
+    {
+      icon: Coffee,
+      title: "Food Delivery",
+      description: `Order from restaurants via ${toCountry === 'USA' ? 'DoorDash/Uber Eats' : 'Zomato'} for your loved ones`,
+      price: getCurrencyDisplay(toCountry === 'USA' ? 15 : 299, toCountry === 'USA' ? 'USD' : 'INR'),
+      gradient: "from-orange-400 to-red-500",
+      partner: `Powered by ${toCountry === 'USA' ? 'DoorDash' : 'Zomato'}`,
+      route: "/food-delivery"
+    },
+    {
+      icon: ShoppingBag,
+      title: "Groceries",
+      description: `Fresh groceries delivered via ${toCountry === 'USA' ? 'Instacart' : 'Zepto'} in minutes`,
+      price: getCurrencyDisplay(toCountry === 'USA' ? 25 : 899, toCountry === 'USA' ? 'USD' : 'INR'),
+      gradient: "from-green-400 to-blue-500",
+      partner: `Powered by ${toCountry === 'USA' ? 'Instacart' : 'Zepto'}`,
+      route: "/groceries"
+    },
+    {
+      icon: Gift,
+      title: "Gifts & Cakes",
+      description: "Surprise them with thoughtful gifts and fresh cakes",
+      price: getCurrencyDisplay(toCountry === 'USA' ? 35 : 1499, toCountry === 'USA' ? 'USD' : 'INR'),
+      gradient: "from-purple-400 to-pink-500",
+      partner: "Curated Selection",
+      route: "/gifts"
+    },
+    {
+      icon: Car,
+      title: "Ride Booking",
+      description: `Book rides via ${toCountry === 'USA' ? 'Uber/Lyft' : 'Ola/Uber'} for safe travel`,
+      price: getCurrencyDisplay(toCountry === 'USA' ? 12 : 399, toCountry === 'USA' ? 'USD' : 'INR'),
+      gradient: "from-blue-400 to-indigo-500",
+      partner: `Powered by ${toCountry === 'USA' ? 'Uber & Lyft' : 'Ola & Uber'}`,
+      route: "/rides"
+    },
+    {
+      icon: Plane,
+      title: "Travel Companions",
+      description: "Find trusted travel buddies for international flights",
+      price: getCurrencyDisplay(toCountry === 'USA' ? 50 : 2999, toCountry === 'USA' ? 'USD' : 'INR'),
+      gradient: "from-teal-400 to-cyan-500",
+      partner: "Verified Network",
+      route: "/travel"
+    },
+    {
+      icon: Heart,
+      title: "Care Services",
+      description: "Wellness checks and care services for elderly",
+      price: getCurrencyDisplay(toCountry === 'USA' ? 20 : 599, toCountry === 'USA' ? 'USD' : 'INR'),
+      gradient: "from-rose-400 to-red-500",
+      partner: "Trusted Partners",
+      route: "/care"
+    },
+    {
+      icon: Package,
+      title: "Orders",
+      description: "Track all your orders and delivery status",
+      price: "Free",
+      gradient: "from-indigo-400 to-purple-500",
+      partner: "Real-time Tracking",
+      route: "/orders"
+    }
+  ];
 
   const handleOrderNow = (route: string) => {
     navigate(route);
@@ -95,7 +106,7 @@ const Services = () => {
                     onClick={() => handleOrderNow(service.route)}
                     className="text-orange-500 hover:text-orange-600 font-medium transition-colors"
                   >
-                    Order Now →
+                    {service.title === 'Orders' ? 'View Orders' : 'Order Now'} →
                   </button>
                 </div>
               </CardContent>

@@ -5,58 +5,84 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-
-const restaurants = [
-  {
-    id: 1,
-    name: "Punjabi Dhaba",
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=250&fit=crop",
-    rating: 4.2,
-    deliveryTime: "30-35 min",
-    cuisine: "North Indian, Punjabi",
-    location: "Mumbai Central",
-    priceForTwo: "₹300"
-  },
-  {
-    id: 2,
-    name: "South Spice",
-    image: "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400&h=250&fit=crop",
-    rating: 4.5,
-    deliveryTime: "25-30 min",
-    cuisine: "South Indian, Dosa",
-    location: "Bandra West",
-    priceForTwo: "₹250"
-  },
-  {
-    id: 3,
-    name: "Pizza Corner",
-    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=250&fit=crop",
-    rating: 4.0,
-    deliveryTime: "35-40 min",
-    cuisine: "Italian, Pizza",
-    location: "Andheri East",
-    priceForTwo: "₹400"
-  },
-  {
-    id: 4,
-    name: "Burger Junction",
-    image: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=250&fit=crop",
-    rating: 4.1,
-    deliveryTime: "20-25 min",
-    cuisine: "American, Burgers",
-    location: "Powai",
-    priceForTwo: "₹350"
-  }
-];
+import { useLocation } from "@/contexts/LocationContext";
 
 const FoodDelivery = () => {
   const navigate = useNavigate();
+  const { toCountry, getCurrencyDisplay } = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
+
+  const restaurants = toCountry === 'USA' ? [
+    {
+      id: 1,
+      name: "McDonald's",
+      image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=250&fit=crop",
+      rating: 4.2,
+      deliveryTime: "20-30 min",
+      cuisine: "Fast Food, Burgers",
+      location: "New York, NY",
+      priceForTwo: getCurrencyDisplay(25, 'USD')
+    },
+    {
+      id: 2,
+      name: "Chipotle",
+      image: "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400&h=250&fit=crop",
+      rating: 4.5,
+      deliveryTime: "15-25 min",
+      cuisine: "Mexican, Bowls",
+      location: "Manhattan, NY",
+      priceForTwo: getCurrencyDisplay(18, 'USD')
+    },
+    {
+      id: 3,
+      name: "Pizza Hut",
+      image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=250&fit=crop",
+      rating: 4.0,
+      deliveryTime: "30-40 min",
+      cuisine: "Italian, Pizza",
+      location: "Brooklyn, NY",
+      priceForTwo: getCurrencyDisplay(22, 'USD')
+    }
+  ] : [
+    {
+      id: 1,
+      name: "Punjabi Dhaba",
+      image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=250&fit=crop",
+      rating: 4.2,
+      deliveryTime: "30-35 min",
+      cuisine: "North Indian, Punjabi",
+      location: "Mumbai Central",
+      priceForTwo: getCurrencyDisplay(300, 'INR')
+    },
+    {
+      id: 2,
+      name: "South Spice",
+      image: "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400&h=250&fit=crop",
+      rating: 4.5,
+      deliveryTime: "25-30 min",
+      cuisine: "South Indian, Dosa",
+      location: "Bandra West",
+      priceForTwo: getCurrencyDisplay(250, 'INR')
+    },
+    {
+      id: 3,
+      name: "Pizza Corner",
+      image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=250&fit=crop",
+      rating: 4.0,
+      deliveryTime: "35-40 min",
+      cuisine: "Italian, Pizza",
+      location: "Andheri East",
+      priceForTwo: getCurrencyDisplay(400, 'INR')
+    }
+  ];
 
   const filteredRestaurants = restaurants.filter(restaurant =>
     restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     restaurant.cuisine.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const partnerName = toCountry === 'USA' ? 'DoorDash' : 'Zomato';
+  const locationName = toCountry === 'USA' ? 'New York, USA' : 'Mumbai, India';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -81,7 +107,7 @@ const FoodDelivery = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-2 mb-4">
             <MapPin className="h-5 w-5 text-red-500" />
-            <span className="text-gray-700">Delivering to Mumbai, India</span>
+            <span className="text-gray-700">Delivering to {locationName}</span>
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -102,7 +128,7 @@ const FoodDelivery = () => {
             {filteredRestaurants.length} restaurants found
           </h2>
           <div className="text-sm text-gray-600 bg-orange-50 px-3 py-1 rounded-full">
-            Powered by Zomato
+            Powered by {partnerName}
           </div>
         </div>
 

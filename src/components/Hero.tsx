@@ -1,8 +1,9 @@
 
-import { ArrowRight, Heart, MapPin } from "lucide-react";
+import { ArrowRight, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import CountrySelector from "./CountrySelector";
 
 const Hero = () => {
   const { user } = useAuth();
@@ -28,21 +29,7 @@ const Hero = () => {
             Pay in your currency, deliver with love.
           </p>
           
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-12">
-            <div className="flex items-center gap-3 bg-white rounded-full px-6 py-3 shadow-lg">
-              <img src="https://flagcdn.com/w40/in.png" alt="India" className="w-8 h-6 rounded" />
-              <span className="text-gray-700 font-medium">India</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Heart className="text-red-500 animate-pulse" size={24} />
-              <ArrowRight className="text-blue-600" size={24} />
-              <Heart className="text-red-500 animate-pulse" size={24} />
-            </div>
-            <div className="flex items-center gap-3 bg-white rounded-full px-6 py-3 shadow-lg">
-              <img src="https://flagcdn.com/w40/us.png" alt="USA" className="w-8 h-6 rounded" />
-              <span className="text-gray-700 font-medium">USA</span>
-            </div>
-          </div>
+          <CountrySelector />
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 

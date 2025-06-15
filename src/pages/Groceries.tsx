@@ -5,56 +5,91 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-
-const categories = [
-  { id: 1, name: "Fruits & Vegetables", icon: "🥕" },
-  { id: 2, name: "Dairy & Bakery", icon: "🥛" },
-  { id: 3, name: "Snacks & Beverages", icon: "🥤" },
-  { id: 4, name: "Personal Care", icon: "🧴" },
-  { id: 5, name: "Household", icon: "🧽" },
-  { id: 6, name: "Baby Care", icon: "👶" }
-];
-
-const products = [
-  {
-    id: 1,
-    name: "Fresh Bananas",
-    image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200&h=200&fit=crop",
-    price: 40,
-    unit: "per dozen",
-    category: "Fruits & Vegetables"
-  },
-  {
-    id: 2,
-    name: "Amul Fresh Milk",
-    image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200&h=200&fit=crop",
-    price: 25,
-    unit: "500ml",
-    category: "Dairy & Bakery"
-  },
-  {
-    id: 3,
-    name: "Lays Chips",
-    image: "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=200&h=200&fit=crop",
-    price: 20,
-    unit: "per pack",
-    category: "Snacks & Beverages"
-  },
-  {
-    id: 4,
-    name: "Colgate Toothpaste",
-    image: "https://images.unsplash.com/photo-1585735428165-cdac1b7fb4b8?w=200&h=200&fit=crop",
-    price: 85,
-    unit: "100g",
-    category: "Personal Care"
-  }
-];
+import { useLocation } from "@/contexts/LocationContext";
 
 const Groceries = () => {
   const navigate = useNavigate();
+  const { toCountry, getCurrencyDisplay } = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [cart, setCart] = useState<{[key: number]: number}>({});
+
+  const categories = [
+    { id: 1, name: "Fruits & Vegetables", icon: "🥕" },
+    { id: 2, name: "Dairy & Bakery", icon: "🥛" },
+    { id: 3, name: "Snacks & Beverages", icon: "🥤" },
+    { id: 4, name: "Personal Care", icon: "🧴" },
+    { id: 5, name: "Household", icon: "🧽" },
+    { id: 6, name: "Baby Care", icon: "👶" }
+  ];
+
+  const products = toCountry === 'USA' ? [
+    {
+      id: 1,
+      name: "Fresh Bananas",
+      image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200&h=200&fit=crop",
+      price: 3,
+      unit: "per bunch",
+      category: "Fruits & Vegetables"
+    },
+    {
+      id: 2,
+      name: "Whole Milk",
+      image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200&h=200&fit=crop",
+      price: 4,
+      unit: "1 gallon",
+      category: "Dairy & Bakery"
+    },
+    {
+      id: 3,
+      name: "Lay's Chips",
+      image: "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=200&h=200&fit=crop",
+      price: 2,
+      unit: "per pack",
+      category: "Snacks & Beverages"
+    },
+    {
+      id: 4,
+      name: "Colgate Toothpaste",
+      image: "https://images.unsplash.com/photo-1585735428165-cdac1b7fb4b8?w=200&h=200&fit=crop",
+      price: 5,
+      unit: "4oz tube",
+      category: "Personal Care"
+    }
+  ] : [
+    {
+      id: 1,
+      name: "Fresh Bananas",
+      image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200&h=200&fit=crop",
+      price: 40,
+      unit: "per dozen",
+      category: "Fruits & Vegetables"
+    },
+    {
+      id: 2,
+      name: "Amul Fresh Milk",
+      image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200&h=200&fit=crop",
+      price: 25,
+      unit: "500ml",
+      category: "Dairy & Bakery"
+    },
+    {
+      id: 3,
+      name: "Lays Chips",
+      image: "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=200&h=200&fit=crop",
+      price: 20,
+      unit: "per pack",
+      category: "Snacks & Beverages"
+    },
+    {
+      id: 4,
+      name: "Colgate Toothpaste",
+      image: "https://images.unsplash.com/photo-1585735428165-cdac1b7fb4b8?w=200&h=200&fit=crop",
+      price: 85,
+      unit: "100g",
+      category: "Personal Care"
+    }
+  ];
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -72,6 +107,10 @@ const Groceries = () => {
   const getTotalItems = () => {
     return Object.values(cart).reduce((sum, count) => sum + count, 0);
   };
+
+  const partnerName = toCountry === 'USA' ? 'Instacart' : 'Zepto';
+  const deliveryTime = toCountry === 'USA' ? '1-hour' : '10-minute';
+  const locationName = toCountry === 'USA' ? 'New York' : 'Mumbai';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -103,9 +142,9 @@ const Groceries = () => {
       <div className="bg-purple-50 border-b">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <span className="text-purple-700 font-medium">⚡ 10-minute delivery to Mumbai</span>
+            <span className="text-purple-700 font-medium">⚡ {deliveryTime} delivery to {locationName}</span>
             <span className="text-sm text-purple-600 bg-purple-100 px-2 py-1 rounded">
-              Powered by Zepto
+              Powered by {partnerName}
             </span>
           </div>
         </div>
@@ -165,7 +204,9 @@ const Groceries = () => {
                 <h3 className="font-semibold text-sm mb-1">{product.name}</h3>
                 <p className="text-xs text-gray-600 mb-2">{product.unit}</p>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-lg">₹{product.price}</span>
+                  <span className="font-bold text-lg">
+                    {getCurrencyDisplay(product.price, toCountry === 'USA' ? 'USD' : 'INR')}
+                  </span>
                   {cart[product.id] > 0 ? (
                     <div className="flex items-center gap-2 bg-purple-100 rounded-lg px-2 py-1">
                       <Button
