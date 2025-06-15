@@ -204,6 +204,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          assigned_vendor_id: string | null
           converted_amount: number | null
           converted_currency: string | null
           created_at: string
@@ -219,8 +220,10 @@ export type Database = {
           total_amount: number
           updated_at: string
           user_id: string
+          vendor_status: string | null
         }
         Insert: {
+          assigned_vendor_id?: string | null
           converted_amount?: number | null
           converted_currency?: string | null
           created_at?: string
@@ -236,8 +239,10 @@ export type Database = {
           total_amount: number
           updated_at?: string
           user_id: string
+          vendor_status?: string | null
         }
         Update: {
+          assigned_vendor_id?: string | null
           converted_amount?: number | null
           converted_currency?: string | null
           created_at?: string
@@ -253,6 +258,7 @@ export type Database = {
           total_amount?: number
           updated_at?: string
           user_id?: string
+          vendor_status?: string | null
         }
         Relationships: []
       }
@@ -262,6 +268,7 @@ export type Database = {
           avatar_url: string | null
           country: string | null
           created_at: string
+          current_location: Json | null
           date_of_birth: string | null
           email: string | null
           full_name: string | null
@@ -270,6 +277,7 @@ export type Database = {
           notification_preferences: Json | null
           phone: string | null
           preferred_currency: string | null
+          preferred_delivery_address: Json | null
           role: string | null
           updated_at: string
         }
@@ -278,6 +286,7 @@ export type Database = {
           avatar_url?: string | null
           country?: string | null
           created_at?: string
+          current_location?: Json | null
           date_of_birth?: string | null
           email?: string | null
           full_name?: string | null
@@ -286,6 +295,7 @@ export type Database = {
           notification_preferences?: Json | null
           phone?: string | null
           preferred_currency?: string | null
+          preferred_delivery_address?: Json | null
           role?: string | null
           updated_at?: string
         }
@@ -294,6 +304,7 @@ export type Database = {
           avatar_url?: string | null
           country?: string | null
           created_at?: string
+          current_location?: Json | null
           date_of_birth?: string | null
           email?: string | null
           full_name?: string | null
@@ -302,6 +313,7 @@ export type Database = {
           notification_preferences?: Json | null
           phone?: string | null
           preferred_currency?: string | null
+          preferred_delivery_address?: Json | null
           role?: string | null
           updated_at?: string
         }
@@ -503,6 +515,7 @@ export type Database = {
           category: string
           created_at: string
           currency: string
+          delivery_radius: number | null
           description: string | null
           id: string
           image_url: string | null
@@ -510,13 +523,16 @@ export type Database = {
           name: string
           preparation_time: number
           price: number
+          service_areas: Json | null
           updated_at: string
           vendor_id: string
+          vendor_location: Json | null
         }
         Insert: {
           category: string
           created_at?: string
           currency?: string
+          delivery_radius?: number | null
           description?: string | null
           id?: string
           image_url?: string | null
@@ -524,13 +540,16 @@ export type Database = {
           name: string
           preparation_time?: number
           price: number
+          service_areas?: Json | null
           updated_at?: string
           vendor_id: string
+          vendor_location?: Json | null
         }
         Update: {
           category?: string
           created_at?: string
           currency?: string
+          delivery_radius?: number | null
           description?: string | null
           id?: string
           image_url?: string | null
@@ -538,6 +557,56 @@ export type Database = {
           name?: string
           preparation_time?: number
           price?: number
+          service_areas?: Json | null
+          updated_at?: string
+          vendor_id?: string
+          vendor_location?: Json | null
+        }
+        Relationships: []
+      }
+      vendor_profiles: {
+        Row: {
+          business_address: Json
+          business_description: string | null
+          business_hours: Json
+          business_license: string | null
+          business_name: string
+          contact_phone: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          is_verified: boolean
+          service_areas: Json
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          business_address: Json
+          business_description?: string | null
+          business_hours?: Json
+          business_license?: string | null
+          business_name: string
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_verified?: boolean
+          service_areas?: Json
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          business_address?: Json
+          business_description?: string | null
+          business_hours?: Json
+          business_license?: string | null
+          business_name?: string
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_verified?: boolean
+          service_areas?: Json
           updated_at?: string
           vendor_id?: string
         }
@@ -632,6 +701,14 @@ export type Database = {
       generate_recommendations: {
         Args: { user_uuid: string }
         Returns: undefined
+      }
+      get_nearby_vendors: {
+        Args: { customer_location: Json; service_radius?: number }
+        Returns: {
+          vendor_id: string
+          business_name: string
+          distance_km: number
+        }[]
       }
       get_user_loyalty_points: {
         Args: { user_uuid: string }

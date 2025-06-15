@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Globe, ArrowLeft, Store, TrendingUp, Users, ChefHat, DollarSign, Clock } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 const VendorAuth = () => {
@@ -15,7 +15,7 @@ const VendorAuth = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp } = useEnhancedAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 

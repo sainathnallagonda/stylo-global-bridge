@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Globe, ArrowLeft, ShoppingCart, Utensils, Heart, Gift, Clock, Star } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 const CustomerAuth = () => {
@@ -15,7 +15,7 @@ const CustomerAuth = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp } = useEnhancedAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -47,7 +47,7 @@ const CustomerAuth = () => {
             title: "Welcome back, Foodie!",
             description: "Ready to explore delicious options?"
           });
-          navigate('/'); // Redirect to home page
+          navigate('/dashboard');
         }
       } else {
         const { error } = await signUp(email, password, fullName, 'customer');
