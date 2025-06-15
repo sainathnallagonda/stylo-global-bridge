@@ -16,12 +16,16 @@ interface FavoriteButtonProps {
 const FavoriteButton = ({ item, serviceType, className, size = 'sm', variant = 'ghost' }: FavoriteButtonProps) => {
   const { toggleFavorite, isFavorite } = useFavorites(serviceType);
   const { toast } = useToast();
-  const isItemFavorite = isFavorite(item.id);
+  
+  // Safely check if item is favorite
+  const isItemFavorite = item?.id ? isFavorite(item.id) : false;
 
   const handleToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
     
+    // Validate item data
     if (!item || !item.id) {
+      console.error('Invalid item data for favorite button:', item);
       toast({
         title: "Error",
         description: "Invalid item data",
@@ -30,13 +34,31 @@ const FavoriteButton = ({ item, serviceType, className, size = 'sm', variant = '
       return;
     }
 
+    // Validate required item properties
+    if (!item.name || typeof item.price === 'undefined') {
+      console.error('Missing required item properties:', item);
+      toast({
+        title: "Error",
+        description: "Item is missing required information",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
-      await toggleFavorite(item);
+      await toggleFavorite({
+        id: item.id,
+        name: item.name,
+        price: Number(item.price) || 0,
+        currency: item.currency || 'USD',
+        image: item.image || item.image_url || '/placeholder.svg',
+        category: item.category
+      });
     } catch (error) {
       console.error('Error toggling favorite:', error);
       toast({
         title: "Error",
-        description: "Failed to update favorites",
+        description: "Failed to update favorites. Please try again.",
         variant: "destructive"
       });
     }

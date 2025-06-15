@@ -22,6 +22,8 @@ export const useFavorites = (serviceType?: string) => {
   useEffect(() => {
     if (user && serviceType) {
       fetchFavorites();
+    } else {
+      setFavorites([]);
     }
   }, [user, serviceType]);
 
@@ -38,17 +40,22 @@ export const useFavorites = (serviceType?: string) => {
 
       if (error) throw error;
       
-      const favoriteItems = data?.map(fav => {
-        const itemData = fav.item_data as any;
-        return {
-          id: itemData.id,
-          name: itemData.name,
-          price: itemData.price,
-          currency: itemData.currency,
-          image: itemData.image,
-          category: itemData.category,
-        };
-      }) || [];
+      const favoriteItems = (data || []).map(fav => {
+        try {
+          const itemData = fav.item_data as any;
+          return {
+            id: String(itemData.id || ''),
+            name: itemData.name || 'Unknown Item',
+            price: Number(itemData.price) || 0,
+            currency: itemData.currency || 'USD',
+            image: itemData.image || '/placeholder.svg',
+            category: itemData.category,
+          };
+        } catch (error) {
+          console.error('Error parsing favorite item:', error);
+          return null;
+        }
+      }).filter(Boolean) as FavoriteItem[];
       
       setFavorites(favoriteItems);
     } catch (error) {
@@ -68,7 +75,20 @@ export const useFavorites = (serviceType?: string) => {
       return;
     }
 
-    if (!serviceType) return;
+    if (!serviceType) {
+      console.error('Service type is required for favorites');
+      return;
+    }
+
+    // Validate item data
+    if (!item.id || !item.name) {
+      toast({
+        title: "Error",
+        description: "Invalid item data",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -76,7 +96,14 @@ export const useFavorites = (serviceType?: string) => {
         .insert({
           user_id: user.id,
           service_type: serviceType,
-          item_data: item as any
+          item_data: {
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            currency: item.currency,
+            image: item.image,
+            category: item.category
+          }
         });
 
       if (error) throw error;
@@ -86,13 +113,22 @@ export const useFavorites = (serviceType?: string) => {
         title: "Added to Favorites",
         description: `${item.name} has been added to your favorites`
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding to favorites:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add to favorites",
-        variant: "destructive"
-      });
+      
+      // Handle duplicate entry error gracefully
+      if (error.code === '23505') {
+        toast({
+          title: "Already in Favorites",
+          description: "This item is already in your favorites"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to add to favorites",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -112,10 +148,13 @@ export const useFavorites = (serviceType?: string) => {
       // Find the favorite with matching item id
       const favoriteToDelete = existingFavorites?.find(fav => {
         const itemData = fav.item_data as any;
-        return itemData.id === itemId;
+        return String(itemData.id) === String(itemId);
       });
 
-      if (!favoriteToDelete) return;
+      if (!favoriteToDelete) {
+        console.log('Favorite not found for deletion');
+        return;
+      }
 
       const { error } = await supabase
         .from('favorites')
@@ -124,7 +163,7 @@ export const useFavorites = (serviceType?: string) => {
 
       if (error) throw error;
       
-      setFavorites(prev => prev.filter(item => item.id !== itemId));
+      setFavorites(prev => prev.filter(item => String(item.id) !== String(itemId)));
       toast({
         title: "Removed from Favorites",
         description: "Item has been removed from your favorites"
@@ -140,10 +179,16 @@ export const useFavorites = (serviceType?: string) => {
   };
 
   const isFavorite = (itemId: string) => {
-    return favorites.some(item => item.id === itemId);
+    if (!itemId) return false;
+    return favorites.some(item => String(item.id) === String(itemId));
   };
 
   const toggleFavorite = async (item: FavoriteItem) => {
+    if (!item?.id) {
+      console.error('Invalid item for toggle favorite:', item);
+      return;
+    }
+    
     if (isFavorite(item.id)) {
       await removeFromFavorites(item.id);
     } else {

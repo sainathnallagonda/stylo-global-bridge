@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,13 +34,18 @@ const FavoritesSection = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchFavorites();
+    if (user) {
+      fetchFavorites();
+    } else {
+      setLoading(false);
+    }
   }, [user]);
 
   const fetchFavorites = async () => {
     if (!user) return;
 
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('favorites')
         .select('*')
@@ -48,28 +54,38 @@ const FavoritesSection = () => {
 
       if (error) throw error;
       
-      // Safely parse the item_data with proper type casting
+      // Safely parse the item_data with proper error handling
       const typedFavorites: Favorite[] = (data || []).map(fav => {
-        const rawItemData = fav.item_data as any; // Type assertion to handle Json type
-        
-        // Safely extract item data with fallbacks
-        const itemData: FavoriteItemData = {
-          id: rawItemData?.id || '0',
-          name: rawItemData?.name || 'Unknown Item',
-          image: rawItemData?.image || '/placeholder.svg',
-          price: Number(rawItemData?.price) || 0,
-          currency: rawItemData?.currency || 'USD',
-          category: rawItemData?.category,
-          restaurant: rawItemData?.restaurant
-        };
-        
-        return {
-          id: fav.id,
-          service_type: fav.service_type,
-          item_data: itemData,
-          created_at: fav.created_at
-        };
-      });
+        try {
+          const rawItemData = fav.item_data as any;
+          
+          // Ensure we have valid data before processing
+          if (!rawItemData || typeof rawItemData !== 'object') {
+            console.warn('Invalid item_data for favorite:', fav.id);
+            return null;
+          }
+          
+          const itemData: FavoriteItemData = {
+            id: rawItemData.id || '0',
+            name: rawItemData.name || 'Unknown Item',
+            image: rawItemData.image || '/placeholder.svg',
+            price: Number(rawItemData.price) || 0,
+            currency: rawItemData.currency || 'USD',
+            category: rawItemData.category,
+            restaurant: rawItemData.restaurant
+          };
+          
+          return {
+            id: fav.id,
+            service_type: fav.service_type,
+            item_data: itemData,
+            created_at: fav.created_at
+          };
+        } catch (error) {
+          console.error('Error parsing favorite item:', error);
+          return null;
+        }
+      }).filter(Boolean) as Favorite[];
       
       setFavorites(typedFavorites);
     } catch (error) {
@@ -109,14 +125,23 @@ const FavoritesSection = () => {
   };
 
   const reorderItem = (favorite: Favorite) => {
-    navigate('/payment', {
-      state: {
-        itemName: favorite.item_data.name,
-        price: favorite.item_data.price,
-        currency: favorite.item_data.currency,
-        serviceType: favorite.service_type
-      }
-    });
+    try {
+      navigate('/payment', {
+        state: {
+          itemName: favorite.item_data.name,
+          price: favorite.item_data.price,
+          currency: favorite.item_data.currency,
+          serviceType: favorite.service_type
+        }
+      });
+    } catch (error) {
+      console.error('Error navigating to payment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to proceed to checkout",
+        variant: "destructive"
+      });
+    }
   };
 
   const getServiceIcon = (serviceType: string) => {
@@ -137,7 +162,7 @@ const FavoritesSection = () => {
       case 'gifts': return 'Gifts';
       case 'rides': return 'Rides';
       case 'travel': return 'Travel';
-      default: return serviceType;
+      default: return serviceType.charAt(0).toUpperCase() + serviceType.slice(1);
     }
   };
 

@@ -1,376 +1,551 @@
+
 import { useState, useEffect } from "react";
-import { ArrowLeft, CreditCard, Wallet, Building2, Smartphone, Shield, CheckCircle, RefreshCw, Info } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { useLocation as useLocationContext } from "@/contexts/LocationContext";
+import { Separator } from "@/components/ui/separator";
+import { CreditCard, ShoppingBag, ArrowLeft, CheckCircle2, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useEnhancedAuth } from "@/contexts/EnhancedAuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import CleanHeader from "@/components/navigation/CleanHeader";
+
+interface PaymentItem {
+  id: string;
+  name: string;
+  price: number;
+  currency: string;
+  quantity?: number;
+  image_url?: string;
+}
+
+interface PaymentData {
+  itemName?: string;
+  price?: number;
+  currency?: string;
+  serviceType?: string;
+  cartItems?: PaymentItem[];
+  total?: number;
+  itemCount?: number;
+}
 
 const Payment = () => {
-  const navigate = useNavigate();
   const location = useLocation();
-  const { toCountry, getCurrencyDisplay } = useLocationContext();
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
-  const [exchangeRate, setExchangeRate] = useState(83.25);
-  const [isLoadingRate, setIsLoadingRate] = useState(false);
-  const [exchangeRateError, setExchangeRateError] = useState(false);
+  const { user } = useEnhancedAuth();
+  
+  const [loading, setLoading] = useState(false);
+  const [exchangeRate, setExchangeRate] = useState(1);
+  const [loadingRate, setLoadingRate] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'wallet'>('card');
+  
   const [cardDetails, setCardDetails] = useState({
-    number: "",
-    expiry: "",
-    cvv: "",
-    name: ""
+    number: '',
+    expiry: '',
+    cvv: '',
+    name: ''
+  });
+  
+  const [deliveryInfo, setDeliveryInfo] = useState({
+    fullName: '',
+    phone: '',
+    address: '',
+    city: '',
+    zipCode: ''
   });
 
-  // Get order details from navigation state
-  const orderDetails = location.state || {
-    itemName: "Selected Item",
-    price: toCountry === 'USA' ? 25 : 899,
-    currency: toCountry === 'USA' ? 'USD' : 'INR'
-  };
+  const paymentData = location.state as PaymentData;
 
-  // Calculate converted amounts
-  const usdAmount = orderDetails.currency === 'USD' ? orderDetails.price : orderDetails.price / exchangeRate;
-  const inrAmount = orderDetails.currency === 'INR' ? orderDetails.price : orderDetails.price * exchangeRate;
+  useEffect(() => {
+    if (!paymentData || (!paymentData.itemName && !paymentData.cartItems)) {
+      toast({
+        title: "Error",
+        description: "No payment information found",
+        variant: "destructive"
+      });
+      navigate('/dashboard');
+      return;
+    }
 
-  // Fetch real-time exchange rate with better error handling
+    // Simulate getting exchange rate (in real app, you'd call an API)
+    fetchExchangeRate();
+  }, [paymentData, navigate, toast]);
+
   const fetchExchangeRate = async () => {
-    setIsLoadingRate(true);
-    setExchangeRateError(false);
+    setLoadingRate(true);
     try {
-      const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-      if (!response.ok) {
-        throw new Error('Failed to fetch exchange rate');
-      }
-      const data = await response.json();
-      if (data.rates && data.rates.INR) {
-        setExchangeRate(data.rates.INR);
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock exchange rate (USD to INR)
+      if (paymentData?.currency === 'USD') {
+        setExchangeRate(83.12); // 1 USD = 83.12 INR (mock rate)
       } else {
-        throw new Error('Invalid exchange rate data');
+        setExchangeRate(1);
       }
     } catch (error) {
-      console.error('Failed to fetch exchange rate:', error);
-      setExchangeRateError(true);
-      // Keep the fallback rate of 83.25
+      console.error('Error fetching exchange rate:', error);
+      setExchangeRate(1);
+    } finally {
+      setLoadingRate(false);
+    }
+  };
+
+  const validateCardDetails = () => {
+    if (!cardDetails.number || cardDetails.number.length < 16) {
       toast({
-        title: "Exchange Rate Error",
-        description: "Using fallback rate. Please try refreshing.",
+        title: "Invalid Card",
+        description: "Please enter a valid card number",
+        variant: "destructive"
+      });
+      return false;
+    }
+    if (!cardDetails.expiry || !/^\d{2}\/\d{2}$/.test(cardDetails.expiry)) {
+      toast({
+        title: "Invalid Expiry",
+        description: "Please enter expiry in MM/YY format",
+        variant: "destructive"
+      });
+      return false;
+    }
+    if (!cardDetails.cvv || cardDetails.cvv.length < 3) {
+      toast({
+        title: "Invalid CVV",
+        description: "Please enter a valid CVV",
+        variant: "destructive"
+      });
+      return false;
+    }
+    if (!cardDetails.name.trim()) {
+      toast({
+        title: "Missing Name",
+        description: "Please enter cardholder name",
+        variant: "destructive"
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const validateDeliveryInfo = () => {
+    if (!deliveryInfo.fullName.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter your full name",
+        variant: "destructive"
+      });
+      return false;
+    }
+    if (!deliveryInfo.phone.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter your phone number",
+        variant: "destructive"
+      });
+      return false;
+    }
+    if (!deliveryInfo.address.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter your address",
+        variant: "destructive"
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const handlePayment = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login to complete payment",
+        variant: "destructive"
+      });
+      navigate('/auth');
+      return;
+    }
+
+    if (!validateDeliveryInfo()) return;
+    
+    if (paymentMethod === 'card' && !validateCardDetails()) return;
+
+    setLoading(true);
+    try {
+      // Calculate totals
+      const baseAmount = paymentData.cartItems 
+        ? paymentData.total || 0
+        : paymentData.price || 0;
+      
+      const convertedAmount = paymentData.currency === 'USD' 
+        ? baseAmount * exchangeRate 
+        : baseAmount;
+
+      // Prepare order items
+      const orderItems = paymentData.cartItems || [{
+        id: '1',
+        name: paymentData.itemName || 'Unknown Item',
+        price: paymentData.price || 0,
+        currency: paymentData.currency || 'USD',
+        quantity: 1
+      }];
+
+      // Create order in database
+      const { data: order, error } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          service_type: paymentData.serviceType || 'general',
+          items: orderItems,
+          total_amount: baseAmount,
+          currency: paymentData.currency || 'USD',
+          converted_amount: convertedAmount,
+          converted_currency: paymentData.currency === 'USD' ? 'INR' : paymentData.currency,
+          delivery_address: {
+            fullName: deliveryInfo.fullName,
+            phone: deliveryInfo.phone,
+            address: deliveryInfo.address,
+            city: deliveryInfo.city,
+            zipCode: deliveryInfo.zipCode
+          },
+          recipient_info: {
+            name: deliveryInfo.fullName,
+            phone: deliveryInfo.phone
+          },
+          recipient_country: paymentData.currency === 'USD' ? 'USA' : 'India',
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      toast({
+        title: "Payment Successful!",
+        description: `Order #${order.id.slice(0, 8)} has been placed successfully`,
+      });
+
+      // Navigate to orders page or success page
+      navigate('/orders', { 
+        state: { 
+          newOrderId: order.id,
+          successMessage: "Your order has been placed successfully!" 
+        } 
+      });
+
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      toast({
+        title: "Payment Failed",
+        description: error.message || "There was an error processing your payment",
         variant: "destructive"
       });
     } finally {
-      setIsLoadingRate(false);
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchExchangeRate();
-  }, []);
+  if (!paymentData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="text-center py-8">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Payment Error</h3>
+            <p className="text-gray-600 mb-4">No payment information found</p>
+            <Button onClick={() => navigate('/dashboard')}>
+              Return to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-  const usaPaymentMethods = [
-    {
-      id: "visa",
-      name: "Visa",
-      icon: CreditCard,
-      description: "Pay with Visa credit/debit card",
-      popular: true
-    },
-    {
-      id: "mastercard", 
-      name: "Mastercard",
-      icon: CreditCard,
-      description: "Pay with Mastercard credit/debit card",
-      popular: true
-    },
-    {
-      id: "paypal",
-      name: "PayPal",
-      icon: Wallet,
-      description: "Pay securely with PayPal",
-      popular: false
-    },
-    {
-      id: "apple_pay",
-      name: "Apple Pay",
-      icon: Smartphone,
-      description: "Pay with Touch ID or Face ID",
-      popular: false
-    }
-  ];
-
-  const indiaPaymentMethods = [
-    {
-      id: "razorpay",
-      name: "Razorpay",
-      icon: CreditCard,
-      description: "Pay with cards, UPI, netbanking",
-      popular: true
-    },
-    {
-      id: "paytm",
-      name: "Paytm",
-      icon: Wallet,
-      description: "Pay with Paytm wallet",
-      popular: true
-    },
-    {
-      id: "phonepe",
-      name: "PhonePe",
-      icon: Smartphone,
-      description: "Pay with PhonePe UPI",
-      popular: true
-    },
-    {
-      id: "gpay",
-      name: "Google Pay",
-      icon: Smartphone,
-      description: "Pay with Google Pay UPI",
-      popular: true
-    }
-  ];
-
-  const paymentMethods = toCountry === 'USA' ? usaPaymentMethods : indiaPaymentMethods;
-
-  const handlePayment = () => {
-    if (!selectedPaymentMethod) {
-      toast({
-        title: "Payment Method Required",
-        description: "Please select a payment method to continue.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Simulate payment processing
-    toast({
-      title: "Payment Successful!",
-      description: `Payment of ${getCurrencyDisplay(orderDetails.price, orderDetails.currency)} processed successfully.`
-    });
-    
-    setTimeout(() => {
-      navigate("/orders");
-    }, 1500);
-  };
+  const baseAmount = paymentData.cartItems ? paymentData.total || 0 : paymentData.price || 0;
+  const convertedAmount = paymentData.currency === 'USD' ? baseAmount * exchangeRate : baseAmount;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-md shadow-lg border-b border-blue-100">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="hover:bg-blue-100 rounded-full"
-            >
-              <ArrowLeft className="h-5 w-5 text-blue-600" />
-            </Button>
-            <div className="flex items-center gap-3">
-              <Shield className="h-7 w-7 text-blue-600" />
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Secure Payment
-              </h1>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <CleanHeader />
+      
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Secure Checkout</h1>
+            <p className="text-gray-600">Complete your payment securely</p>
           </div>
         </div>
-      </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Payment Methods */}
-          <div className="lg:col-span-2">
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Order Summary */}
+          <div className="lg:col-span-1">
+            <Card className="bg-white/80 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-gray-800">
-                  <CreditCard className="h-6 w-6 text-blue-600" />
-                  Payment Methods
-                  <span className="ml-auto text-sm font-normal bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-                    {toCountry}
-                  </span>
+                <CardTitle className="flex items-center gap-2">
+                  <ShoppingBag className="h-5 w-5" />
+                  Order Summary
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <RadioGroup value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
-                  <div className="space-y-3">
-                    {paymentMethods.map((method) => (
-                      <div key={method.id} className="relative">
-                        <Label
-                          htmlFor={method.id}
-                          className="flex items-center space-x-4 p-4 border-2 rounded-xl cursor-pointer hover:bg-blue-50 transition-all duration-200"
-                          style={{
-                            borderColor: selectedPaymentMethod === method.id ? '#3b82f6' : '#e5e7eb'
-                          }}
-                        >
-                          <RadioGroupItem value={method.id} id={method.id} />
-                          <div className="flex items-center gap-3 flex-1">
-                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                              <method.icon className="h-5 w-5 text-blue-600" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold text-gray-800">{method.name}</span>
-                                {method.popular && (
-                                  <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium">
-                                    Popular
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-sm text-gray-600">{method.description}</p>
-                            </div>
-                          </div>
-                        </Label>
+              <CardContent className="space-y-4">
+                {paymentData.cartItems ? (
+                  // Multiple items from cart
+                  paymentData.cartItems.map((item) => (
+                    <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                      <div className="flex-1">
+                        <h4 className="font-medium text-sm">{item.name}</h4>
+                        <p className="text-xs text-gray-600">Qty: {item.quantity || 1}</p>
                       </div>
-                    ))}
+                      <span className="font-medium">
+                        {item.currency} {(item.price * (item.quantity || 1)).toFixed(2)}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  // Single item
+                  <div className="flex justify-between items-center py-2">
+                    <div>
+                      <h4 className="font-medium">{paymentData.itemName}</h4>
+                      <Badge variant="secondary">{paymentData.serviceType}</Badge>
+                    </div>
+                    <span className="font-bold text-lg">
+                      {paymentData.currency} {paymentData.price?.toFixed(2)}
+                    </span>
                   </div>
-                </RadioGroup>
+                )}
+                
+                <Separator />
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Subtotal:</span>
+                    <span>{paymentData.currency} {baseAmount.toFixed(2)}</span>
+                  </div>
+                  
+                  {paymentData.currency === 'USD' && (
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>Converted to INR:</span>
+                      {loadingRate ? (
+                        <span className="animate-pulse">Loading...</span>
+                      ) : (
+                        <span>₹ {convertedAmount.toFixed(2)}</span>
+                      )}
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-between text-sm">
+                    <span>Delivery Fee:</span>
+                    <span className="text-green-600">FREE</span>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>Total:</span>
+                    <span className="text-blue-600">
+                      {paymentData.currency} {baseAmount.toFixed(2)}
+                      {paymentData.currency === 'USD' && !loadingRate && (
+                        <span className="text-sm text-gray-600 block">
+                          (₹ {convertedAmount.toFixed(2)})
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-                {/* Card Details Form */}
-                {(selectedPaymentMethod === "visa" || selectedPaymentMethod === "mastercard" || selectedPaymentMethod === "razorpay") && (
-                  <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-                    <h3 className="font-semibold text-gray-800 mb-4">Card Details</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="md:col-span-2">
-                        <Label htmlFor="cardName">Cardholder Name</Label>
-                        <Input
-                          id="cardName"
-                          placeholder="John Doe"
-                          value={cardDetails.name}
-                          onChange={(e) => setCardDetails({...cardDetails, name: e.target.value})}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <Label htmlFor="cardNumber">Card Number</Label>
-                        <Input
-                          id="cardNumber"
-                          placeholder="1234 5678 9012 3456"
-                          value={cardDetails.number}
-                          onChange={(e) => setCardDetails({...cardDetails, number: e.target.value})}
-                          className="mt-1"
-                        />
-                      </div>
+          {/* Payment Form */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Delivery Information */}
+            <Card className="bg-white/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle>Delivery Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="fullName">Full Name *</Label>
+                    <Input
+                      id="fullName"
+                      value={deliveryInfo.fullName}
+                      onChange={(e) => setDeliveryInfo(prev => ({ ...prev, fullName: e.target.value }))}
+                      placeholder="Enter recipient's full name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Phone Number *</Label>
+                    <Input
+                      id="phone"
+                      value={deliveryInfo.phone}
+                      onChange={(e) => setDeliveryInfo(prev => ({ ...prev, phone: e.target.value }))}
+                      placeholder="Enter phone number"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="address">Address *</Label>
+                  <Input
+                    id="address"
+                    value={deliveryInfo.address}
+                    onChange={(e) => setDeliveryInfo(prev => ({ ...prev, address: e.target.value }))}
+                    placeholder="Enter full address"
+                    required
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="city">City *</Label>
+                    <Input
+                      id="city"
+                      value={deliveryInfo.city}
+                      onChange={(e) => setDeliveryInfo(prev => ({ ...prev, city: e.target.value }))}
+                      placeholder="Enter city"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="zipCode">ZIP/Postal Code</Label>
+                    <Input
+                      id="zipCode"
+                      value={deliveryInfo.zipCode}
+                      onChange={(e) => setDeliveryInfo(prev => ({ ...prev, zipCode: e.target.value }))}
+                      placeholder="Enter ZIP code"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Payment Method */}
+            <Card className="bg-white/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Payment Method
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex gap-4">
+                  <Button
+                    variant={paymentMethod === 'card' ? 'default' : 'outline'}
+                    onClick={() => setPaymentMethod('card')}
+                    className="flex-1"
+                  >
+                    Credit/Debit Card
+                  </Button>
+                  <Button
+                    variant={paymentMethod === 'wallet' ? 'default' : 'outline'}
+                    onClick={() => setPaymentMethod('wallet')}
+                    className="flex-1"
+                  >
+                    Wallet (Demo)
+                  </Button>
+                </div>
+
+                {paymentMethod === 'card' && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="cardName">Cardholder Name *</Label>
+                      <Input
+                        id="cardName"
+                        value={cardDetails.name}
+                        onChange={(e) => setCardDetails(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="John Doe"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="cardNumber">Card Number *</Label>
+                      <Input
+                        id="cardNumber"
+                        value={cardDetails.number}
+                        onChange={(e) => setCardDetails(prev => ({ ...prev, number: e.target.value.replace(/\D/g, '').slice(0, 16) }))}
+                        placeholder="1234 5678 9012 3456"
+                        maxLength={16}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="expiry">Expiry Date</Label>
+                        <Label htmlFor="cardExpiry">Expiry Date *</Label>
                         <Input
-                          id="expiry"
-                          placeholder="MM/YY"
+                          id="cardExpiry"
                           value={cardDetails.expiry}
-                          onChange={(e) => setCardDetails({...cardDetails, expiry: e.target.value})}
-                          className="mt-1"
+                          onChange={(e) => {
+                            let value = e.target.value.replace(/\D/g, '');
+                            if (value.length >= 2) {
+                              value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                            }
+                            setCardDetails(prev => ({ ...prev, expiry: value }));
+                          }}
+                          placeholder="MM/YY"
+                          maxLength={5}
+                          required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="cvv">CVV</Label>
+                        <Label htmlFor="cardCvv">CVV *</Label>
                         <Input
-                          id="cvv"
-                          placeholder="123"
+                          id="cardCvv"
+                          type="password"
                           value={cardDetails.cvv}
-                          onChange={(e) => setCardDetails({...cardDetails, cvv: e.target.value})}
-                          className="mt-1"
+                          onChange={(e) => setCardDetails(prev => ({ ...prev, cvv: e.target.value.replace(/\D/g, '').slice(0, 4) }))}
+                          placeholder="123"
+                          maxLength={4}
+                          required
                         />
                       </div>
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </div>
 
-          {/* Order Summary with Currency Conversion */}
-          <div>
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm mb-6">
-              <CardHeader>
-                <CardTitle className="text-gray-800 flex items-center gap-2">
-                  Currency Conversion
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={fetchExchangeRate}
-                    disabled={isLoadingRate}
-                    className="h-6 w-6"
-                  >
-                    <RefreshCw className={`h-4 w-4 ${isLoadingRate ? 'animate-spin' : ''}`} />
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Exchange Rate</span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">1 USD = ₹{exchangeRate.toFixed(2)}</span>
-                      {exchangeRateError && (
-                        <span className="text-xs text-orange-600">(Fallback)</span>
-                      )}
-                    </div>
+                {paymentMethod === 'wallet' && (
+                  <div className="text-center py-8 bg-gray-50 rounded-lg">
+                    <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                    <p className="text-gray-600">Demo wallet payment selected</p>
+                    <p className="text-sm text-gray-500">This is a demo - no actual payment will be processed</p>
                   </div>
-                  <div className="border-t pt-3">
-                    <div className="text-center space-y-2">
-                      <div className="bg-blue-50 p-3 rounded-lg">
-                        <p className="text-sm text-gray-600">USD Amount</p>
-                        <p className="text-2xl font-bold text-blue-600">${usdAmount.toFixed(2)}</p>
-                      </div>
-                      <div className="bg-orange-50 p-3 rounded-lg">
-                        <p className="text-sm text-gray-600">INR Amount</p>
-                        <p className="text-2xl font-bold text-orange-600">₹{inrAmount.toFixed(2)}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                )}
 
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-gray-800">Order Summary</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Item</span>
-                    <span className="font-semibold text-gray-800">{orderDetails.itemName}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Original Price</span>
-                    <span className="font-semibold text-gray-800">
-                      {getCurrencyDisplay(orderDetails.price, orderDetails.currency)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Delivery Fee</span>
-                    <span className="font-semibold text-green-600">Free</span>
-                  </div>
-                  <div className="border-t pt-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-lg font-bold">
-                        <span>Total (USD)</span>
-                        <span className="text-blue-600">${usdAmount.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between text-lg font-bold">
-                        <span>Total (INR)</span>
-                        <span className="text-orange-600">₹{inrAmount.toFixed(2)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <Button
-                  onClick={handlePayment}
-                  className="w-full mt-6 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                  disabled={!selectedPaymentMethod}
+                <Button 
+                  onClick={handlePayment} 
+                  className="w-full bg-blue-600 hover:bg-blue-700 h-12 text-lg"
+                  disabled={loading || loadingRate}
                 >
-                  <CheckCircle className="h-5 w-5 mr-2" />
-                  Pay ${usdAmount.toFixed(2)} (₹{inrAmount.toFixed(2)})
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Processing Payment...
+                    </div>
+                  ) : (
+                    <>
+                      Complete Payment • {paymentData.currency} {baseAmount.toFixed(2)}
+                    </>
+                  )}
                 </Button>
 
-                <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-500">
-                  <Shield className="h-4 w-4" />
-                  Your payment is secured with 256-bit SSL encryption
-                </div>
+                <p className="text-xs text-gray-500 text-center">
+                  This is a demo payment system. No actual charges will be made.
+                </p>
               </CardContent>
             </Card>
           </div>
