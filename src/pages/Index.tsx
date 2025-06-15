@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
 import Services from "@/components/Services";
@@ -16,6 +17,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
+      <Header />
       <Hero />
       <Features />
       <Services />
