@@ -128,7 +128,7 @@ export const useFavorites = (serviceType?: string) => {
     return favorites.some(item => item.id === itemId);
   };
 
-  const toggleFavorite = async (item: FavoriteItem, service: string) => {
+  const toggleFavorite = async (item: FavoriteItem) => {
     if (isFavorite(item.id)) {
       await removeFromFavorites(item.id);
     } else {

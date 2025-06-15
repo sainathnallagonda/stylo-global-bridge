@@ -22,7 +22,7 @@ const FavoriteButton = ({ item, serviceType, className, size = 'sm', variant = '
       size={size}
       onClick={(e) => {
         e.stopPropagation();
-        toggleFavorite(item, serviceType);
+        toggleFavorite(item);
       }}
       className={cn(
         "hover:bg-red-50 transition-colors",
