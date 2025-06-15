@@ -4,6 +4,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+interface FavoriteItem {
+  id: number;
+  name: string;
+  image: string;
+  price: number;
+  currency: string;
+  category?: string;
+  restaurant?: string;
+}
+
 export const useFavorites = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -26,14 +36,17 @@ export const useFavorites = () => {
 
       if (error) throw error;
       
-      const favoriteIds = data?.map(fav => fav.item_data.id.toString()) || [];
+      const favoriteIds = data?.map(fav => {
+        const itemData = fav.item_data as FavoriteItem;
+        return itemData.id.toString();
+      }) || [];
       setFavorites(favoriteIds);
     } catch (error) {
       console.error('Error fetching favorites:', error);
     }
   };
 
-  const toggleFavorite = async (item: any, serviceType: string) => {
+  const toggleFavorite = async (item: FavoriteItem, serviceType: string) => {
     if (!user) {
       toast({
         title: "Sign in required",

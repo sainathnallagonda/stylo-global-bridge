@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -50,7 +49,16 @@ const LoyaltyPoints = () => {
         .limit(20);
 
       if (transactionsError) throw transactionsError;
-      setTransactions(transactionsData || []);
+      
+      const typedTransactions: LoyaltyTransaction[] = (transactionsData || []).map(t => ({
+        id: t.id,
+        points: t.points,
+        transaction_type: t.transaction_type as 'earned' | 'redeemed' | 'expired',
+        transaction_reason: t.transaction_reason,
+        created_at: t.created_at
+      }));
+      
+      setTransactions(typedTransactions);
     } catch (error) {
       console.error('Error fetching loyalty data:', error);
       toast({

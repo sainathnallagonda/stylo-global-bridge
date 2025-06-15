@@ -9,18 +9,20 @@ import { useToast } from '@/hooks/use-toast';
 import { Heart, Trash, ShoppingCart, UtensilsCrossed, Gift, Car, Plane } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+interface FavoriteItemData {
+  id: number;
+  name: string;
+  image: string;
+  price: number;
+  currency: string;
+  category?: string;
+  restaurant?: string;
+}
+
 interface Favorite {
   id: string;
   service_type: string;
-  item_data: {
-    id: number;
-    name: string;
-    image: string;
-    price: number;
-    currency: string;
-    category?: string;
-    restaurant?: string;
-  };
+  item_data: FavoriteItemData;
   created_at: string;
 }
 
@@ -46,7 +48,15 @@ const FavoritesSection = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setFavorites(data || []);
+      
+      const typedFavorites: Favorite[] = (data || []).map(fav => ({
+        id: fav.id,
+        service_type: fav.service_type,
+        item_data: fav.item_data as FavoriteItemData,
+        created_at: fav.created_at
+      }));
+      
+      setFavorites(typedFavorites);
     } catch (error) {
       console.error('Error fetching favorites:', error);
       toast({

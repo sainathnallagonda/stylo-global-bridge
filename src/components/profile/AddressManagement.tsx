@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,13 +16,13 @@ interface Address {
   type: 'home' | 'work' | 'other';
   label: string;
   street_address: string;
-  apartment_unit?: string;
+  apartment_unit?: string | null;
   city: string;
   state_province: string;
   postal_code: string;
   country: 'USA' | 'India';
-  phone?: string;
-  is_default: boolean;
+  phone?: string | null;
+  is_default: boolean | null;
 }
 
 const AddressManagement = () => {
@@ -62,7 +61,22 @@ const AddressManagement = () => {
         .order('is_default', { ascending: false });
 
       if (error) throw error;
-      setAddresses(data || []);
+      
+      const typedAddresses: Address[] = (data || []).map(addr => ({
+        id: addr.id,
+        type: addr.type as 'home' | 'work' | 'other',
+        label: addr.label,
+        street_address: addr.street_address,
+        apartment_unit: addr.apartment_unit,
+        city: addr.city,
+        state_province: addr.state_province,
+        postal_code: addr.postal_code,
+        country: addr.country as 'USA' | 'India',
+        phone: addr.phone,
+        is_default: addr.is_default
+      }));
+      
+      setAddresses(typedAddresses);
     } catch (error) {
       console.error('Error fetching addresses:', error);
       toast({
@@ -101,7 +115,7 @@ const AddressManagement = () => {
       postal_code: address.postal_code,
       country: address.country,
       phone: address.phone || '',
-      is_default: address.is_default
+      is_default: address.is_default || false
     });
     setIsDialogOpen(true);
   };

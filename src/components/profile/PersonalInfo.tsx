@@ -12,6 +12,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Camera, Save } from 'lucide-react';
 
+interface NotificationPreferences {
+  email: boolean;
+  sms: boolean;
+  push: boolean;
+}
+
 interface ProfileData {
   full_name: string;
   email: string;
@@ -21,11 +27,7 @@ interface ProfileData {
   date_of_birth: string;
   gender: string;
   avatar_url: string;
-  notification_preferences: {
-    email: boolean;
-    sms: boolean;
-    push: boolean;
-  };
+  notification_preferences: NotificationPreferences;
 }
 
 const PersonalInfo = () => {
@@ -67,20 +69,22 @@ const PersonalInfo = () => {
       }
 
       if (data) {
+        const notificationPrefs = data.notification_preferences as NotificationPreferences || {
+          email: true,
+          sms: false,
+          push: true
+        };
+
         setProfile({
           full_name: data.full_name || '',
           email: data.email || user.email || '',
           phone: data.phone || '',
-          country: data.country || 'USA',
-          preferred_currency: data.preferred_currency || 'USD',
+          country: (data.country as 'USA' | 'India') || 'USA',
+          preferred_currency: (data.preferred_currency as 'USD' | 'INR') || 'USD',
           date_of_birth: data.date_of_birth || '',
           gender: data.gender || '',
           avatar_url: data.avatar_url || '',
-          notification_preferences: data.notification_preferences || {
-            email: true,
-            sms: false,
-            push: true
-          }
+          notification_preferences: notificationPrefs
         });
       }
     } catch (error) {
@@ -131,7 +135,7 @@ const PersonalInfo = () => {
     }));
   };
 
-  const handleNotificationChange = (type: keyof ProfileData['notification_preferences'], value: boolean) => {
+  const handleNotificationChange = (type: keyof NotificationPreferences, value: boolean) => {
     setProfile(prev => ({
       ...prev,
       notification_preferences: {
@@ -222,7 +226,7 @@ const PersonalInfo = () => {
 
           <div className="space-y-2">
             <Label htmlFor="country">Country</Label>
-            <Select value={profile.country} onValueChange={(value) => handleInputChange('country', value)}>
+            <Select value={profile.country} onValueChange={(value: 'USA' | 'India') => handleInputChange('country', value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -235,7 +239,7 @@ const PersonalInfo = () => {
 
           <div className="space-y-2">
             <Label htmlFor="currency">Preferred Currency</Label>
-            <Select value={profile.preferred_currency} onValueChange={(value) => handleInputChange('preferred_currency', value)}>
+            <Select value={profile.preferred_currency} onValueChange={(value: 'USD' | 'INR') => handleInputChange('preferred_currency', value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
