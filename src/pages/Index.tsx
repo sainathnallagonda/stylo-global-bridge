@@ -5,9 +5,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
 import Services from "@/components/Services";
+import HowItWorks from "@/components/HowItWorks";
 import TravelCompanions from "@/components/TravelCompanions";
 import FlightServiceBundle from "@/components/FlightServiceBundle";
-import HowItWorks from "@/components/HowItWorks";
 import TrustSecurity from "@/components/TrustSecurity";
 import Footer from "@/components/Footer";
 
@@ -19,9 +19,9 @@ const Index = () => {
       <Hero />
       <Features />
       <Services />
+      <HowItWorks />
       <TravelCompanions />
       <FlightServiceBundle />
-      <HowItWorks />
       <TrustSecurity />
       <Footer />
     </div>

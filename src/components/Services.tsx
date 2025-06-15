@@ -1,7 +1,8 @@
 
-import { ShoppingBag, Gift, Car, Coffee, Plane, Heart } from "lucide-react";
+import { ShoppingBag, Gift, Car, Coffee, Plane, Heart, ArrowRight, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "@/contexts/LocationContext";
 
@@ -18,7 +19,10 @@ const Services = () => {
       route: "/food-delivery",
       image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=250&fit=crop&auto=format",
       bgColor: "bg-orange-50",
-      iconColor: "text-orange-600"
+      iconColor: "text-orange-600",
+      popular: true,
+      rating: 4.8,
+      deliveryTime: "30-45 min"
     },
     {
       icon: ShoppingBag,
@@ -28,7 +32,10 @@ const Services = () => {
       route: "/groceries",
       image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=250&fit=crop&auto=format",
       bgColor: "bg-green-50",
-      iconColor: "text-green-600"
+      iconColor: "text-green-600",
+      popular: false,
+      rating: 4.6,
+      deliveryTime: "1-2 hours"
     },
     {
       icon: Gift,
@@ -38,7 +45,10 @@ const Services = () => {
       route: "/gifts",
       image: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=250&fit=crop&auto=format",
       bgColor: "bg-pink-50",
-      iconColor: "text-pink-600"
+      iconColor: "text-pink-600",
+      popular: true,
+      rating: 4.9,
+      deliveryTime: "Same day"
     },
     {
       icon: Car,
@@ -48,7 +58,10 @@ const Services = () => {
       route: "/rides",
       image: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=400&h=250&fit=crop&auto=format",
       bgColor: "bg-blue-50",
-      iconColor: "text-blue-600"
+      iconColor: "text-blue-600",
+      popular: false,
+      rating: 4.7,
+      deliveryTime: "10-15 min"
     },
     {
       icon: Plane,
@@ -58,7 +71,10 @@ const Services = () => {
       route: "/travel",
       image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&h=250&fit=crop&auto=format",
       bgColor: "bg-purple-50",
-      iconColor: "text-purple-600"
+      iconColor: "text-purple-600",
+      popular: false,
+      rating: 4.5,
+      deliveryTime: "Instant match"
     },
     {
       icon: Heart,
@@ -68,7 +84,10 @@ const Services = () => {
       route: "/care",
       image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&h=250&fit=crop&auto=format",
       bgColor: "bg-red-50",
-      iconColor: "text-red-600"
+      iconColor: "text-red-600",
+      popular: true,
+      rating: 4.8,
+      deliveryTime: "24 hours"
     }
   ];
 
@@ -92,9 +111,15 @@ const Services = () => {
           {services.map((service, index) => (
             <Card 
               key={index} 
-              className="group hover:shadow-xl transition-all duration-300 border-0 shadow-sm bg-white cursor-pointer overflow-hidden"
+              className="group hover:shadow-xl transition-all duration-300 border-0 shadow-sm bg-white cursor-pointer overflow-hidden relative"
               onClick={() => handleOrderNow(service.route)}
             >
+              {service.popular && (
+                <Badge className="absolute top-4 right-4 z-10 bg-blue-600 hover:bg-blue-600">
+                  Popular
+                </Badge>
+              )}
+              
               <div className="relative h-48 overflow-hidden">
                 <img 
                   src={service.image} 
@@ -107,9 +132,21 @@ const Services = () => {
               </div>
               
               <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-3 text-gray-900">
-                  {service.title}
-                </h3>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {service.title}
+                  </h3>
+                </div>
+                
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <span className="text-sm text-gray-600">{service.rating}</span>
+                  </div>
+                  <span className="text-sm text-gray-400">•</span>
+                  <span className="text-sm text-gray-600">{service.deliveryTime}</span>
+                </div>
+                
                 <p className="text-gray-600 mb-4 text-sm leading-relaxed">
                   {service.description}
                 </p>
@@ -122,16 +159,38 @@ const Services = () => {
                     </div>
                   </div>
                   <Button 
-                    variant="outline"
                     size="sm"
-                    className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+                    className="bg-blue-600 hover:bg-blue-700 text-white group-hover:bg-blue-700"
                   >
-                    Explore
+                    Order Now
+                    <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 </div>
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Quick Stats Section */}
+        <div className="mt-16 bg-white rounded-2xl p-8 shadow-sm">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-3xl font-bold text-blue-600 mb-2">50K+</div>
+              <div className="text-sm text-gray-600">Happy Customers</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-green-600 mb-2">24/7</div>
+              <div className="text-sm text-gray-600">Support Available</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-purple-600 mb-2">100+</div>
+              <div className="text-sm text-gray-600">Cities Covered</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-orange-600 mb-2">4.8★</div>
+              <div className="text-sm text-gray-600">Average Rating</div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

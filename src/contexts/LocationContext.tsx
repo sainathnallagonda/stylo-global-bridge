@@ -74,8 +74,8 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
       fetchExchangeRate();
     }
 
-    // Update exchange rate every 5 minutes
-    const interval = setInterval(fetchExchangeRate, 5 * 60 * 1000);
+    // Update exchange rate every 30 minutes instead of 5 minutes
+    const interval = setInterval(fetchExchangeRate, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -85,29 +85,9 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
     setToCountry(temp);
   };
 
+  // Simplified currency display - just show the price without conversion in parentheses
   const getCurrencyDisplay = (amount: number, originalCurrency: 'INR' | 'USD') => {
-    if (currency === originalCurrency) {
-      // Show in selected currency with conversion in parentheses
-      if (currency === 'USD') {
-        const inrAmount = (amount * exchangeRate).toFixed(0);
-        return `$${amount} (₹${inrAmount})`;
-      } else {
-        const usdAmount = (amount / exchangeRate).toFixed(2);
-        return `₹${amount} ($${usdAmount})`;
-      }
-    } else {
-      // Convert and show in selected currency
-      if (currency === 'USD' && originalCurrency === 'INR') {
-        const convertedAmount = (amount / exchangeRate).toFixed(2);
-        return `$${convertedAmount} (₹${amount})`;
-      } else if (currency === 'INR' && originalCurrency === 'USD') {
-        const convertedAmount = (amount * exchangeRate).toFixed(0);
-        return `₹${convertedAmount} ($${amount})`;
-      }
-    }
-    
-    // Fallback
-    return currency === 'USD' ? `$${amount}` : `₹${amount}`;
+    return originalCurrency === 'USD' ? `$${amount}` : `₹${amount}`;
   };
 
   return (
