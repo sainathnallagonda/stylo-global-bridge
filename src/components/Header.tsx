@@ -4,6 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Menu, X, User, LogOut, ShoppingCart, LayoutDashboard } from "lucide-react";
+import EnhancedNotificationSystem from "./EnhancedNotificationSystem";
+import LanguageSelector from "./MultiLanguageSupport";
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -62,6 +64,13 @@ const Header = () => {
 
           <div className="hidden md:flex items-center space-x-4">
             <div className="flex items-center space-x-2">
+              {/* Language Selector */}
+              <LanguageSelector compact showFlags />
+              
+              {/* Notifications */}
+              {user && <EnhancedNotificationSystem />}
+              
+              {/* Cart */}
               <Button 
                 variant="ghost" 
                 size="icon" 

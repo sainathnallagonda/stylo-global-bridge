@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "@/contexts/LocationContext";
@@ -10,14 +11,18 @@ import WalletCard from "@/components/dashboard/WalletCard";
 import SmartRecommendations from "@/components/SmartRecommendations";
 import SubscriptionManager from "@/components/SubscriptionManager";
 import AddressBook from "@/components/AddressBook";
+import SmartPriceComparison from "@/components/SmartPriceComparison";
+import CulturalTips from "@/components/CulturalTips";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingBag, Gift, Car, Coffee, Plane, Heart, MapPin, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ShoppingBag, Gift, Car, Coffee, Plane, Heart, MapPin, Star, Globe } from "lucide-react";
 
 const EnhancedDashboard = () => {
   const { user } = useAuth();
   const { toCountry, getCurrencyDisplay } = useLocation();
-  const [recommendations, setRecommendations] = useState([]);
+  const [showCulturalTips, setShowCulturalTips] = useState(false);
+  const [selectedService, setSelectedService] = useState('');
 
   const services = [
     {
@@ -30,7 +35,8 @@ const EnhancedDashboard = () => {
       bgColor: "bg-orange-50",
       iconColor: "text-orange-600",
       rating: 4.8,
-      popular: true
+      popular: true,
+      serviceType: "food-delivery"
     },
     {
       icon: ShoppingBag,
@@ -41,7 +47,8 @@ const EnhancedDashboard = () => {
       image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=250&fit=crop&auto=format",
       bgColor: "bg-green-50",
       iconColor: "text-green-600",
-      rating: 4.6
+      rating: 4.6,
+      serviceType: "groceries"
     },
     {
       icon: Gift,
@@ -52,7 +59,8 @@ const EnhancedDashboard = () => {
       image: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=250&fit=crop&auto=format",
       bgColor: "bg-pink-50",
       iconColor: "text-pink-600",
-      rating: 4.9
+      rating: 4.9,
+      serviceType: "gifts"
     },
     {
       icon: Car,
@@ -63,7 +71,8 @@ const EnhancedDashboard = () => {
       image: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=400&h=250&fit=crop&auto=format",
       bgColor: "bg-blue-50",
       iconColor: "text-blue-600",
-      rating: 4.7
+      rating: 4.7,
+      serviceType: "rides"
     }
   ];
 
@@ -71,21 +80,21 @@ const EnhancedDashboard = () => {
     {
       id: "1",
       title: "Food Delivery - Pizza Palace",
-      status: "processing",
+      status: "processing" as const,
       progress: 65,
       estimatedDelivery: "Tomorrow, 2:30 PM"
     },
     {
       id: "2", 
       title: "Gift - Birthday Flowers",
-      status: "shipped",
+      status: "shipped" as const,
       progress: 85,
       estimatedDelivery: "Today, 6:00 PM"
     },
     {
       id: "3",
       title: "Groceries - Weekly Essentials",
-      status: "delivered",
+      status: "delivered" as const,
       progress: 100,
       estimatedDelivery: "Delivered"
     }
@@ -101,6 +110,11 @@ const EnhancedDashboard = () => {
     { name: "Ferns N Petals", type: "Gifts", rating: 4.7, distance: "3 km" }
   ];
 
+  const handleServiceClick = (serviceType: string) => {
+    setSelectedService(serviceType);
+    setShowCulturalTips(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <Header />
@@ -114,6 +128,26 @@ const EnhancedDashboard = () => {
               Welcome back, {user?.email?.split('@')[0]}! 👋
             </h1>
             <p className="text-gray-600">Manage your care packages and services for loved ones</p>
+            
+            {/* Cultural Tips Banner */}
+            <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Globe className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <h3 className="font-medium text-blue-800">Cultural Tips Available</h3>
+                    <p className="text-sm text-blue-700">Get local insights for better service experience</p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => setShowCulturalTips(true)}
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  View Tips
+                </Button>
+              </div>
+            </div>
           </div>
 
           {/* Quick Stats */}
@@ -162,6 +196,15 @@ const EnhancedDashboard = () => {
             <SmartRecommendations />
           </div>
 
+          {/* Price Comparison Section */}
+          <div className="mb-8">
+            <SmartPriceComparison 
+              itemName="Margherita Pizza"
+              category="food"
+              userLocation={toCountry}
+            />
+          </div>
+
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             {/* Services Section */}
@@ -172,7 +215,18 @@ const EnhancedDashboard = () => {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 {services.map((service, index) => (
-                  <ServiceCard key={index} {...service} />
+                  <div key={index} className="relative">
+                    <ServiceCard {...service} />
+                    <Button
+                      onClick={() => handleServiceClick(service.serviceType)}
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-2 right-2 text-xs bg-white/80 hover:bg-white"
+                    >
+                      <Globe className="h-3 w-3 mr-1" />
+                      Tips
+                    </Button>
+                  </div>
                 ))}
               </div>
 
@@ -240,6 +294,15 @@ const EnhancedDashboard = () => {
           </div>
         </div>
       </div>
+      
+      {/* Cultural Tips Modal */}
+      <CulturalTips
+        serviceType={selectedService || 'food-delivery'}
+        region={toCountry}
+        isOpen={showCulturalTips}
+        onClose={() => setShowCulturalTips(false)}
+      />
+      
       <Footer />
     </div>
   );
