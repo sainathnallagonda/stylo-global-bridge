@@ -1,91 +1,91 @@
 
-import { Shield, Globe, CreditCard, Clock, MapPin, Star, Sparkles, Heart } from "lucide-react";
+import { Shield, Globe, CreditCard, Clock, MapPin, Star } from "lucide-react";
 
 const features = [
   {
     icon: CreditCard,
-    title: "Multi-Currency Support",
-    description: "Pay in INR or USD - we handle the conversion seamlessly",
-    color: "from-blue-500 to-cyan-500",
-    bgColor: "bg-blue-50"
+    title: "Pay in Local Currency",
+    description: "Pay in INR or USD - we handle the conversion seamlessly with live exchange rates",
+    color: "text-blue-600"
   },
   {
     icon: Shield,
     title: "Secure & Trusted",
-    description: "End-to-end encryption and verified service providers",
-    color: "from-green-500 to-emerald-500",
-    bgColor: "bg-green-50"
+    description: "End-to-end encryption and verified service providers ensure your transactions are safe",
+    color: "text-blue-600"
   },
   {
     icon: Clock,
     title: "Real-time Tracking",
-    description: "Track your orders and get live updates on delivery status",
-    color: "from-orange-500 to-red-500",
-    bgColor: "bg-orange-50"
+    description: "Track your orders and get live updates on delivery status from start to finish",
+    color: "text-blue-600"
   },
   {
     icon: Globe,
-    title: "Cultural Bridge",
-    description: "Navigate cultural differences with our smart recommendations",
-    color: "from-purple-500 to-pink-500",
-    bgColor: "bg-purple-50"
+    title: "Cross-Border Made Easy",
+    description: "Navigate cultural differences with our smart recommendations and local expertise",
+    color: "text-blue-600"
   },
   {
     icon: MapPin,
-    title: "Local Expertise",
-    description: "Local partners who understand the neighborhood best",
-    color: "from-indigo-500 to-blue-500",
-    bgColor: "bg-indigo-50"
+    title: "Local Partners",
+    description: "Trusted local partners who understand the neighborhood and deliver with care",
+    color: "text-blue-600"
   },
   {
     icon: Star,
     title: "Quality Assured",
-    description: "5-star rated services with money-back guarantee",
-    color: "from-yellow-500 to-orange-500",
-    bgColor: "bg-yellow-50"
+    description: "5-star rated services with money-back guarantee for your peace of mind",
+    color: "text-blue-600"
   }
 ];
 
 const Features = () => {
   return (
-    <section id="features" className="py-24 px-4 bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
+    <section className="py-20 px-4 bg-white">
       <div className="container mx-auto">
-        <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-purple-200/50 rounded-full px-6 py-2 mb-6">
-            <Heart className="w-4 h-4 text-purple-600" />
-            <span className="text-purple-700 font-medium">Why Choose Stylo</span>
-          </div>
-          
-          <h2 className="text-5xl md:text-6xl font-black mb-6">
-            <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Built for the
-            </span>
-            <br />
-            <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Global Family
-            </span>
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold mb-4 text-gray-800">
+            How It Works
           </h2>
-          <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
-            Features that make distance disappear and bring hearts closer
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Sending love across borders has never been easier. Follow these simple steps to make someone's day special.
           </p>
         </div>
 
+        {/* Steps */}
+        <div className="flex flex-wrap justify-center items-center gap-8 mb-16">
+          {[
+            { number: "1", title: "Select Service & Location", description: "Choose what you want to send and where" },
+            { number: "2", title: "Choose Products", description: "Browse and select from local options" },
+            { number: "3", title: "Schedule Delivery", description: "Pick the perfect time for delivery" },
+            { number: "4", title: "Pay in Local Currency", description: "Secure payment in INR or USD" },
+            { number: "5", title: "Track & Receive", description: "Real-time updates until delivery" }
+          ].map((step, index) => (
+            <div key={index} className="flex flex-col items-center text-center max-w-xs">
+              <div className="w-12 h-12 bg-primary-blue text-white rounded-full flex items-center justify-center font-bold text-lg mb-3">
+                {step.number}
+              </div>
+              <h3 className="font-semibold text-gray-800 mb-2">{step.title}</h3>
+              <p className="text-sm text-gray-600">{step.description}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <div 
               key={index} 
-              className={`group text-center p-8 rounded-3xl ${feature.bgColor} border border-white/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer`}
+              className="text-center p-6 rounded-lg border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300"
             >
-              <div className={`w-20 h-20 mx-auto mb-6 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                <feature.icon className="text-white" size={32} />
+              <div className="w-12 h-12 mx-auto mb-4 bg-blue-50 rounded-lg flex items-center justify-center">
+                <feature.icon className={feature.color} size={24} />
               </div>
-              <h3 className="text-xl font-bold mb-4 text-gray-800 group-hover:text-purple-700 transition-colors">
+              <h3 className="text-lg font-semibold mb-3 text-gray-800">
                 {feature.title}
               </h3>
-              <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-              
-              {/* Decorative element */}
-              <div className="mt-4 w-12 h-1 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full mx-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>
