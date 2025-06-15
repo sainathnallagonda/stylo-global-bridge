@@ -1,3 +1,4 @@
+
 import { ShoppingBag, Gift, Car, Coffee, Plane, Heart, ArrowRight, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -168,28 +169,6 @@ const Services = () => {
               </CardContent>
             </Card>
           ))}
-        </div>
-
-        {/* Quick Stats Section */}
-        <div className="mt-16 bg-white rounded-2xl p-8 shadow-sm">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-3xl font-bold text-blue-600 mb-2">50K+</div>
-              <div className="text-sm text-gray-600">Happy Customers</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-green-600 mb-2">24/7</div>
-              <div className="text-sm text-gray-600">Support Available</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-purple-600 mb-2">100+</div>
-              <div className="text-sm text-gray-600">Cities Covered</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-orange-600 mb-2">4.8★</div>
-              <div className="text-sm text-gray-600">Average Rating</div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
