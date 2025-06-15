@@ -13,7 +13,7 @@ interface FavoriteButtonProps {
 }
 
 const FavoriteButton = ({ item, serviceType, className, size = 'sm', variant = 'ghost' }: FavoriteButtonProps) => {
-  const { toggleFavorite, isFavorite } = useFavorites();
+  const { toggleFavorite, isFavorite } = useFavorites(serviceType);
   const isItemFavorite = isFavorite(item.id);
 
   return (

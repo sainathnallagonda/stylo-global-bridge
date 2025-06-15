@@ -13,20 +13,20 @@ interface FavoriteItem {
   category?: string;
 }
 
-export const useFavorites = (serviceType: string) => {
+export const useFavorites = (serviceType?: string) => {
   const { user } = useEnhancedAuth();
   const { toast } = useToast();
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && serviceType) {
       fetchFavorites();
     }
   }, [user, serviceType]);
 
   const fetchFavorites = async () => {
-    if (!user) return;
+    if (!user || !serviceType) return;
     
     setLoading(true);
     try {
@@ -38,14 +38,17 @@ export const useFavorites = (serviceType: string) => {
 
       if (error) throw error;
       
-      const favoriteItems = data?.map(fav => ({
-        id: fav.item_data.id,
-        name: fav.item_data.name,
-        price: fav.item_data.price,
-        currency: fav.item_data.currency,
-        image: fav.item_data.image,
-        category: fav.item_data.category,
-      })) || [];
+      const favoriteItems = data?.map(fav => {
+        const itemData = fav.item_data as any;
+        return {
+          id: itemData.id,
+          name: itemData.name,
+          price: itemData.price,
+          currency: itemData.currency,
+          image: itemData.image,
+          category: itemData.category,
+        };
+      }) || [];
       
       setFavorites(favoriteItems);
     } catch (error) {
@@ -65,13 +68,15 @@ export const useFavorites = (serviceType: string) => {
       return;
     }
 
+    if (!serviceType) return;
+
     try {
       const { error } = await supabase
         .from('favorites')
         .insert({
           user_id: user.id,
           service_type: serviceType,
-          item_data: item
+          item_data: item as any
         });
 
       if (error) throw error;
@@ -92,7 +97,7 @@ export const useFavorites = (serviceType: string) => {
   };
 
   const removeFromFavorites = async (itemId: string) => {
-    if (!user) return;
+    if (!user || !serviceType) return;
 
     try {
       const { error } = await supabase
@@ -123,11 +128,20 @@ export const useFavorites = (serviceType: string) => {
     return favorites.some(item => item.id === itemId);
   };
 
+  const toggleFavorite = async (item: FavoriteItem, service: string) => {
+    if (isFavorite(item.id)) {
+      await removeFromFavorites(item.id);
+    } else {
+      await addToFavorites(item);
+    }
+  };
+
   return {
     favorites,
     loading,
     addToFavorites,
     removeFromFavorites,
-    isFavorite
+    isFavorite,
+    toggleFavorite
   };
 };
