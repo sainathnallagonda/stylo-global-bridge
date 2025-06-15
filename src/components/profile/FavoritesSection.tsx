@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -52,7 +51,7 @@ const FavoritesSection = () => {
       const typedFavorites: Favorite[] = (data || []).map(fav => ({
         id: fav.id,
         service_type: fav.service_type,
-        item_data: fav.item_data as unknown as FavoriteItemData,
+        item_data: fav.item_data as Record<string, any>,
         created_at: fav.created_at
       }));
       

@@ -37,9 +37,9 @@ export const useFavorites = () => {
       if (error) throw error;
       
       const favoriteIds = data?.map(fav => {
-        const itemData = fav.item_data as unknown as FavoriteItem;
-        return itemData.id.toString();
-      }) || [];
+        const itemData = fav.item_data as Record<string, any>;
+        return itemData.id?.toString() || '';
+      }).filter(id => id) || [];
       setFavorites(favoriteIds);
     } catch (error) {
       console.error('Error fetching favorites:', error);
@@ -81,7 +81,7 @@ export const useFavorites = () => {
           .insert({
             user_id: user.id,
             service_type: serviceType,
-            item_data: item as any
+            item_data: item
           });
 
         if (error) throw error;
