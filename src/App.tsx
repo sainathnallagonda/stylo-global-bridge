@@ -10,11 +10,6 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import FoodDelivery from "./pages/FoodDelivery";
 import Groceries from "./pages/Groceries";
-import Gifts from "./pages/Gifts";
-import Rides from "./pages/Rides";
-import Travel from "./pages/Travel";
-import Care from "./pages/Care";
-import Orders from "./pages/Orders";
 import AuthGuard from "./components/AuthGuard";
 import NotFound from "./pages/NotFound";
 
@@ -35,20 +30,6 @@ const App = () => (
               element={
                 <AuthGuard>
                   <Dashboard />
-                </AuthGuard>
-              } 
-            />
-            <Route path="/food-delivery" element={<FoodDelivery />} />
-            <Route path="/groceries" element={<Groceries />} />
-            <Route path="/gifts" element={<Gifts />} />
-            <Route path="/rides" element={<Rides />} />
-            <Route path="/travel" element={<Travel />} />
-            <Route path="/care" element={<Care />} />
-            <Route 
-              path="/orders" 
-              element={
-                <AuthGuard>
-                  <Orders />
                 </AuthGuard>
               } 
             />
