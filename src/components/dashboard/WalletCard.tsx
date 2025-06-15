@@ -16,9 +16,9 @@ const WalletCard = () => {
   };
 
   const recentTransactions = [
-    { type: 'sent', amount: 50, currency: 'USD', to: 'Food Delivery', date: '2 hours ago' },
-    { type: 'received', amount: 2000, currency: 'INR', from: 'Gift Received', date: '1 day ago' },
-    { type: 'sent', amount: 35, currency: 'USD', to: 'Ride Booking', date: '3 days ago' }
+    { type: 'sent', amount: 50, currency: 'USD' as const, to: 'Food Delivery', date: '2 hours ago' },
+    { type: 'received', amount: 2000, currency: 'INR' as const, from: 'Gift Received', date: '1 day ago' },
+    { type: 'sent', amount: 35, currency: 'USD' as const, to: 'Ride Booking', date: '3 days ago' }
   ];
 
   return (
