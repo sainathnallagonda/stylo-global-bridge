@@ -124,11 +124,19 @@
   /* Hero section animations */
   .hero-float {
     animation: float 6s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
   }
   
   .hero-float-delayed {
     animation: float 6s ease-in-out infinite;
     animation-delay: -3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
   }
   
   @keyframes float {
@@ -136,7 +144,7 @@
       transform: translateY(0px);
     }
     50% {
-      transform: translateY(-10px);
+      transform: translateY(-15px);
     }
   }
 
