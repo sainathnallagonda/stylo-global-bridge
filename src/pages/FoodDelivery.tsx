@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ArrowLeft, Search, Star, Clock, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -38,7 +37,7 @@ const FoodDelivery = () => {
 
   const fetchVendorFoods = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('vendor_foods')
         .select(`
           *,

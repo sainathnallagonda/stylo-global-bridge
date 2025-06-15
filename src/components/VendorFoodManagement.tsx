@@ -58,7 +58,7 @@ const VendorFoodManagement = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('vendor_foods')
         .select('*')
         .order('created_at', { ascending: false });
@@ -87,7 +87,7 @@ const VendorFoodManagement = () => {
 
     try {
       if (editingFood.id) {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('vendor_foods')
           .update({
             name: editingFood.name,
@@ -104,7 +104,7 @@ const VendorFoodManagement = () => {
 
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('vendor_foods')
           .insert({
             vendor_id: user.id,
@@ -140,7 +140,7 @@ const VendorFoodManagement = () => {
 
   const deleteFood = async (id: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('vendor_foods')
         .delete()
         .eq('id', id);
@@ -164,7 +164,7 @@ const VendorFoodManagement = () => {
 
   const toggleAvailability = async (id: string, currentStatus: boolean) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('vendor_foods')
         .update({ 
           is_available: !currentStatus,
