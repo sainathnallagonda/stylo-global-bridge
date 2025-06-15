@@ -19,10 +19,14 @@ const Index = () => {
     // Only redirect if we have both user and profile data and we're not loading
     if (!loading && user && profile) {
       console.log('Redirecting user with role:', profile.role);
-      if (profile.role === 'vendor') {
-        navigate('/vendor-dashboard');
-      } else if (profile.role === 'customer') {
-        navigate('/dashboard');
+      try {
+        if (profile.role === 'vendor') {
+          navigate('/vendor-dashboard');
+        } else if (profile.role === 'customer') {
+          navigate('/dashboard');
+        }
+      } catch (error) {
+        console.error('Error during navigation:', error);
       }
     }
   }, [user, profile, loading, navigate]);
@@ -37,18 +41,30 @@ const Index = () => {
   }
 
   // Show the homepage for non-authenticated users
-  return (
-    <div className="min-h-screen">
-      <Header />
-      <Hero />
-      <Services />
-      <Features />
-      <HowItWorks />
-      <TrustSecurity />
-      <Footer />
-      <Chatbot />
-    </div>
-  );
+  try {
+    return (
+      <div className="min-h-screen">
+        <Header />
+        <Hero />
+        <Services />
+        <Features />
+        <HowItWorks />
+        <TrustSecurity />
+        <Footer />
+        <Chatbot />
+      </div>
+    );
+  } catch (error) {
+    console.error('Error rendering Index page:', error);
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h1>
+          <p className="text-gray-600">Please refresh the page or try again later.</p>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default Index;

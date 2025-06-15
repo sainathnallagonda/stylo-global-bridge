@@ -13,6 +13,24 @@ interface FoodCardProps {
 }
 
 const FoodCard = ({ food, onAddToCart }: FoodCardProps) => {
+  const handleAddToCart = () => {
+    try {
+      if (onAddToCart) {
+        onAddToCart(food);
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
+  };
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    try {
+      e.currentTarget.src = 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop';
+    } catch (error) {
+      console.error('Error handling image error:', error);
+    }
+  };
+
   return (
     <Card className="h-full hover:shadow-lg transition-shadow duration-300">
       <CardHeader className="p-4">
@@ -20,19 +38,17 @@ const FoodCard = ({ food, onAddToCart }: FoodCardProps) => {
           <div className="w-full h-48 bg-gray-200 rounded-lg mb-3 overflow-hidden">
             <img 
               src={food.image_url} 
-              alt={food.name}
+              alt={food.name || 'Food item'}
               className="w-full h-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop';
-              }}
+              onError={handleImageError}
             />
           </div>
         )}
         <div className="space-y-2">
           <div className="flex items-start justify-between">
-            <h3 className="font-semibold text-lg line-clamp-1">{food.name}</h3>
+            <h3 className="font-semibold text-lg line-clamp-1">{food.name || 'Unnamed Item'}</h3>
             <Badge variant="outline" className="ml-2 shrink-0">
-              {food.category}
+              {food.category || 'Other'}
             </Badge>
           </div>
           {food.description && (
@@ -44,16 +60,16 @@ const FoodCard = ({ food, onAddToCart }: FoodCardProps) => {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="font-bold text-lg text-blue-600">
-              {food.currency} {food.price}
+              {food.currency || 'USD'} {food.price || '0.00'}
             </span>
             <span className="text-sm text-gray-500 flex items-center gap-1">
               <Clock className="h-3 w-3" />
-              {food.preparation_time} min
+              {food.preparation_time || 30} min
             </span>
           </div>
         </div>
         <Button 
-          onClick={() => onAddToCart?.(food)}
+          onClick={handleAddToCart}
           className="w-full"
           size="sm"
         >

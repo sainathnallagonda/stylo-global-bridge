@@ -44,16 +44,22 @@ const CustomerFoodDisplay = () => {
 
   const fetchFoods = async () => {
     try {
+      console.log('Fetching foods...');
       const { data, error } = await supabase
         .from('vendor_foods')
         .select('*')
         .eq('is_available', true)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching foods:', error);
+        throw error;
+      }
+      
+      console.log('Foods fetched successfully:', data?.length || 0);
       setFoods(data || []);
     } catch (error) {
-      console.error('Error fetching foods:', error);
+      console.error('Error in fetchFoods:', error);
       toast({
         title: "Error",
         description: "Failed to load food items",
@@ -65,28 +71,42 @@ const CustomerFoodDisplay = () => {
   };
 
   const filterFoods = () => {
-    let filtered = foods;
+    try {
+      let filtered = foods;
 
-    if (searchTerm) {
-      filtered = filtered.filter(food => 
-        food.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        food.description?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      if (searchTerm) {
+        filtered = filtered.filter(food => 
+          food.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          food.description?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+
+      if (selectedCategory !== 'all') {
+        filtered = filtered.filter(food => food.category === selectedCategory);
+      }
+
+      setFilteredFoods(filtered);
+    } catch (error) {
+      console.error('Error in filterFoods:', error);
+      setFilteredFoods([]);
     }
-
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(food => food.category === selectedCategory);
-    }
-
-    setFilteredFoods(filtered);
   };
 
   const addToCart = (food: VendorFood) => {
-    setCartItems(prev => [...prev, food]);
-    toast({
-      title: "Added to Cart",
-      description: `${food.name} has been added to your cart`,
-    });
+    try {
+      setCartItems(prev => [...prev, food]);
+      toast({
+        title: "Added to Cart",
+        description: `${food.name} has been added to your cart`,
+      });
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add item to cart",
+        variant: "destructive"
+      });
+    }
   };
 
   if (loading) {
