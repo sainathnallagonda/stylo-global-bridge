@@ -16,7 +16,7 @@ import VendorAuth from "./pages/VendorAuth";
 import CustomerDashboard from "./components/dashboard/CustomerDashboard";
 import VendorDashboard from "./components/dashboard/VendorDashboard";
 import Profile from "./pages/Profile";
-import EnhancedFoodDelivery from "./pages/EnhancedFoodDelivery";
+import ImprovedFoodDelivery from "./pages/ImprovedFoodDelivery";
 import Groceries from "./pages/Groceries";
 import Gifts from "./pages/Gifts";
 import Rides from "./pages/Rides";
@@ -87,7 +87,7 @@ const App = () => (
                     />
                     
                     {/* Service Routes */}
-                    <Route path="/food-delivery" element={<EnhancedFoodDelivery />} />
+                    <Route path="/food-delivery" element={<ImprovedFoodDelivery />} />
                     <Route path="/groceries" element={<Groceries />} />
                     <Route path="/gifts" element={<Gifts />} />
                     <Route path="/rides" element={<Rides />} />
