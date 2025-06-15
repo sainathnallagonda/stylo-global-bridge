@@ -13,8 +13,15 @@ const VendorDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && (!user || profile?.role !== 'vendor')) {
-      navigate('/auth');
+    if (!loading) {
+      if (!user) {
+        navigate('/auth');
+      } else if (profile?.role === 'customer') {
+        // Redirect customers to their dashboard
+        navigate('/dashboard');
+      } else if (profile?.role !== 'vendor') {
+        navigate('/auth');
+      }
     }
   }, [user, profile, loading, navigate]);
 

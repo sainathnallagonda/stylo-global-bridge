@@ -45,7 +45,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .single();
 
       if (error) throw error;
-      setProfile(data);
+      
+      // Ensure role is properly typed
+      const profileData: Profile = {
+        id: data.id,
+        email: data.email,
+        full_name: data.full_name,
+        role: (data.role as 'customer' | 'vendor') || 'customer'
+      };
+      
+      setProfile(profileData);
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
