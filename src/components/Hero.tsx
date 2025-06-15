@@ -1,8 +1,21 @@
 
 import { ArrowRight, Heart, MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Hero = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (user) {
+      navigate('/dashboard');
+    } else {
+      navigate('/auth');
+    }
+  };
+
   return (
     <section className="pt-24 pb-12 px-4">
       <div className="container mx-auto">
@@ -32,8 +45,12 @@ const Hero = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-6">
-              Start Caring <ArrowRight className="ml-2" size={20} />
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-6"
+              onClick={handleGetStarted}
+            >
+              {user ? 'Go to Dashboard' : 'Start Caring'} <ArrowRight className="ml-2" size={20} />
             </Button>
             <Button size="lg" variant="outline" className="text-lg px-8 py-6 border-2 hover:bg-gray-50">
               Watch Demo

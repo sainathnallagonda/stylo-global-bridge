@@ -9,13 +9,148 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      order_tracking: {
+        Row: {
+          id: string
+          location: string | null
+          message: string | null
+          metadata: Json | null
+          order_id: string
+          status: string
+          timestamp: string
+        }
+        Insert: {
+          id?: string
+          location?: string | null
+          message?: string | null
+          metadata?: Json | null
+          order_id: string
+          status: string
+          timestamp?: string
+        }
+        Update: {
+          id?: string
+          location?: string | null
+          message?: string | null
+          metadata?: Json | null
+          order_id?: string
+          status?: string
+          timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_tracking_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          converted_amount: number | null
+          converted_currency: string | null
+          created_at: string
+          currency: string
+          delivery_address: Json
+          id: string
+          items: Json
+          recipient_country: string
+          recipient_info: Json
+          service_type: string
+          special_instructions: string | null
+          status: string
+          total_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          converted_amount?: number | null
+          converted_currency?: string | null
+          created_at?: string
+          currency: string
+          delivery_address: Json
+          id?: string
+          items: Json
+          recipient_country: string
+          recipient_info: Json
+          service_type: string
+          special_instructions?: string | null
+          status?: string
+          total_amount: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          converted_amount?: number | null
+          converted_currency?: string | null
+          created_at?: string
+          currency?: string
+          delivery_address?: Json
+          id?: string
+          items?: Json
+          recipient_country?: string
+          recipient_info?: Json
+          service_type?: string
+          special_instructions?: string | null
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: Json | null
+          country: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          preferred_currency: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: Json | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          preferred_currency?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: Json | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          preferred_currency?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_order_tracking: {
+        Args: {
+          order_id: string
+          status: string
+          message?: string
+          location?: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

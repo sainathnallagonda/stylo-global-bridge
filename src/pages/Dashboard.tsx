@@ -1,0 +1,247 @@
+
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Package, Clock, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+
+interface Order {
+  id: string;
+  service_type: string;
+  status: string;
+  total_amount: number;
+  currency: string;
+  recipient_country: string;
+  created_at: string;
+  recipient_info: any;
+}
+
+interface OrderTracking {
+  id: string;
+  status: string;
+  message: string;
+  location: string;
+  timestamp: string;
+}
+
+const Dashboard = () => {
+  const { user } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [tracking, setTracking] = useState<OrderTracking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setOrders(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch orders",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTracking = async (orderId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('order_tracking')
+        .select('*')
+        .eq('order_id', orderId)
+        .order('timestamp', { ascending: false });
+
+      if (error) throw error;
+      setTracking(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch tracking information",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Clock className="h-4 w-4" />;
+      case 'confirmed':
+      case 'processing':
+        return <Package className="h-4 w-4" />;
+      case 'delivered':
+        return <CheckCircle className="h-4 w-4" />;
+      case 'cancelled':
+        return <XCircle className="h-4 w-4" />;
+      default:
+        return <Clock className="h-4 w-4" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-500';
+      case 'confirmed':
+      case 'processing':
+        return 'bg-blue-500';
+      case 'shipped':
+        return 'bg-purple-500';
+      case 'delivered':
+        return 'bg-green-500';
+      case 'cancelled':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <Header />
+      <div className="container mx-auto px-4 py-24">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Welcome back, {user?.email}!
+          </h1>
+          <p className="text-gray-600">Track your orders and manage your care packages</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Orders List */}
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Your Orders</h2>
+            {orders.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">No orders yet. Start caring across borders!</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {orders.map((order) => (
+                  <Card key={order.id} className="cursor-pointer hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-2">
+                          {getStatusIcon(order.status)}
+                          <Badge className={`${getStatusColor(order.status)} text-white`}>
+                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                          </Badge>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedOrder(order);
+                            fetchTracking(order.id);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Track
+                        </Button>
+                      </div>
+                      <h3 className="font-semibold text-lg mb-2">
+                        {order.service_type.charAt(0).toUpperCase() + order.service_type.slice(1)} Order
+                      </h3>
+                      <p className="text-gray-600 mb-2">
+                        To: {order.recipient_country.charAt(0).toUpperCase() + order.recipient_country.slice(1)}
+                      </p>
+                      <p className="text-lg font-bold text-blue-600">
+                        {order.currency} {order.total_amount}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Order Tracking */}
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Order Tracking</h2>
+            {selectedOrder ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Order #{selectedOrder.id.slice(0, 8)}</CardTitle>
+                  <CardDescription>
+                    {selectedOrder.service_type} delivery to {selectedOrder.recipient_country}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {tracking.length === 0 ? (
+                    <p className="text-gray-600 text-center py-8">
+                      No tracking information available yet.
+                    </p>
+                  ) : (
+                    <div className="space-y-4">
+                      {tracking.map((track, index) => (
+                        <div key={track.id} className="flex items-start space-x-4">
+                          <div className={`w-3 h-3 rounded-full mt-2 ${getStatusColor(track.status)}`}></div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-semibold">{track.status.charAt(0).toUpperCase() + track.status.slice(1)}</h4>
+                              <span className="text-sm text-gray-500">
+                                {new Date(track.timestamp).toLocaleString()}
+                              </span>
+                            </div>
+                            {track.message && (
+                              <p className="text-gray-600 mt-1">{track.message}</p>
+                            )}
+                            {track.location && (
+                              <p className="text-sm text-gray-500 mt-1">📍 {track.location}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">Select an order to view tracking information</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </div>
+  );
+};
+
+export default Dashboard;
