@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LocationProvider } from "@/contexts/LocationContext";
+import { LanguageProvider } from "@/components/MultiLanguageSupport";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import CustomerAuth from "./pages/CustomerAuth";
@@ -35,85 +36,87 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <LocationProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/customer-login" element={<CustomerAuth />} />
-              <Route path="/vendor-login" element={<VendorAuth />} />
-              <Route 
-                path="/dashboard" 
-                element={
-                  <AuthGuard>
-                    <Dashboard />
-                  </AuthGuard>
-                } 
-              />
-              <Route 
-                path="/dashboard-v2" 
-                element={
-                  <AuthGuard>
-                    <EnhancedDashboard />
-                  </AuthGuard>
-                } 
-              />
-              <Route 
-                path="/vendor-dashboard" 
-                element={
-                  <AuthGuard>
-                    <VendorDashboard />
-                  </AuthGuard>
-                } 
-              />
-              <Route 
-                path="/dashboard/services" 
-                element={
-                  <AuthGuard>
-                    <EnhancedDashboard />
-                  </AuthGuard>
-                } 
-              />
-              <Route 
-                path="/dashboard/orders" 
-                element={
-                  <AuthGuard>
-                    <Orders />
-                  </AuthGuard>
-                } 
-              />
-              <Route 
-                path="/dashboard/feedback" 
-                element={
-                  <AuthGuard>
-                    <EnhancedDashboard />
-                  </AuthGuard>
-                } 
-              />
-              <Route 
-                path="/dashboard/wallet" 
-                element={
-                  <AuthGuard>
-                    <EnhancedDashboard />
-                  </AuthGuard>
-                } 
-              />
-              <Route 
-                path="/profile" 
-                element={
-                  <AuthGuard>
-                    <Profile />
-                  </AuthGuard>
-                } 
-              />
-              <Route path="/food-delivery" element={<FoodDelivery />} />
-              <Route path="/groceries" element={<Groceries />} />
-              <Route path="/gifts" element={<Gifts />} />
-              <Route path="/rides" element={<Rides />} />
-              <Route path="/travel" element={<Travel />} />
-              <Route path="/care" element={<Care />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/payment" element={<Payment />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <LanguageProvider>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/customer-login" element={<CustomerAuth />} />
+                <Route path="/vendor-login" element={<VendorAuth />} />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <AuthGuard>
+                      <Dashboard />
+                    </AuthGuard>
+                  } 
+                />
+                <Route 
+                  path="/dashboard-v2" 
+                  element={
+                    <AuthGuard>
+                      <EnhancedDashboard />
+                    </AuthGuard>
+                  } 
+                />
+                <Route 
+                  path="/vendor-dashboard" 
+                  element={
+                    <AuthGuard>
+                      <VendorDashboard />
+                    </AuthGuard>
+                  } 
+                />
+                <Route 
+                  path="/dashboard/services" 
+                  element={
+                    <AuthGuard>
+                      <EnhancedDashboard />
+                    </AuthGuard>
+                  } 
+                />
+                <Route 
+                  path="/dashboard/orders" 
+                  element={
+                    <AuthGuard>
+                      <Orders />
+                    </AuthGuard>
+                  } 
+                />
+                <Route 
+                  path="/dashboard/feedback" 
+                  element={
+                    <AuthGuard>
+                      <EnhancedDashboard />
+                    </AuthGuard>
+                  } 
+                />
+                <Route 
+                  path="/dashboard/wallet" 
+                  element={
+                    <AuthGuard>
+                      <EnhancedDashboard />
+                    </AuthGuard>
+                  } 
+                />
+                <Route 
+                  path="/profile" 
+                  element={
+                    <AuthGuard>
+                      <Profile />
+                    </AuthGuard>
+                  } 
+                />
+                <Route path="/food-delivery" element={<FoodDelivery />} />
+                <Route path="/groceries" element={<Groceries />} />
+                <Route path="/gifts" element={<Gifts />} />
+                <Route path="/rides" element={<Rides />} />
+                <Route path="/travel" element={<Travel />} />
+                <Route path="/care" element={<Care />} />
+                <Route path="/orders" element={<Orders />} />
+                <Route path="/payment" element={<Payment />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </LanguageProvider>
           </LocationProvider>
         </AuthProvider>
       </BrowserRouter>
