@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Globe, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -14,6 +15,7 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [role, setRole] = useState<'customer' | 'vendor'>('customer');
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
@@ -40,7 +42,7 @@ const Auth = () => {
           navigate('/');
         }
       } else {
-        const { error } = await signUp(email, password, fullName);
+        const { error } = await signUp(email, password, fullName, role);
         if (error) {
           toast({
             title: "Signup Failed",
@@ -89,23 +91,38 @@ const Auth = () => {
           <CardHeader>
             <CardTitle>{isLogin ? 'Welcome Back' : 'Create Account'}</CardTitle>
             <CardDescription>
-              {isLogin ? 'Sign in to your account' : 'Sign up to start caring across borders'}
+              {isLogin ? 'Sign in to your account' : 'Sign up to start using our services'}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required={!isLogin}
-                    placeholder="Enter your full name"
-                  />
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required={!isLogin}
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="role">Account Type</Label>
+                    <Select value={role} onValueChange={(value: 'customer' | 'vendor') => setRole(value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select account type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="customer">Customer - Order food and services</SelectItem>
+                        <SelectItem value="vendor">Vendor - Manage food and services</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
               )}
               
               <div className="space-y-2">
