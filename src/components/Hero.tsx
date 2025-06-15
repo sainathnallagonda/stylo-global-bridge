@@ -1,5 +1,5 @@
 
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowRight, MapPin, Users, Store } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -84,6 +84,36 @@ const Hero = () => {
                   className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white/90 backdrop-blur-sm shadow-sm"
                 />
               </div>
+
+              {/* Login Buttons - Show only if user is not logged in */}
+              {!user && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Button 
+                      size="lg" 
+                      className="bg-orange-600 hover:bg-orange-700 text-white text-lg px-6 py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group w-full"
+                      onClick={() => navigate('/customer-login')}
+                    >
+                      <Users className="mr-2 h-5 w-5" />
+                      Customer Login
+                    </Button>
+                    
+                    <Button 
+                      size="lg" 
+                      variant="outline"
+                      className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white text-lg px-6 py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group w-full"
+                      onClick={() => navigate('/vendor-login')}
+                    >
+                      <Store className="mr-2 h-5 w-5" />
+                      Vendor Login
+                    </Button>
+                  </div>
+                  
+                  <div className="text-center">
+                    <p className="text-sm text-gray-500 mb-2">Or browse without logging in</p>
+                  </div>
+                </div>
+              )}
 
               {/* CTA Button */}
               <Button 

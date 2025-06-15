@@ -8,6 +8,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { LocationProvider } from "@/contexts/LocationContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import CustomerAuth from "./pages/CustomerAuth";
+import VendorAuth from "./pages/VendorAuth";
 import Dashboard from "./pages/Dashboard";
 import EnhancedDashboard from "./pages/EnhancedDashboard";
 import VendorDashboard from "./pages/VendorDashboard";
@@ -36,6 +38,8 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/customer-login" element={<CustomerAuth />} />
+              <Route path="/vendor-login" element={<VendorAuth />} />
               <Route 
                 path="/dashboard" 
                 element={
