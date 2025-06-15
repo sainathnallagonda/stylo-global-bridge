@@ -102,34 +102,6 @@ const HowItWorks = () => {
             </div>
           ))}
         </div>
-
-        {/* Benefits Section */}
-        <div className="mt-16 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
-          <h3 className="text-2xl font-semibold mb-8 text-center text-gray-900">Why Choose Our Platform?</h3>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="flex items-start gap-3">
-              <CheckCircle className="h-6 w-6 text-green-600 mt-1 flex-shrink-0" />
-              <div>
-                <h4 className="font-semibold mb-1 text-gray-900">Verified Partners</h4>
-                <p className="text-sm text-gray-600">All our service partners are thoroughly verified and rated by users</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle className="h-6 w-6 text-green-600 mt-1 flex-shrink-0" />
-              <div>
-                <h4 className="font-semibold mb-1 text-gray-900">Transparent Pricing</h4>
-                <p className="text-sm text-gray-600">No hidden fees - see exactly what you pay before confirming</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle className="h-6 w-6 text-green-600 mt-1 flex-shrink-0" />
-              <div>
-                <h4 className="font-semibold mb-1 text-gray-900">24/7 Support</h4>
-                <p className="text-sm text-gray-600">Round-the-clock customer support in multiple languages</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
