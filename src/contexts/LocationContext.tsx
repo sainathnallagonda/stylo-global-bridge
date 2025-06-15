@@ -32,13 +32,12 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
   const [fromCountry, setFromCountry] = useState<Country>('India');
   const [toCountry, setToCountry] = useState<Country>('USA');
   const [currency, setCurrency] = useState<Currency>('INR');
-  const [exchangeRate, setExchangeRate] = useState<number>(83); // Default fallback rate
+  const [exchangeRate, setExchangeRate] = useState<number>(83);
   const [isLoadingRate, setIsLoadingRate] = useState<boolean>(false);
 
   const fetchExchangeRate = async () => {
     setIsLoadingRate(true);
     try {
-      // Using a free exchange rate API
       const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
       const data = await response.json();
       if (data.rates && data.rates.INR) {
@@ -48,7 +47,6 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error('Failed to fetch exchange rate:', error);
-      // Try to get cached rate
       const cachedRate = localStorage.getItem('exchangeRate');
       if (cachedRate) {
         setExchangeRate(parseFloat(cachedRate));
@@ -63,10 +61,9 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    // Check if we have a cached rate and if it's recent (less than 1 hour old)
     const cachedRate = localStorage.getItem('exchangeRate');
     const lastUpdated = localStorage.getItem('lastUpdated');
-    const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+    const oneHour = 60 * 60 * 1000;
     
     if (cachedRate && lastUpdated && (Date.now() - parseInt(lastUpdated)) < oneHour) {
       setExchangeRate(parseFloat(cachedRate));
@@ -74,7 +71,6 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
       fetchExchangeRate();
     }
 
-    // Update exchange rate every 30 minutes instead of 5 minutes
     const interval = setInterval(fetchExchangeRate, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
@@ -85,9 +81,13 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
     setToCountry(temp);
   };
 
-  // Simplified currency display - just show the price without conversion in parentheses
+  // Simplified currency display - show prices based on destination country
   const getCurrencyDisplay = (amount: number, originalCurrency: 'INR' | 'USD') => {
-    return originalCurrency === 'USD' ? `$${amount}` : `₹${amount}`;
+    if (toCountry === 'USA') {
+      return `$${amount}`;
+    } else {
+      return `₹${amount}`;
+    }
   };
 
   return (
