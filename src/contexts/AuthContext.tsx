@@ -64,6 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     let mounted = true;
+    let authSubscription: any = null;
 
     const initializeAuth = async () => {
       try {
@@ -86,7 +87,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           await fetchProfile(initialSession.user.id);
         }
         
-        // Set up auth state change listener
+        // Set up auth state change listener - only once
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
             if (!mounted) return;
@@ -103,12 +104,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         );
 
+        authSubscription = subscription;
         setLoading(false);
-        
-        return () => {
-          mounted = false;
-          subscription.unsubscribe();
-        };
       } catch (error) {
         console.error('Auth initialization error:', error);
         if (mounted) {
@@ -121,8 +118,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => {
       mounted = false;
+      if (authSubscription) {
+        authSubscription.unsubscribe();
+      }
     };
-  }, []);
+  }, []); // Empty dependency array - only run once
 
   const signUp = async (email: string, password: string, fullName: string, role: 'customer' | 'vendor') => {
     try {
