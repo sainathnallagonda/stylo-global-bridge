@@ -69,7 +69,7 @@ const PersonalInfo = () => {
       }
 
       if (data) {
-        const notificationPrefs = data.notification_preferences as NotificationPreferences || {
+        const notificationPrefs = (data.notification_preferences as unknown as NotificationPreferences) || {
           email: true,
           sms: false,
           push: true
@@ -106,7 +106,15 @@ const PersonalInfo = () => {
         .from('profiles')
         .upsert({
           id: user.id,
-          ...profile,
+          full_name: profile.full_name,
+          email: profile.email,
+          phone: profile.phone,
+          country: profile.country,
+          preferred_currency: profile.preferred_currency,
+          date_of_birth: profile.date_of_birth,
+          gender: profile.gender,
+          avatar_url: profile.avatar_url,
+          notification_preferences: profile.notification_preferences as any,
           updated_at: new Date().toISOString()
         });
 

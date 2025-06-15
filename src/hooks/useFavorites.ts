@@ -37,7 +37,7 @@ export const useFavorites = () => {
       if (error) throw error;
       
       const favoriteIds = data?.map(fav => {
-        const itemData = fav.item_data as FavoriteItem;
+        const itemData = fav.item_data as unknown as FavoriteItem;
         return itemData.id.toString();
       }) || [];
       setFavorites(favoriteIds);
@@ -81,7 +81,7 @@ export const useFavorites = () => {
           .insert({
             user_id: user.id,
             service_type: serviceType,
-            item_data: item
+            item_data: item as any
           });
 
         if (error) throw error;
