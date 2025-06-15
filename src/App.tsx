@@ -52,6 +52,38 @@ const App = () => (
                 } 
               />
               <Route 
+                path="/dashboard/services" 
+                element={
+                  <AuthGuard>
+                    <EnhancedDashboard />
+                  </AuthGuard>
+                } 
+              />
+              <Route 
+                path="/dashboard/orders" 
+                element={
+                  <AuthGuard>
+                    <Orders />
+                  </AuthGuard>
+                } 
+              />
+              <Route 
+                path="/dashboard/feedback" 
+                element={
+                  <AuthGuard>
+                    <EnhancedDashboard />
+                  </AuthGuard>
+                } 
+              />
+              <Route 
+                path="/dashboard/wallet" 
+                element={
+                  <AuthGuard>
+                    <EnhancedDashboard />
+                  </AuthGuard>
+                } 
+              />
+              <Route 
                 path="/profile" 
                 element={
                   <AuthGuard>

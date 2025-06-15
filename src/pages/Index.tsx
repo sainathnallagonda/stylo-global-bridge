@@ -1,20 +1,41 @@
 
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import Hero from "@/components/Hero";
+import Features from "@/components/Features";
 import Services from "@/components/Services";
-import HowItWorks from "@/components/HowItWorks";
 import TravelCompanions from "@/components/TravelCompanions";
+import FlightServiceBundle from "@/components/FlightServiceBundle";
+import HowItWorks from "@/components/HowItWorks";
 import TrustSecurity from "@/components/TrustSecurity";
 import Footer from "@/components/Footer";
-import Header from "@/components/Header";
 
 const Index = () => {
+  const { user, setUser } = useAuth();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [setUser]);
+
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
+    <div className="min-h-screen">
       <Hero />
+      <Features />
       <Services />
-      <HowItWorks />
       <TravelCompanions />
+      <FlightServiceBundle />
+      <HowItWorks />
       <TrustSecurity />
       <Footer />
     </div>

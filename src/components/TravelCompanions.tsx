@@ -1,5 +1,5 @@
 
-import { Calendar, MapPin, Star, User, Shield, Clock, Award } from "lucide-react";
+import { Calendar, MapPin, Star, User, Shield, Clock, Award, Filter, Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,8 +14,10 @@ const companions = [
     rating: 4.8,
     trips: 58,
     languages: "English, Hindi",
+    purpose: "First-time assistance",
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    badges: ["ID Verified", "Background Check", "Frequent Traveler"]
+    badges: ["ID Verified", "Background Check", "Frequent Traveler"],
+    experience: "Helps with customs, connecting flights, and cultural transition"
   },
   {
     name: "Michael Johnson", 
@@ -24,8 +26,10 @@ const companions = [
     rating: 4.7,
     trips: 32,
     languages: "English",
+    purpose: "Business travel",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    badges: ["ID Verified", "Background Check", "Medical Training"]
+    badges: ["ID Verified", "Background Check", "Medical Training"],
+    experience: "Business traveler with medical training, great for elderly passengers"
   },
   {
     name: "Rahul Patel",
@@ -34,8 +38,10 @@ const companions = [
     rating: 5.0,
     trips: 41,
     languages: "English, Hindi, Gujarati",
+    purpose: "Family visits",
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    badges: ["ID Verified", "Background Check", "Super Companion"]
+    badges: ["ID Verified", "Background Check", "Super Companion"],
+    experience: "Specializes in family travel assistance and cultural guidance"
   }
 ];
 
@@ -44,67 +50,140 @@ const TravelCompanions = () => {
   const [preferences, setPreferences] = useState({
     travelDate: "",
     route: "India to USA",
-    gender: "Any Gender"
+    gender: "Any Gender",
+    language: "Any Language",
+    purpose: "Any Purpose"
   });
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+
   const handleFindCompanions = () => {
-    // Navigate to travel page with preferences as URL params
     const searchParams = new URLSearchParams({
       date: preferences.travelDate,
       route: preferences.route,
-      gender: preferences.gender
+      gender: preferences.gender,
+      language: preferences.language,
+      purpose: preferences.purpose,
+      search: searchQuery
     });
     navigate(`/travel?${searchParams.toString()}`);
   };
+
+  const filteredCompanions = companions.filter(companion => {
+    const matchesSearch = searchQuery === "" || 
+      companion.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      companion.route.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      companion.languages.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesRoute = preferences.route === "Any Route" || 
+      (preferences.route === "India to USA" && companion.route.includes("to")) ||
+      (preferences.route === "USA to India" && companion.route.includes("to"));
+    
+    return matchesSearch && matchesRoute;
+  });
 
   return (
     <section className="py-20 px-4 bg-gray-50">
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4 text-gray-900">
-            Travel Companion
+            Find Your Travel Companion
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Find verified travel buddies for international flights between USA and India.
-            Perfect for first-time travelers, elderly, or those needing assistance.
+            Connect with verified travel buddies for international flights. Perfect for first-time travelers, 
+            elderly passengers, or anyone needing assistance during their journey.
           </p>
         </div>
 
-        {/* Search Form */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-12 max-w-4xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Travel Dates</label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <Input 
-                  placeholder="mm/dd/yyyy" 
-                  className="pl-10 h-12"
-                  value={preferences.travelDate}
-                  onChange={(e) => setPreferences(prev => ({ ...prev, travelDate: e.target.value }))}
-                />
-              </div>
+        {/* Enhanced Search Form */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-12 max-w-6xl mx-auto">
+          {/* Search Bar */}
+          <div className="mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Input 
+                placeholder="Search by name, route, or language..." 
+                className="pl-10 h-12 text-lg"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Button
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2"
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Filters
+              </Button>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Route</label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          </div>
+
+          {/* Advanced Filters */}
+          {showFilters && (
+            <div className="grid md:grid-cols-5 gap-4 p-4 bg-gray-50 rounded-lg mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Travel Dates</label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Input 
+                    type="date"
+                    className="pl-10 h-10"
+                    value={preferences.travelDate}
+                    onChange={(e) => setPreferences(prev => ({ ...prev, travelDate: e.target.value }))}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Route</label>
                 <select 
-                  className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full h-10 px-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                   value={preferences.route}
                   onChange={(e) => setPreferences(prev => ({ ...prev, route: e.target.value }))}
                 >
+                  <option>Any Route</option>
                   <option>India to USA</option>
                   <option>USA to India</option>
                 </select>
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Preferences</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
                 <select 
-                  className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full h-10 px-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  value={preferences.language}
+                  onChange={(e) => setPreferences(prev => ({ ...prev, language: e.target.value }))}
+                >
+                  <option>Any Language</option>
+                  <option>English</option>
+                  <option>Hindi</option>
+                  <option>Gujarati</option>
+                  <option>Tamil</option>
+                  <option>Telugu</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Purpose</label>
+                <select 
+                  className="w-full h-10 px-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  value={preferences.purpose}
+                  onChange={(e) => setPreferences(prev => ({ ...prev, purpose: e.target.value }))}
+                >
+                  <option>Any Purpose</option>
+                  <option>First-time assistance</option>
+                  <option>Business travel</option>
+                  <option>Family visits</option>
+                  <option>Medical support</option>
+                  <option>Cultural guidance</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                <select 
+                  className="w-full h-10 px-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                   value={preferences.gender}
                   onChange={(e) => setPreferences(prev => ({ ...prev, gender: e.target.value }))}
                 >
@@ -114,78 +193,103 @@ const TravelCompanions = () => {
                 </select>
               </div>
             </div>
-            <div className="flex items-end">
-              <Button 
-                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
-                onClick={handleFindCompanions}
-              >
-                Find Companions
-              </Button>
-            </div>
+          )}
+
+          <div className="flex justify-center">
+            <Button 
+              size="lg"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8"
+              onClick={handleFindCompanions}
+            >
+              Find Travel Companions
+            </Button>
           </div>
         </div>
 
-        {/* Companions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          {companions.map((companion, index) => (
-            <Card key={index} className="hover:shadow-xl transition-all duration-300 border-0 shadow-md bg-white">
-              <CardContent className="p-6">
-                <div className="flex items-center mb-4">
+        {/* Results Summary */}
+        <div className="mb-8 text-center">
+          <p className="text-gray-600">
+            Found <span className="font-semibold text-blue-600">{filteredCompanions.length}</span> travel companions
+            {searchQuery && <span> matching "{searchQuery}"</span>}
+          </p>
+        </div>
+
+        {/* Enhanced Companions Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          {filteredCompanions.map((companion, index) => (
+            <Card key={index} className="hover:shadow-xl transition-all duration-300 border-0 shadow-md bg-white overflow-hidden">
+              <CardContent className="p-0">
+                {/* Header with Image and Basic Info */}
+                <div className="relative h-24 bg-gradient-to-r from-blue-500 to-purple-600">
                   <img 
                     src={companion.image} 
                     alt={companion.name}
-                    className="w-16 h-16 rounded-full mr-4 object-cover"
+                    className="absolute bottom-0 left-6 w-20 h-20 rounded-full border-4 border-white object-cover transform translate-y-1/2"
                   />
-                  <div className="flex-1">
-                    <h3 className="font-bold text-gray-900 text-lg">{companion.name}</h3>
-                    <div className="flex items-center mt-1">
+                  <div className="absolute top-4 right-4">
+                    <div className="flex items-center bg-white/90 rounded-full px-2 py-1">
                       <Star className="text-amber-400 fill-current h-4 w-4" />
-                      <span className="text-sm text-gray-600 ml-1">
-                        {companion.rating} ({companion.trips} trips)
-                      </span>
+                      <span className="text-sm font-semibold ml-1">{companion.rating}</span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center text-gray-600">
-                    <MapPin className="h-4 w-4 mr-2 text-blue-600" />
-                    <span className="text-sm">{companion.route}</span>
+                {/* Content */}
+                <div className="pt-12 p-6">
+                  <div className="mb-4">
+                    <h3 className="font-bold text-gray-900 text-xl mb-1">{companion.name}</h3>
+                    <p className="text-sm text-gray-500">{companion.trips} successful trips</p>
                   </div>
-                  <div className="flex items-center text-gray-600">
-                    <Calendar className="h-4 w-4 mr-2 text-blue-600" />
-                    <span className="text-sm">{companion.date}</span>
+                  
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center text-gray-600">
+                      <MapPin className="h-4 w-4 mr-2 text-blue-600 flex-shrink-0" />
+                      <span className="text-sm">{companion.route}</span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <Calendar className="h-4 w-4 mr-2 text-blue-600 flex-shrink-0" />
+                      <span className="text-sm">{companion.date}</span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <User className="h-4 w-4 mr-2 text-blue-600 flex-shrink-0" />
+                      <span className="text-sm">Speaks: {companion.languages}</span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <Award className="h-4 w-4 mr-2 text-blue-600 flex-shrink-0" />
+                      <span className="text-sm">{companion.purpose}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center text-gray-600">
-                    <User className="h-4 w-4 mr-2 text-blue-600" />
-                    <span className="text-sm">Languages: {companion.languages}</span>
-                  </div>
-                </div>
 
-                {/* Badges */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {companion.badges.map((badge, badgeIndex) => (
-                    <span 
-                      key={badgeIndex}
-                      className={`text-xs px-2 py-1 rounded-full ${
-                        badge === 'ID Verified' ? 'bg-green-100 text-green-700' :
-                        badge === 'Background Check' ? 'bg-blue-100 text-blue-700' :
-                        badge === 'Frequent Traveler' ? 'bg-purple-100 text-purple-700' :
-                        badge === 'Medical Training' ? 'bg-orange-100 text-orange-700' :
-                        'bg-red-100 text-red-700'
-                      }`}
-                    >
-                      {badge}
-                    </span>
-                  ))}
-                </div>
+                  {/* Experience */}
+                  <div className="mb-4">
+                    <p className="text-xs text-gray-600 italic">"{companion.experience}"</p>
+                  </div>
 
-                <Button 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={handleFindCompanions}
-                >
-                  Contact {companion.name.split(' ')[0]}
-                </Button>
+                  {/* Badges */}
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {companion.badges.map((badge, badgeIndex) => (
+                      <span 
+                        key={badgeIndex}
+                        className={`text-xs px-2 py-1 rounded-full ${
+                          badge === 'ID Verified' ? 'bg-green-100 text-green-700' :
+                          badge === 'Background Check' ? 'bg-blue-100 text-blue-700' :
+                          badge === 'Frequent Traveler' ? 'bg-purple-100 text-purple-700' :
+                          badge === 'Medical Training' ? 'bg-orange-100 text-orange-700' :
+                          'bg-red-100 text-red-700'
+                        }`}
+                      >
+                        {badge}
+                      </span>
+                    ))}
+                  </div>
+
+                  <Button 
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    onClick={handleFindCompanions}
+                  >
+                    Connect with {companion.name.split(' ')[0]}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
