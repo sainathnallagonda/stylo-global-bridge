@@ -45,17 +45,6 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-
-    /* Custom blue theme variables */
-    --primary-blue: 221 83% 53%;
-    --primary-blue-dark: 221 83% 43%;
-    --light-blue: 210 100% 97%;
-    --gray-50: 210 20% 98%;
-    --gray-100: 210 14% 97%;
-    --gray-200: 214 14% 92%;
-    --gray-600: 215 16% 47%;
-    --gray-700: 215 19% 35%;
-    --gray-800: 215 28% 17%;
   }
 
   .dark {
@@ -95,37 +84,27 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   }
 }
 
 /* Clean utility classes */
 @layer utilities {
-  .bg-primary-blue {
-    background-color: hsl(var(--primary-blue));
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
-  .bg-primary-blue-dark {
-    background-color: hsl(var(--primary-blue-dark));
+  .bg-gradient-soft {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   }
   
-  .bg-light-blue {
-    background-color: hsl(var(--light-blue));
+  .card-hover {
+    transition: all 0.3s ease;
   }
   
-  .text-primary-blue {
-    color: hsl(var(--primary-blue));
-  }
-  
-  .text-primary-blue-dark {
-    color: hsl(var(--primary-blue-dark));
-  }
-  
-  .border-primary-blue {
-    border-color: hsl(var(--primary-blue));
-  }
-  
-  .hover\:bg-primary-blue-dark:hover {
-    background-color: hsl(var(--primary-blue-dark));
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
 }

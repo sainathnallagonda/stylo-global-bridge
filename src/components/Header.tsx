@@ -33,17 +33,19 @@ const Header = () => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
-            <h1 
-              onClick={() => navigate("/")}
-              className="text-2xl font-bold text-primary-blue cursor-pointer hover:text-primary-blue-dark transition-colors"
-            >
-              Stylo
-            </h1>
-            <span className="text-sm text-gray-500">Send to Your Loved Ones</span>
+            <div className="flex items-center space-x-3">
+              <h1 
+                onClick={() => navigate("/")}
+                className="text-2xl font-bold text-blue-600 cursor-pointer hover:text-blue-700 transition-colors"
+              >
+                Stylo
+              </h1>
+              <span className="text-sm text-gray-500 hidden sm:block">Send to Your Loved Ones</span>
+            </div>
           </div>
 
           {/* Desktop Navigation */}
@@ -52,7 +54,7 @@ const Header = () => {
               <button
                 key={item.name}
                 onClick={() => navigate(item.path)}
-                className="text-gray-600 hover:text-primary-blue transition-colors text-sm font-medium"
+                className="text-gray-600 hover:text-blue-600 transition-colors text-sm font-medium px-3 py-2 rounded-lg hover:bg-blue-50"
               >
                 {item.name}
               </button>
@@ -63,9 +65,9 @@ const Header = () => {
             <CurrencyToggle />
             
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative hover:bg-gray-100">
                 <ShoppingCart className="h-5 w-5 text-gray-600" />
-                <span className="absolute -top-1 -right-1 bg-primary-blue text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   3
                 </span>
               </Button>
@@ -76,7 +78,7 @@ const Header = () => {
                     onClick={() => navigate("/dashboard")}
                     variant="ghost"
                     size="sm"
-                    className="text-gray-600 hover:text-primary-blue"
+                    className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
                   >
                     <User className="h-4 w-4 mr-2" />
                     Dashboard
@@ -85,7 +87,7 @@ const Header = () => {
                     onClick={handleSignOut}
                     variant="ghost"
                     size="sm"
-                    className="text-gray-600 hover:text-red-600"
+                    className="text-gray-600 hover:text-red-600 hover:bg-red-50"
                   >
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign Out
@@ -94,7 +96,7 @@ const Header = () => {
               ) : (
                 <Button 
                   onClick={handleAuthClick}
-                  className="bg-primary-blue hover:bg-primary-blue-dark text-white"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   Get Started
                 </Button>
@@ -108,6 +110,7 @@ const Header = () => {
               variant="ghost"
               size="icon"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="hover:bg-gray-100"
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
@@ -116,7 +119,7 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 py-4 border-t border-gray-200 bg-white">
+          <div className="md:hidden mt-4 py-4 border-t border-gray-100 bg-white">
             <div className="flex flex-col space-y-4">
               {navItems.map((item) => (
                 <button
@@ -125,13 +128,13 @@ const Header = () => {
                     navigate(item.path);
                     setIsMenuOpen(false);
                   }}
-                  className="text-left text-gray-600 hover:text-primary-blue transition-colors py-2"
+                  className="text-left text-gray-600 hover:text-blue-600 transition-colors py-2 px-3 rounded-lg hover:bg-blue-50"
                 >
                   {item.name}
                 </button>
               ))}
               
-              <div className="pt-4 border-t border-gray-200">
+              <div className="pt-4 border-t border-gray-100">
                 <CurrencyToggle />
               </div>
               
@@ -143,7 +146,7 @@ const Header = () => {
                       setIsMenuOpen(false);
                     }}
                     variant="ghost"
-                    className="justify-start"
+                    className="justify-start hover:bg-blue-50"
                   >
                     <User className="h-4 w-4 mr-2" />
                     Dashboard
@@ -154,7 +157,7 @@ const Header = () => {
                       setIsMenuOpen(false);
                     }}
                     variant="ghost"
-                    className="justify-start text-red-600"
+                    className="justify-start text-red-600 hover:bg-red-50"
                   >
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign Out
@@ -166,7 +169,7 @@ const Header = () => {
                     handleAuthClick();
                     setIsMenuOpen(false);
                   }}
-                  className="bg-primary-blue hover:bg-primary-blue-dark text-white"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   Get Started
                 </Button>
