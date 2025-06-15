@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { ArrowLeft, Search, Heart, Star } from "lucide-react";
+import { ArrowLeft, Search, Heart, Star, Gift as GiftIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ const Gifts = () => {
     {
       id: 1,
       name: "Red Rose Bouquet",
-      image: "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=300&h=300&fit=crop",
+      image: "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=300&h=300&fit=crop&auto=format",
       price: 45,
       category: "Flowers",
       rating: 4.8,
@@ -25,7 +25,7 @@ const Gifts = () => {
     {
       id: 2,
       name: "Chocolate Cake",
-      image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&h=300&fit=crop",
+      image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&h=300&fit=crop&auto=format",
       price: 35,
       category: "Cakes",
       rating: 4.6,
@@ -34,17 +34,26 @@ const Gifts = () => {
     {
       id: 3,
       name: "Teddy Bear",
-      image: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=300&h=300&fit=crop",
+      image: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=300&h=300&fit=crop&auto=format",
       price: 25,
       category: "Soft Toys",
       rating: 4.7,
       delivery: "Next day"
+    },
+    {
+      id: 4,
+      name: "Wine & Chocolates",
+      image: "https://images.unsplash.com/photo-1586985564150-c8dae66ad80b?w=300&h=300&fit=crop&auto=format",
+      price: 65,
+      category: "Gift Hampers",
+      rating: 4.9,
+      delivery: "Same day"
     }
   ] : [
     {
       id: 1,
       name: "Red Rose Bouquet",
-      image: "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=300&h=300&fit=crop",
+      image: "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=300&h=300&fit=crop&auto=format",
       price: 1200,
       category: "Flowers",
       rating: 4.8,
@@ -53,7 +62,7 @@ const Gifts = () => {
     {
       id: 2,
       name: "Chocolate Cake",
-      image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&h=300&fit=crop",
+      image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&h=300&fit=crop&auto=format",
       price: 899,
       category: "Cakes",
       rating: 4.6,
@@ -62,11 +71,20 @@ const Gifts = () => {
     {
       id: 3,
       name: "Teddy Bear",
-      image: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=300&h=300&fit=crop",
+      image: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=300&h=300&fit=crop&auto=format",
       price: 799,
       category: "Soft Toys",
       rating: 4.7,
       delivery: "Next day"
+    },
+    {
+      id: 4,
+      name: "Sweets Box",
+      image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=300&h=300&fit=crop&auto=format",
+      price: 1499,
+      category: "Traditional Sweets",
+      rating: 4.5,
+      delivery: "Same day"
     }
   ];
 
@@ -76,54 +94,72 @@ const Gifts = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-rose-50">
+      {/* Header */}
+      <div className="bg-white/80 backdrop-blur-md shadow-lg border-b border-pink-100">
+        <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-              <ArrowLeft className="h-5 w-5" />
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="hover:bg-pink-100 rounded-full">
+              <ArrowLeft className="h-5 w-5 text-pink-600" />
             </Button>
-            <h1 className="text-2xl font-bold text-gray-800">Gifts & Cakes</h1>
+            <div className="flex items-center gap-3">
+              <GiftIcon className="h-7 w-7 text-pink-600" />
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                Gifts & Cakes
+              </h1>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white border-b">
+      {/* Search */}
+      <div className="bg-white/60 backdrop-blur-sm border-b border-pink-100">
         <div className="container mx-auto px-4 py-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <div className="relative max-w-2xl">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <Input
               placeholder="Search for gifts, cakes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 py-3 text-lg"
+              className="pl-12 py-4 text-lg rounded-2xl border-pink-200 focus:border-pink-400 focus:ring-pink-200"
             />
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Gifts Grid */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredGifts.map((gift) => (
-            <Card key={gift.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Card key={gift.id} className="hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 shadow-lg bg-white/80 backdrop-blur-sm cursor-pointer group overflow-hidden">
               <CardContent className="p-0">
-                <div className="relative">
-                  <img src={gift.image} alt={gift.name} className="w-full h-48 object-cover rounded-t-lg" />
-                  <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded flex items-center gap-1">
+                <div className="relative overflow-hidden">
+                  <img 
+                    src={gift.image} 
+                    alt={gift.name} 
+                    className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-300" 
+                  />
+                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
                     <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium">{gift.rating}</span>
+                    <span className="text-sm font-bold text-gray-800">{gift.rating}</span>
+                  </div>
+                  <div className="absolute bottom-3 left-3 bg-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    {gift.delivery}
                   </div>
                 </div>
-                <div className="p-4">
-                  <h3 className="font-bold text-lg mb-1">{gift.name}</h3>
-                  <p className="text-gray-600 text-sm mb-2">{gift.category}</p>
-                  <p className="text-gray-500 text-sm mb-3">Delivery: {gift.delivery}</p>
+                <div className="p-5">
+                  <h3 className="font-bold text-lg mb-2 text-gray-800 group-hover:text-pink-600 transition-colors">
+                    {gift.name}
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-4 bg-gray-100 px-3 py-1 rounded-full inline-block">
+                    {gift.category}
+                  </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-pink-600">
+                    <span className="text-xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
                       {getCurrencyDisplay(gift.price, toCountry === 'USA' ? 'USD' : 'INR')}
                     </span>
-                    <Button className="bg-pink-500 hover:bg-pink-600">
-                      <Heart className="h-4 w-4 mr-1" />
+                    <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-xl px-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                      <Heart className="h-4 w-4 mr-2" />
                       Send Gift
                     </Button>
                   </div>
