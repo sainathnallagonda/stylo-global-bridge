@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -44,7 +43,20 @@ const SubscriptionManager = () => {
       if (error) throw error;
 
       if (data && data.length > 0) {
-        setSubscriptions(data);
+        // Transform database data to match our interface
+        const transformedData = data.map(item => ({
+          id: item.id,
+          service_type: item.service_type,
+          frequency: item.frequency,
+          total_amount: item.total_amount,
+          currency: item.currency,
+          status: item.status,
+          next_delivery_date: item.next_delivery_date,
+          items: Array.isArray(item.items) ? item.items : [],
+          delivery_address: typeof item.delivery_address === 'object' ? item.delivery_address : {},
+          created_at: item.created_at
+        }));
+        setSubscriptions(transformedData);
       } else {
         // Show mock subscriptions for demonstration
         const mockSubscriptions: Subscription[] = [

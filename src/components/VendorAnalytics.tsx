@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -53,7 +52,16 @@ const VendorAnalytics = () => {
         const mockData = generateMockAnalytics(days);
         setAnalytics(mockData);
       } else {
-        setAnalytics(data);
+        // Transform database data to match our interface
+        const transformedData = data.map(item => ({
+          date: item.date,
+          total_orders: item.total_orders || 0,
+          total_revenue: item.total_revenue || 0,
+          customer_count: item.customer_count || 0,
+          average_rating: item.average_rating || 0,
+          popular_items: Array.isArray(item.popular_items) ? item.popular_items : []
+        }));
+        setAnalytics(transformedData);
       }
     } catch (error) {
       console.error('Error fetching analytics:', error);
