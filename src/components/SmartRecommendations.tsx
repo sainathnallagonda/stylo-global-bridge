@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -63,15 +62,18 @@ const SmartRecommendations = () => {
 
       if (error) throw error;
       
-      // Transform the data to match our interface
-      const transformedData: Recommendation[] = (data || []).map(item => ({
-        id: item.id,
-        service_type: item.service_type,
-        item_data: item.item_data as RecommendationItemData,
-        score: item.score,
-        reason: item.reason || '',
-        created_at: item.created_at
-      }));
+      // Transform the data to match our interface with proper type checking
+      const transformedData: Recommendation[] = (data || []).map(item => {
+        const itemData = item.item_data as unknown as RecommendationItemData;
+        return {
+          id: item.id,
+          service_type: item.service_type,
+          item_data: itemData,
+          score: item.score,
+          reason: item.reason || '',
+          created_at: item.created_at
+        };
+      });
       
       setRecommendations(transformedData);
     } catch (error) {
