@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { ArrowLeft, Search, Heart, Star, Gift as GiftIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -34,7 +33,7 @@ const Gifts = () => {
     {
       id: 3,
       name: "Teddy Bear",
-      image: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=300&h=300&fit=crop&auto=format",
+      image: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?w=300&h=300&fit=crop&auto=format",
       price: 25,
       category: "Soft Toys",
       rating: 4.7,
@@ -43,7 +42,7 @@ const Gifts = () => {
     {
       id: 4,
       name: "Wine & Chocolates",
-      image: "https://images.unsplash.com/photo-1586985564150-c8dae66ad80b?w=300&h=300&fit=crop&auto=format",
+      image: "https://images.unsplash.com/photo-1549007164-93e8ac5e4a8e?w=300&h=300&fit=crop&auto=format",
       price: 65,
       category: "Gift Hampers",
       rating: 4.9,
@@ -71,7 +70,7 @@ const Gifts = () => {
     {
       id: 3,
       name: "Teddy Bear",
-      image: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=300&h=300&fit=crop&auto=format",
+      image: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?w=300&h=300&fit=crop&auto=format",
       price: 799,
       category: "Soft Toys",
       rating: 4.7,
@@ -80,7 +79,7 @@ const Gifts = () => {
     {
       id: 4,
       name: "Sweets Box",
-      image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=300&h=300&fit=crop&auto=format",
+      image: "https://images.unsplash.com/photo-1601039641847-7857b994d704?w=300&h=300&fit=crop&auto=format",
       price: 1499,
       category: "Traditional Sweets",
       rating: 4.5,

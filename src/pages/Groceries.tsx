@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { ArrowLeft, Search, Plus, Minus, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +26,7 @@ const Groceries = () => {
     {
       id: 1,
       name: "Fresh Bananas",
-      image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200&h=200&fit=crop",
+      image: "https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=200&h=200&fit=crop&auto=format",
       price: 3,
       unit: "per bunch",
       category: "Fruits & Vegetables"
@@ -35,7 +34,7 @@ const Groceries = () => {
     {
       id: 2,
       name: "Whole Milk",
-      image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200&h=200&fit=crop",
+      image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200&h=200&fit=crop&auto=format",
       price: 4,
       unit: "1 gallon",
       category: "Dairy & Bakery"
@@ -43,7 +42,7 @@ const Groceries = () => {
     {
       id: 3,
       name: "Lay's Chips",
-      image: "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=200&h=200&fit=crop",
+      image: "https://images.unsplash.com/photo-1613919113640-25732ec5e61f?w=200&h=200&fit=crop&auto=format",
       price: 2,
       unit: "per pack",
       category: "Snacks & Beverages"
@@ -51,7 +50,7 @@ const Groceries = () => {
     {
       id: 4,
       name: "Colgate Toothpaste",
-      image: "https://images.unsplash.com/photo-1585735428165-cdac1b7fb4b8?w=200&h=200&fit=crop",
+      image: "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=200&h=200&fit=crop&auto=format",
       price: 5,
       unit: "4oz tube",
       category: "Personal Care"
@@ -60,7 +59,7 @@ const Groceries = () => {
     {
       id: 1,
       name: "Fresh Bananas",
-      image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200&h=200&fit=crop",
+      image: "https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=200&h=200&fit=crop&auto=format",
       price: 40,
       unit: "per dozen",
       category: "Fruits & Vegetables"
@@ -68,7 +67,7 @@ const Groceries = () => {
     {
       id: 2,
       name: "Amul Fresh Milk",
-      image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200&h=200&fit=crop",
+      image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200&h=200&fit=crop&auto=format",
       price: 25,
       unit: "500ml",
       category: "Dairy & Bakery"
@@ -76,7 +75,7 @@ const Groceries = () => {
     {
       id: 3,
       name: "Lays Chips",
-      image: "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=200&h=200&fit=crop",
+      image: "https://images.unsplash.com/photo-1613919113640-25732ec5e61f?w=200&h=200&fit=crop&auto=format",
       price: 20,
       unit: "per pack",
       category: "Snacks & Beverages"
@@ -84,7 +83,7 @@ const Groceries = () => {
     {
       id: 4,
       name: "Colgate Toothpaste",
-      image: "https://images.unsplash.com/photo-1585735428165-cdac1b7fb4b8?w=200&h=200&fit=crop",
+      image: "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=200&h=200&fit=crop&auto=format",
       price: 85,
       unit: "100g",
       category: "Personal Care"
