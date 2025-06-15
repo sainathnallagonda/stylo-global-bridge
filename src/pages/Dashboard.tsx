@@ -9,7 +9,7 @@ import { Package, Clock, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import RealTimeOrderTracking from '@/components/RealTimeOrderTracking';
+import RealTimeTracker from '@/components/RealTimeTracker';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Order {
@@ -28,11 +28,12 @@ const Dashboard = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [showTracking, setShowTracking] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!authLoading && user) {
+    if (user && !authLoading) {
+      console.log('Dashboard: User found, fetching orders');
       fetchOrders();
     }
   }, [user, authLoading]);
@@ -40,13 +41,20 @@ const Dashboard = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
+      console.log('Fetching orders for user:', user?.id);
+      
       const { data, error } = await supabase
         .from('orders')
         .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching orders:', error);
+        throw error;
+      }
+      
+      console.log('Orders fetched:', data?.length || 0);
       setOrders(data || []);
     } catch (error: any) {
       console.error('Error fetching orders:', error);
@@ -99,14 +107,19 @@ const Dashboard = () => {
     setShowTracking(true);
   };
 
-  if (authLoading || loading) {
+  // Show loading only if auth is still loading
+  if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
       </div>
     );
   }
 
+  // Don't show loading for orders fetch, show the dashboard immediately
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <Header />
@@ -121,7 +134,14 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div>
             <h2 className="text-2xl font-bold mb-4">Your Orders</h2>
-            {orders.length === 0 ? (
+            {loading ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading orders...</p>
+                </CardContent>
+              </Card>
+            ) : orders.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">
                   <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -176,7 +196,7 @@ const Dashboard = () => {
                   <CardTitle>Live Tracking</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <RealTimeOrderTracking orderId={selectedOrderId} />
+                  <RealTimeTracker orderId={selectedOrderId} />
                 </CardContent>
               </Card>
             ) : (
@@ -197,7 +217,7 @@ const Dashboard = () => {
             <DialogTitle>Real-Time Order Tracking</DialogTitle>
           </DialogHeader>
           {selectedOrderId && (
-            <RealTimeOrderTracking orderId={selectedOrderId} />
+            <RealTimeTracker orderId={selectedOrderId} />
           )}
         </DialogContent>
       </Dialog>
