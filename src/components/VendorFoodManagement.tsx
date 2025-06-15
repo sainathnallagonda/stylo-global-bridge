@@ -12,21 +12,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Plus, Edit, Trash2, Clock, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
-interface VendorFood {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  currency: string;
-  image_url: string | null;
-  category: string;
-  is_available: boolean;
-  preparation_time: number;
-  vendor_id: string;
-  created_at: string;
-  updated_at: string;
-}
+type VendorFood = Tables<'vendor_foods'>;
+type VendorFoodInsert = TablesInsert<'vendor_foods'>;
+type VendorFoodUpdate = TablesUpdate<'vendor_foods'>;
 
 const VendorFoodManagement = () => {
   const { user } = useAuth();
@@ -59,9 +49,8 @@ const VendorFoodManagement = () => {
     if (!user) return;
 
     try {
-      // Use dynamic query to avoid TypeScript issues with table types
       const { data, error } = await supabase
-        .from('vendor_foods' as any)
+        .from('vendor_foods')
         .select('*')
         .eq('vendor_id', user.id)
         .order('created_at', { ascending: false });
@@ -95,36 +84,40 @@ const VendorFoodManagement = () => {
 
     try {
       if (editingFood.id) {
+        const updateData: VendorFoodUpdate = {
+          name: editingFood.name,
+          description: editingFood.description,
+          price: editingFood.price,
+          currency: editingFood.currency || 'USD',
+          image_url: editingFood.image_url,
+          category: editingFood.category,
+          is_available: editingFood.is_available ?? true,
+          preparation_time: editingFood.preparation_time || 30,
+          updated_at: new Date().toISOString()
+        };
+
         const { error } = await supabase
-          .from('vendor_foods' as any)
-          .update({
-            name: editingFood.name,
-            description: editingFood.description,
-            price: editingFood.price,
-            currency: editingFood.currency || 'USD',
-            image_url: editingFood.image_url,
-            category: editingFood.category,
-            is_available: editingFood.is_available ?? true,
-            preparation_time: editingFood.preparation_time || 30,
-            updated_at: new Date().toISOString()
-          })
+          .from('vendor_foods')
+          .update(updateData)
           .eq('id', editingFood.id);
 
         if (error) throw error;
       } else {
+        const insertData: VendorFoodInsert = {
+          vendor_id: user.id,
+          name: editingFood.name,
+          description: editingFood.description,
+          price: editingFood.price!,
+          currency: editingFood.currency || 'USD',
+          image_url: editingFood.image_url,
+          category: editingFood.category!,
+          is_available: editingFood.is_available ?? true,
+          preparation_time: editingFood.preparation_time || 30
+        };
+
         const { error } = await supabase
-          .from('vendor_foods' as any)
-          .insert({
-            vendor_id: user.id,
-            name: editingFood.name,
-            description: editingFood.description,
-            price: editingFood.price,
-            currency: editingFood.currency || 'USD',
-            image_url: editingFood.image_url,
-            category: editingFood.category,
-            is_available: editingFood.is_available ?? true,
-            preparation_time: editingFood.preparation_time || 30
-          });
+          .from('vendor_foods')
+          .insert(insertData);
 
         if (error) throw error;
       }
@@ -150,7 +143,7 @@ const VendorFoodManagement = () => {
   const deleteFood = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('vendor_foods' as any)
+        .from('vendor_foods')
         .delete()
         .eq('id', id);
 
@@ -175,7 +168,7 @@ const VendorFoodManagement = () => {
   const toggleAvailability = async (id: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
-        .from('vendor_foods' as any)
+        .from('vendor_foods')
         .update({ 
           is_available: !currentStatus,
           updated_at: new Date().toISOString()

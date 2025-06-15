@@ -8,21 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Search, ShoppingCart } from 'lucide-react';
 import FoodCard from './FoodCard';
 import { useToast } from '@/hooks/use-toast';
+import type { Tables } from '@/integrations/supabase/types';
 
-interface VendorFood {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  currency: string;
-  image_url: string | null;
-  category: string;
-  preparation_time: number;
-  vendor_id: string;
-  is_available: boolean;
-  created_at: string;
-  updated_at: string;
-}
+type VendorFood = Tables<'vendor_foods'>;
 
 const CustomerFoodDisplay = () => {
   const [foods, setFoods] = useState<VendorFood[]>([]);
@@ -56,9 +44,8 @@ const CustomerFoodDisplay = () => {
 
   const fetchFoods = async () => {
     try {
-      // Use dynamic query to avoid TypeScript issues with table types
       const { data, error } = await supabase
-        .from('vendor_foods' as any)
+        .from('vendor_foods')
         .select('*')
         .eq('is_available', true)
         .order('created_at', { ascending: false });

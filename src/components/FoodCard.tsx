@@ -3,18 +3,9 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Clock, Plus } from 'lucide-react';
+import type { Tables } from '@/integrations/supabase/types';
 
-interface VendorFood {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  currency: string;
-  image_url: string | null;
-  category: string;
-  preparation_time: number;
-  vendor_id: string;
-}
+type VendorFood = Tables<'vendor_foods'>;
 
 interface FoodCardProps {
   food: VendorFood;
