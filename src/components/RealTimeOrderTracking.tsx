@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, Truck, CheckCircle, AlertCircle } from 'lucide-react';
@@ -12,7 +11,6 @@ interface TrackingUpdate {
   message?: string;
   location?: string;
   timestamp: string;
-  photo_url?: string;
 }
 
 interface OrderTrackingProps {
@@ -26,66 +24,13 @@ const RealTimeOrderTracking = ({ orderId, onStatusChange }: OrderTrackingProps) 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTrackingUpdates();
-    setupRealtimeSubscription();
-  }, [orderId]);
-
-  const fetchTrackingUpdates = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('order_tracking')
-        .select('*')
-        .eq('order_id', orderId)
-        .order('timestamp', { ascending: true });
-
-      if (error) throw error;
-
-      if (data && data.length > 0) {
-        setTrackingUpdates(data);
-        const latestStatus = data[data.length - 1].status;
-        setCurrentStatus(latestStatus);
-        onStatusChange?.(latestStatus);
-      } else {
-        // Use mock data if no real data exists
-        const mockUpdates = generateMockTrackingData();
-        setTrackingUpdates(mockUpdates);
-        setCurrentStatus(mockUpdates[mockUpdates.length - 1].status);
-      }
-    } catch (error) {
-      console.error('Error fetching tracking updates:', error);
-      // Fallback to mock data
-      const mockUpdates = generateMockTrackingData();
-      setTrackingUpdates(mockUpdates);
-      setCurrentStatus(mockUpdates[mockUpdates.length - 1].status);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const setupRealtimeSubscription = () => {
-    const channel = supabase
-      .channel('order-tracking')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'order_tracking',
-          filter: `order_id=eq.${orderId}`
-        },
-        (payload) => {
-          const newUpdate = payload.new as TrackingUpdate;
-          setTrackingUpdates(prev => [...prev, newUpdate]);
-          setCurrentStatus(newUpdate.status);
-          onStatusChange?.(newUpdate.status);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  };
+    // Generate mock tracking data for demo
+    const mockUpdates = generateMockTrackingData();
+    setTrackingUpdates(mockUpdates);
+    setCurrentStatus(mockUpdates[mockUpdates.length - 1].status);
+    setLoading(false);
+    onStatusChange?.(mockUpdates[mockUpdates.length - 1].status);
+  }, [orderId, onStatusChange]);
 
   const generateMockTrackingData = (): TrackingUpdate[] => [
     {
@@ -182,7 +127,7 @@ const RealTimeOrderTracking = ({ orderId, onStatusChange }: OrderTrackingProps) 
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {trackingUpdates.map((update, index) => (
+          {trackingUpdates.map((update) => (
             <div key={update.id} className="flex items-start gap-4 p-3 rounded-lg bg-gray-50">
               <div className="flex-shrink-0 mt-1">
                 {getStatusIcon(update.status)}

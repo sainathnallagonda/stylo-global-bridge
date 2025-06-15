@@ -21,6 +21,16 @@ const CustomerAuth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !password || (!isLogin && !fullName)) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -29,7 +39,7 @@ const CustomerAuth = () => {
         if (error) {
           toast({
             title: "Login Failed",
-            description: error.message,
+            description: error.message || "Invalid email or password",
             variant: "destructive"
           });
         } else {
@@ -37,14 +47,14 @@ const CustomerAuth = () => {
             title: "Welcome back!",
             description: "You have successfully logged in."
           });
-          navigate('/');
+          navigate('/dashboard');
         }
       } else {
         const { error } = await signUp(email, password, fullName, 'customer');
         if (error) {
           toast({
             title: "Signup Failed",
-            description: error.message,
+            description: error.message || "Failed to create account",
             variant: "destructive"
           });
         } else {
@@ -52,12 +62,13 @@ const CustomerAuth = () => {
             title: "Account Created!",
             description: "Please check your email to verify your account."
           });
+          setIsLogin(true);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        description: error.message || "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -110,6 +121,7 @@ const CustomerAuth = () => {
                     onChange={(e) => setFullName(e.target.value)}
                     required={!isLogin}
                     placeholder="Enter your full name"
+                    disabled={loading}
                   />
                 </div>
               )}
@@ -123,6 +135,7 @@ const CustomerAuth = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   placeholder="Enter your email"
+                  disabled={loading}
                 />
               </div>
               
@@ -136,6 +149,7 @@ const CustomerAuth = () => {
                   required
                   placeholder="Enter your password"
                   minLength={6}
+                  disabled={loading}
                 />
               </div>
               
@@ -153,6 +167,7 @@ const CustomerAuth = () => {
                 type="button"
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-orange-600 hover:underline"
+                disabled={loading}
               >
                 {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
               </button>

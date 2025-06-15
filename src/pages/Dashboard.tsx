@@ -1,14 +1,16 @@
+
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Package, Clock, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import RealTimeTracker from '@/components/RealTimeTracker';
+import RealTimeOrderTracking from '@/components/RealTimeOrderTracking';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Order {
   id: string;
@@ -21,35 +23,33 @@ interface Order {
   recipient_info: any;
 }
 
-interface OrderTracking {
-  id: string;
-  status: string;
-  message: string;
-  location: string;
-  timestamp: string;
-}
-
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [showTracking, setShowTracking] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    if (!authLoading && user) {
+      fetchOrders();
+    }
+  }, [user, authLoading]);
 
   const fetchOrders = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('orders')
         .select('*')
+        .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       setOrders(data || []);
     } catch (error: any) {
+      console.error('Error fetching orders:', error);
       toast({
         title: "Error",
         description: "Failed to fetch orders",
@@ -94,7 +94,12 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) {
+  const handleViewTracking = (orderId: string) => {
+    setSelectedOrderId(orderId);
+    setShowTracking(true);
+  };
+
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -114,7 +119,6 @@ const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Orders List */}
           <div>
             <h2 className="text-2xl font-bold mb-4">Your Orders</h2>
             {orders.length === 0 ? (
@@ -139,7 +143,7 @@ const Dashboard = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setSelectedOrder(order)}
+                          onClick={() => handleViewTracking(order.id)}
                         >
                           <Eye className="h-4 w-4 mr-2" />
                           Track
@@ -164,11 +168,17 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* Real-time Order Tracking */}
           <div>
             <h2 className="text-2xl font-bold mb-4">Order Tracking</h2>
-            {selectedOrder ? (
-              <RealTimeTracker orderId={selectedOrder.id} />
+            {selectedOrderId ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Live Tracking</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RealTimeOrderTracking orderId={selectedOrderId} />
+                </CardContent>
+              </Card>
             ) : (
               <Card>
                 <CardContent className="p-8 text-center">
@@ -180,6 +190,18 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      
+      <Dialog open={showTracking} onOpenChange={setShowTracking}>
+        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Real-Time Order Tracking</DialogTitle>
+          </DialogHeader>
+          {selectedOrderId && (
+            <RealTimeOrderTracking orderId={selectedOrderId} />
+          )}
+        </DialogContent>
+      </Dialog>
+      
       <Footer />
     </div>
   );
