@@ -2,12 +2,12 @@
 import { ArrowRight, MapPin, Users, Store, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEnhancedAuth } from "@/contexts/EnhancedAuthContext";
 import { useLocation } from "@/contexts/LocationContext";
 import CountrySelector from "./CountrySelector";
 
 const Hero = () => {
-  const { user } = useAuth();
+  const { user } = useEnhancedAuth();
   const { toCountry } = useLocation();
   const navigate = useNavigate();
 
@@ -97,7 +97,7 @@ const Hero = () => {
                     <Button 
                       size="lg" 
                       className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-lg px-6 py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group w-full transform hover:scale-105"
-                      onClick={() => navigate('/customer-login')}
+                      onClick={() => navigate('/customer-auth')}
                     >
                       <Users className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
                       Customer Login
@@ -107,7 +107,7 @@ const Hero = () => {
                       size="lg" 
                       variant="outline"
                       className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white text-lg px-6 py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group w-full transform hover:scale-105"
-                      onClick={() => navigate('/vendor-login')}
+                      onClick={() => navigate('/vendor-auth')}
                     >
                       <Store className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
                       Vendor Login

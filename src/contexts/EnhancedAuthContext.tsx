@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
 
 interface Profile {
   id: string;
@@ -19,7 +18,7 @@ interface VendorProfile {
   business_name: string;
   business_description?: string;
   business_address: any;
-  service_areas: any[];
+  service_areas: any;  // Changed from any[] to any to match Json type
   business_hours: any;
   contact_phone?: string;
   business_license?: string;
