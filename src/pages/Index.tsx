@@ -1,6 +1,4 @@
 
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -16,26 +14,9 @@ import Chatbot from "@/components/Chatbot";
 import FloatingActionButton from "@/components/FloatingActionButton";
 
 const Index = () => {
-  const { user, profile, loading } = useAuth();
-  const navigate = useNavigate();
+  const { loading } = useAuth();
 
-  useEffect(() => {
-    // Only redirect if we have both user and profile data and we're not loading
-    if (!loading && user && profile) {
-      console.log('Redirecting user with role:', profile.role);
-      try {
-        if (profile.role === 'vendor') {
-          navigate('/vendor-dashboard');
-        } else if (profile.role === 'customer') {
-          navigate('/dashboard');
-        }
-      } catch (error) {
-        console.error('Error during navigation:', error);
-      }
-    }
-  }, [user, profile, loading, navigate]);
-
-  // Show loading state
+  // Show loading state only during initial auth check
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
@@ -47,35 +28,23 @@ const Index = () => {
     );
   }
 
-  // Show the enhanced homepage for non-authenticated users
-  try {
-    return (
-      <div className="min-h-screen">
-        <Header />
-        <Hero />
-        <AnimatedStats />
-        <TrustBadges />
-        <Services />
-        <TestimonialsCarousel />
-        <Features />
-        <HowItWorks />
-        <TrustSecurity />
-        <Footer />
-        <Chatbot />
-        <FloatingActionButton />
-      </div>
-    );
-  } catch (error) {
-    console.error('Error rendering Index page:', error);
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h1>
-          <p className="text-gray-600">Please refresh the page or try again later.</p>
-        </div>
-      </div>
-    );
-  }
+  // Always show the homepage - don't redirect based on auth status
+  return (
+    <div className="min-h-screen">
+      <Header />
+      <Hero />
+      <AnimatedStats />
+      <TrustBadges />
+      <Services />
+      <TestimonialsCarousel />
+      <Features />
+      <HowItWorks />
+      <TrustSecurity />
+      <Footer />
+      <Chatbot />
+      <FloatingActionButton />
+    </div>
+  );
 };
 
 export default Index;

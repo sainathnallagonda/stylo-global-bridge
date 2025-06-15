@@ -8,7 +8,7 @@ import EnhancedNotificationSystem from "./EnhancedNotificationSystem";
 import LanguageSelector from "./MultiLanguageSupport";
 
 const Header = () => {
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -17,11 +17,11 @@ const Header = () => {
     navigate("/");
   };
 
-  const handleAuthClick = () => {
-    if (user) {
-      navigate("/profile");
+  const handleDashboardClick = () => {
+    if (profile?.role === 'vendor') {
+      navigate('/vendor-dashboard');
     } else {
-      navigate("/auth");
+      navigate('/dashboard');
     }
   };
 
@@ -86,7 +86,7 @@ const Header = () => {
               {user ? (
                 <div className="flex items-center space-x-2">
                   <Button
-                    onClick={() => navigate("/dashboard-v2")}
+                    onClick={handleDashboardClick}
                     variant="ghost"
                     size="sm"
                     className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
@@ -115,7 +115,7 @@ const Header = () => {
                 </div>
               ) : (
                 <Button 
-                  onClick={handleAuthClick}
+                  onClick={() => navigate("/auth")}
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   Get Started
@@ -158,7 +158,7 @@ const Header = () => {
                 <div className="flex flex-col space-y-2">
                   <Button
                     onClick={() => {
-                      navigate("/dashboard-v2");
+                      handleDashboardClick();
                       setIsMenuOpen(false);
                     }}
                     variant="ghost"
@@ -193,7 +193,7 @@ const Header = () => {
               ) : (
                 <Button 
                   onClick={() => {
-                    handleAuthClick();
+                    navigate("/auth");
                     setIsMenuOpen(false);
                   }}
                   className="bg-blue-600 hover:bg-blue-700 text-white"

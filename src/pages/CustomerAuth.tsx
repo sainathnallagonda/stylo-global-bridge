@@ -47,7 +47,7 @@ const CustomerAuth = () => {
             title: "Welcome back!",
             description: "You have successfully logged in."
           });
-          navigate('/dashboard');
+          navigate('/'); // Redirect to home page, not dashboard
         }
       } else {
         const { error } = await signUp(email, password, fullName, 'customer');

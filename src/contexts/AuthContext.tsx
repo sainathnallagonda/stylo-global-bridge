@@ -103,7 +103,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         );
 
-        // Always set loading to false after initialization
         setLoading(false);
         
         return () => {
@@ -127,7 +126,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, fullName: string, role: 'customer' | 'vendor') => {
     try {
-      setLoading(true);
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -140,31 +138,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       });
       return { error };
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      return { error };
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
-      setLoading(true);
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       return { error };
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      return { error };
     }
   };
 
   const signOut = async () => {
     try {
-      setLoading(true);
       await supabase.auth.signOut();
       setProfile(null);
-    } finally {
-      setLoading(false);
+      setUser(null);
+      setSession(null);
+    } catch (error) {
+      console.error('Error signing out:', error);
     }
   };
 
