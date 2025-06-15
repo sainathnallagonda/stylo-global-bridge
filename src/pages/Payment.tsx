@@ -1,12 +1,13 @@
 
-import { useState } from "react";
-import { ArrowLeft, CreditCard, Wallet, Building2, Smartphone, Shield, CheckCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, CreditCard, Wallet, Building2, Smartphone, Shield, CheckCircle, RefreshCw, Info } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { useLocation as useLocationContext } from "@/contexts/LocationContext";
 
 const Payment = () => {
@@ -14,6 +15,8 @@ const Payment = () => {
   const location = useLocation();
   const { toCountry, getCurrencyDisplay } = useLocationContext();
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
+  const [exchangeRate, setExchangeRate] = useState(83.25);
+  const [isLoadingRate, setIsLoadingRate] = useState(false);
   const [cardDetails, setCardDetails] = useState({
     number: "",
     expiry: "",
@@ -27,6 +30,28 @@ const Payment = () => {
     price: toCountry === 'USA' ? 25 : 899,
     currency: toCountry === 'USA' ? 'USD' : 'INR'
   };
+
+  // Calculate converted amounts
+  const usdAmount = orderDetails.currency === 'USD' ? orderDetails.price : orderDetails.price / exchangeRate;
+  const inrAmount = orderDetails.currency === 'INR' ? orderDetails.price : orderDetails.price * exchangeRate;
+
+  // Fetch real-time exchange rate
+  const fetchExchangeRate = async () => {
+    setIsLoadingRate(true);
+    try {
+      const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+      const data = await response.json();
+      setExchangeRate(data.rates.INR);
+    } catch (error) {
+      console.error('Failed to fetch exchange rate:', error);
+    } finally {
+      setIsLoadingRate(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchExchangeRate();
+  }, []);
 
   const usaPaymentMethods = [
     {
@@ -55,13 +80,6 @@ const Payment = () => {
       name: "Apple Pay",
       icon: Smartphone,
       description: "Pay with Touch ID or Face ID",
-      popular: false
-    },
-    {
-      id: "bank_transfer",
-      name: "Bank Transfer",
-      icon: Building2,
-      description: "Direct bank transfer (ACH)",
       popular: false
     }
   ];
@@ -94,13 +112,6 @@ const Payment = () => {
       icon: Smartphone,
       description: "Pay with Google Pay UPI",
       popular: true
-    },
-    {
-      id: "netbanking",
-      name: "Net Banking",
-      icon: Building2,
-      description: "Pay with your bank account",
-      popular: false
     }
   ];
 
@@ -113,7 +124,7 @@ const Payment = () => {
     }
     
     // Simulate payment processing
-    alert(`Payment of ${getCurrencyDisplay(orderDetails.price, orderDetails.currency)} processed successfully via ${selectedPaymentMethod}!`);
+    alert(`Payment processed successfully!\nUSD: $${usdAmount.toFixed(2)}\nINR: ₹${inrAmount.toFixed(2)}`);
     navigate("/orders");
   };
 
@@ -190,7 +201,7 @@ const Payment = () => {
                   </div>
                 </RadioGroup>
 
-                {/* Card Details Form (shown when card payment is selected) */}
+                {/* Card Details Form */}
                 {(selectedPaymentMethod === "visa" || selectedPaymentMethod === "mastercard" || selectedPaymentMethod === "razorpay") && (
                   <div className="mt-6 p-4 bg-gray-50 rounded-xl">
                     <h3 className="font-semibold text-gray-800 mb-4">Card Details</h3>
@@ -242,8 +253,45 @@ const Payment = () => {
             </Card>
           </div>
 
-          {/* Order Summary */}
+          {/* Order Summary with Currency Conversion */}
           <div>
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm mb-6">
+              <CardHeader>
+                <CardTitle className="text-gray-800 flex items-center gap-2">
+                  Currency Conversion
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={fetchExchangeRate}
+                    disabled={isLoadingRate}
+                    className="h-6 w-6"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${isLoadingRate ? 'animate-spin' : ''}`} />
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Exchange Rate</span>
+                    <span className="font-semibold">1 USD = ₹{exchangeRate.toFixed(2)}</span>
+                  </div>
+                  <div className="border-t pt-3">
+                    <div className="text-center space-y-2">
+                      <div className="bg-blue-50 p-3 rounded-lg">
+                        <p className="text-sm text-gray-600">USD Amount</p>
+                        <p className="text-2xl font-bold text-blue-600">${usdAmount.toFixed(2)}</p>
+                      </div>
+                      <div className="bg-orange-50 p-3 rounded-lg">
+                        <p className="text-sm text-gray-600">INR Amount</p>
+                        <p className="text-2xl font-bold text-orange-600">₹{inrAmount.toFixed(2)}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-gray-800">Order Summary</CardTitle>
@@ -255,7 +303,7 @@ const Payment = () => {
                     <span className="font-semibold text-gray-800">{orderDetails.itemName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Price</span>
+                    <span className="text-gray-600">Original Price</span>
                     <span className="font-semibold text-gray-800">
                       {getCurrencyDisplay(orderDetails.price, orderDetails.currency)}
                     </span>
@@ -265,11 +313,15 @@ const Payment = () => {
                     <span className="font-semibold text-green-600">Free</span>
                   </div>
                   <div className="border-t pt-4">
-                    <div className="flex justify-between text-lg font-bold">
-                      <span>Total</span>
-                      <span className="text-blue-600">
-                        {getCurrencyDisplay(orderDetails.price, orderDetails.currency)}
-                      </span>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-lg font-bold">
+                        <span>Total (USD)</span>
+                        <span className="text-blue-600">${usdAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-lg font-bold">
+                        <span>Total (INR)</span>
+                        <span className="text-orange-600">₹{inrAmount.toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -280,7 +332,7 @@ const Payment = () => {
                   disabled={!selectedPaymentMethod}
                 >
                   <CheckCircle className="h-5 w-5 mr-2" />
-                  Pay {getCurrencyDisplay(orderDetails.price, orderDetails.currency)}
+                  Pay ${usdAmount.toFixed(2)} (₹{inrAmount.toFixed(2)})
                 </Button>
 
                 <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-500">

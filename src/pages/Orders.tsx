@@ -1,13 +1,20 @@
 
 import { useState } from "react";
-import { ArrowLeft, Package, Clock, CheckCircle, Truck } from "lucide-react";
+import { ArrowLeft, Package, Clock, CheckCircle, Truck, Star, Camera, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 const Orders = () => {
   const navigate = useNavigate();
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [feedbackDialog, setFeedbackDialog] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
 
   const orders = [
     {
@@ -19,12 +26,13 @@ const Orders = () => {
       deliveryTime: "35 min",
       amount: "₹299 ($3.59)",
       items: ["Butter Chicken", "Naan", "Rice"],
+      progress: 100,
       tracking: [
-        { status: "Order Placed", time: "2:00 PM", completed: true },
-        { status: "Restaurant Confirmed", time: "2:05 PM", completed: true },
-        { status: "Food Prepared", time: "2:25 PM", completed: true },
-        { status: "Out for Delivery", time: "2:30 PM", completed: true },
-        { status: "Delivered", time: "2:35 PM", completed: true }
+        { status: "Order Placed", time: "2:00 PM", completed: true, description: "Your order has been received" },
+        { status: "Restaurant Confirmed", time: "2:05 PM", completed: true, description: "Restaurant is preparing your order" },
+        { status: "Food Prepared", time: "2:25 PM", completed: true, description: "Food is ready for pickup" },
+        { status: "Out for Delivery", time: "2:30 PM", completed: true, description: "Delivery partner is on the way" },
+        { status: "Delivered", time: "2:35 PM", completed: true, description: "Order delivered successfully" }
       ]
     },
     {
@@ -36,12 +44,13 @@ const Orders = () => {
       deliveryTime: "10 min",
       amount: "₹450 ($5.41)",
       items: ["Milk", "Bread", "Bananas", "Eggs"],
+      progress: 60,
       tracking: [
-        { status: "Order Placed", time: "3:00 PM", completed: true },
-        { status: "Items Being Picked", time: "3:02 PM", completed: true },
-        { status: "Packed", time: "", completed: false },
-        { status: "Out for Delivery", time: "", completed: false },
-        { status: "Delivered", time: "", completed: false }
+        { status: "Order Placed", time: "3:00 PM", completed: true, description: "Your grocery order is confirmed" },
+        { status: "Items Being Picked", time: "3:02 PM", completed: true, description: "Store staff is collecting items" },
+        { status: "Packed", time: "3:05 PM", completed: true, description: "Items packed and ready" },
+        { status: "Out for Delivery", time: "", completed: false, description: "Delivery partner will pick up soon" },
+        { status: "Delivered", time: "", completed: false, description: "Estimated delivery in 5 minutes" }
       ]
     },
     {
@@ -53,12 +62,13 @@ const Orders = () => {
       deliveryTime: "2 hours",
       amount: "₹1,200 ($14.41)",
       items: ["Rose Bouquet", "Greeting Card"],
+      progress: 25,
       tracking: [
-        { status: "Order Placed", time: "1:00 PM", completed: true },
-        { status: "Confirmed", time: "1:10 PM", completed: true },
-        { status: "Preparing", time: "", completed: false },
-        { status: "Out for Delivery", time: "", completed: false },
-        { status: "Delivered", time: "", completed: false }
+        { status: "Order Placed", time: "1:00 PM", completed: true, description: "Gift order received" },
+        { status: "Confirmed", time: "1:10 PM", completed: true, description: "Florist confirmed availability" },
+        { status: "Preparing", time: "", completed: false, description: "Creating your beautiful bouquet" },
+        { status: "Out for Delivery", time: "", completed: false, description: "Will be dispatched soon" },
+        { status: "Delivered", time: "", completed: false, description: "Expected by 3:00 PM" }
       ]
     }
   ];
@@ -79,6 +89,19 @@ const Orders = () => {
       case 'confirmed': return <Package className="h-4 w-4" />;
       default: return <Truck className="h-4 w-4" />;
     }
+  };
+
+  const handleFeedback = (orderId: string) => {
+    setSelectedOrder(orderId);
+    setFeedbackDialog(true);
+  };
+
+  const submitFeedback = () => {
+    console.log(`Feedback for ${selectedOrder}: ${rating} stars, "${comment}"`);
+    setFeedbackDialog(false);
+    setRating(0);
+    setComment("");
+    setSelectedOrder(null);
   };
 
   return (
@@ -102,7 +125,7 @@ const Orders = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="space-y-6">
           {orders.map((order) => (
-            <Card key={order.id} className="overflow-hidden">
+            <Card key={order.id} className="overflow-hidden hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -117,6 +140,15 @@ const Orders = () => {
                     </Badge>
                     <p className="text-lg font-bold">{order.amount}</p>
                   </div>
+                </div>
+
+                {/* Real-time Progress Bar */}
+                <div className="mb-4">
+                  <div className="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>Order Progress</span>
+                    <span>{order.progress}%</span>
+                  </div>
+                  <Progress value={order.progress} className="h-2" />
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
@@ -134,21 +166,22 @@ const Orders = () => {
                   </div>
 
                   <div>
-                    <h4 className="font-medium mb-3">Order Tracking</h4>
+                    <h4 className="font-medium mb-3">Real-time Tracking</h4>
                     <div className="space-y-3">
                       {order.tracking.map((step, index) => (
-                        <div key={index} className="flex items-center gap-3">
-                          <div className={`w-3 h-3 rounded-full ${
+                        <div key={index} className="flex items-start gap-3">
+                          <div className={`w-3 h-3 rounded-full mt-1 ${
                             step.completed ? 'bg-green-500' : 'bg-gray-300'
                           }`} />
                           <div className="flex-1">
-                            <p className={`text-sm ${
+                            <p className={`text-sm font-medium ${
                               step.completed ? 'text-gray-900' : 'text-gray-500'
                             }`}>
                               {step.status}
                             </p>
+                            <p className="text-xs text-gray-500">{step.description}</p>
                             {step.time && (
-                              <p className="text-xs text-gray-500">{step.time}</p>
+                              <p className="text-xs text-gray-400">{step.time}</p>
                             )}
                           </div>
                         </div>
@@ -159,15 +192,75 @@ const Orders = () => {
 
                 <div className="flex gap-2 mt-4 pt-4 border-t">
                   <Button variant="outline" size="sm">
-                    Track Order
+                    Track Live
                   </Button>
                   <Button variant="outline" size="sm">
                     Reorder
                   </Button>
                   {order.status === 'delivered' && (
-                    <Button variant="outline" size="sm">
-                      Rate Order
-                    </Button>
+                    <Dialog open={feedbackDialog} onOpenChange={setFeedbackDialog}>
+                      <DialogTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleFeedback(order.id)}
+                        >
+                          <Star className="h-4 w-4 mr-1" />
+                          Rate Order
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Rate Your Order</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="text-center">
+                            <p className="text-sm text-gray-600 mb-3">How was your experience?</p>
+                            <div className="flex justify-center gap-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <button
+                                  key={star}
+                                  onClick={() => setRating(star)}
+                                  className="p-1"
+                                >
+                                  <Star 
+                                    className={`h-8 w-8 ${
+                                      star <= rating 
+                                        ? 'fill-yellow-400 text-yellow-400' 
+                                        : 'text-gray-300'
+                                    }`}
+                                  />
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <label className="text-sm font-medium">Comments (optional)</label>
+                            <Textarea
+                              placeholder="Share your feedback..."
+                              value={comment}
+                              onChange={(e) => setComment(e.target.value)}
+                              className="mt-1"
+                            />
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Button variant="outline" className="flex-1">
+                              <Camera className="h-4 w-4 mr-2" />
+                              Add Photo
+                            </Button>
+                            <Button 
+                              onClick={submitFeedback}
+                              className="flex-1"
+                              disabled={rating === 0}
+                            >
+                              Submit
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   )}
                 </div>
               </CardContent>
