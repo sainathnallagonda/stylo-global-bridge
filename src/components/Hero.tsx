@@ -11,11 +11,13 @@ const Hero = () => {
   const { toCountry } = useLocation();
   const navigate = useNavigate();
 
-  const handleGetStarted = () => {
-    if (user) {
-      navigate('/dashboard');
-    } else {
-      navigate('/auth');
+  const handleFindServices = () => {
+    const servicesSection = document.getElementById('services-section');
+    if (servicesSection) {
+      servicesSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
     }
   };
 
@@ -87,7 +89,7 @@ const Hero = () => {
               <Button 
                 size="lg" 
                 className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group w-full"
-                onClick={handleGetStarted}
+                onClick={handleFindServices}
               >
                 Find Services
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />

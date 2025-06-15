@@ -1,4 +1,3 @@
-
 import { ShoppingBag, Gift, Car, Coffee, Plane, Heart, ArrowRight, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -96,7 +95,7 @@ const Services = () => {
   };
 
   return (
-    <section className="py-20 px-4 bg-gray-50">
+    <section id="services-section" className="py-20 px-4 bg-gray-50">
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4 text-gray-900">
@@ -111,7 +110,7 @@ const Services = () => {
           {services.map((service, index) => (
             <Card 
               key={index} 
-              className="group hover:shadow-xl transition-all duration-300 border-0 shadow-sm bg-white cursor-pointer overflow-hidden relative"
+              className="group hover:shadow-xl transition-all duration-300 border-0 shadow-sm bg-white cursor-pointer overflow-hidden relative transform hover:scale-105"
               onClick={() => handleOrderNow(service.route)}
             >
               {service.popular && (
