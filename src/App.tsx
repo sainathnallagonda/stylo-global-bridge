@@ -9,6 +9,7 @@ import { LocationProvider } from "@/contexts/LocationContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import EnhancedDashboard from "./pages/EnhancedDashboard";
 import Profile from "./pages/Profile";
 import FoodDelivery from "./pages/FoodDelivery";
 import Groceries from "./pages/Groceries";
@@ -39,6 +40,14 @@ const App = () => (
                 element={
                   <AuthGuard>
                     <Dashboard />
+                  </AuthGuard>
+                } 
+              />
+              <Route 
+                path="/dashboard-v2" 
+                element={
+                  <AuthGuard>
+                    <EnhancedDashboard />
                   </AuthGuard>
                 } 
               />

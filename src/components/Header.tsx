@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Menu, X, User, LogOut, ShoppingCart } from "lucide-react";
+import { Menu, X, User, LogOut, ShoppingCart, LayoutDashboard } from "lucide-react";
 import CurrencyToggle from "./CurrencyToggle";
 
 const Header = () => {
@@ -80,6 +80,15 @@ const Header = () => {
               {user ? (
                 <div className="flex items-center space-x-2">
                   <Button
+                    onClick={() => navigate("/dashboard-v2")}
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+                  >
+                    <LayoutDashboard className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </Button>
+                  <Button
                     onClick={() => navigate("/profile")}
                     variant="ghost"
                     size="sm"
@@ -145,6 +154,17 @@ const Header = () => {
               
               {user ? (
                 <div className="flex flex-col space-y-2">
+                  <Button
+                    onClick={() => {
+                      navigate("/dashboard-v2");
+                      setIsMenuOpen(false);
+                    }}
+                    variant="ghost"
+                    className="justify-start hover:bg-blue-50"
+                  >
+                    <LayoutDashboard className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </Button>
                   <Button
                     onClick={() => {
                       navigate("/profile");
