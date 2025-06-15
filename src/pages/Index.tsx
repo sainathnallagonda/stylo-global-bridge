@@ -16,8 +16,9 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect authenticated users to their appropriate dashboard
+    // Only redirect if we have both user and profile data and we're not loading
     if (!loading && user && profile) {
+      console.log('Redirecting user with role:', profile.role);
       if (profile.role === 'vendor') {
         navigate('/vendor-dashboard');
       } else if (profile.role === 'customer') {
@@ -26,6 +27,7 @@ const Index = () => {
     }
   }, [user, profile, loading, navigate]);
 
+  // Show loading state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -34,6 +36,7 @@ const Index = () => {
     );
   }
 
+  // Show the homepage for non-authenticated users
   return (
     <div className="min-h-screen">
       <Header />

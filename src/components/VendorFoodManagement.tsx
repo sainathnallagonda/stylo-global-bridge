@@ -58,15 +58,21 @@ const VendorFoodManagement = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('vendor_foods')
         .select('*')
+        .eq('vendor_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       setFoods(data || []);
     } catch (error) {
       console.error('Error fetching foods:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load your food items",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -87,7 +93,7 @@ const VendorFoodManagement = () => {
 
     try {
       if (editingFood.id) {
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from('vendor_foods')
           .update({
             name: editingFood.name,
@@ -104,7 +110,7 @@ const VendorFoodManagement = () => {
 
         if (error) throw error;
       } else {
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from('vendor_foods')
           .insert({
             vendor_id: user.id,
@@ -130,6 +136,7 @@ const VendorFoodManagement = () => {
       setEditingFood(null);
       fetchFoods();
     } catch (error) {
+      console.error('Error saving food item:', error);
       toast({
         title: "Error",
         description: "Failed to save food item",
@@ -140,7 +147,7 @@ const VendorFoodManagement = () => {
 
   const deleteFood = async (id: string) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('vendor_foods')
         .delete()
         .eq('id', id);
@@ -154,6 +161,7 @@ const VendorFoodManagement = () => {
 
       fetchFoods();
     } catch (error) {
+      console.error('Error deleting food item:', error);
       toast({
         title: "Error",
         description: "Failed to delete food item",
@@ -164,7 +172,7 @@ const VendorFoodManagement = () => {
 
   const toggleAvailability = async (id: string, currentStatus: boolean) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('vendor_foods')
         .update({ 
           is_available: !currentStatus,
@@ -181,6 +189,7 @@ const VendorFoodManagement = () => {
 
       fetchFoods();
     } catch (error) {
+      console.error('Error updating availability:', error);
       toast({
         title: "Error",
         description: "Failed to update availability",
@@ -296,6 +305,14 @@ const VendorFoodManagement = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Image URL</label>
+                  <Input
+                    value={editingFood?.image_url || ''}
+                    onChange={(e) => setEditingFood(prev => ({ ...prev, image_url: e.target.value }))}
+                    placeholder="https://example.com/image.jpg"
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-medium">Preparation Time (minutes)</label>
