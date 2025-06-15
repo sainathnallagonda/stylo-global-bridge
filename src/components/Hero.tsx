@@ -1,8 +1,9 @@
 
-import { ArrowRight, Heart, MapPin } from "lucide-react";
+import { ArrowRight, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import CountrySelector from "./CountrySelector";
 
 const Hero = () => {
   const { user } = useAuth();
@@ -17,44 +18,64 @@ const Hero = () => {
   };
 
   return (
-    <section className="pt-24 pb-12 px-4">
-      <div className="container mx-auto">
-        <div className="text-center max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-orange-500 bg-clip-text text-transparent animate-fade-in">
-            Send to Your Loved Ones
+    <section className="pt-32 pb-16 px-4 bg-gradient-to-br from-blue-50 via-purple-50 to-orange-50 relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-200/30 rounded-full blur-3xl"></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-orange-100/20 rounded-full blur-3xl"></div>
+      
+      <div className="container mx-auto relative z-10">
+        <div className="text-center max-w-5xl mx-auto">
+          <div className="mb-8">
+            <span className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-medium mb-6 shadow-lg">
+              ✨ Send Love Across Borders
+            </span>
+          </div>
+          
+          <h1 className="text-5xl md:text-8xl font-black mb-8 bg-gradient-to-r from-blue-600 via-purple-600 to-orange-500 bg-clip-text text-transparent animate-fade-in leading-tight">
+            Send to Your
+            <br />
+            <span className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent">
+              Loved Ones
+            </span>
           </h1>
-          <p className="text-xl md:text-2xl text-gray-600 mb-8 animate-fade-in">
+          
+          <p className="text-xl md:text-2xl text-gray-700 mb-12 animate-fade-in leading-relaxed font-medium">
             Order food, gifts, groceries, and services for your loved ones across India and USA. 
-            Pay in your currency, deliver with love.
+            <br />
+            <span className="text-blue-600 font-semibold">Pay in your currency, deliver with love.</span>
           </p>
           
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-12">
-            <div className="flex items-center gap-3 bg-white rounded-full px-6 py-3 shadow-lg">
-              <img src="https://flagcdn.com/w40/in.png" alt="India" className="w-8 h-6 rounded" />
-              <span className="text-gray-700 font-medium">India</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Heart className="text-red-500 animate-pulse" size={24} />
-              <ArrowRight className="text-blue-600" size={24} />
-              <Heart className="text-red-500 animate-pulse" size={24} />
-            </div>
-            <div className="flex items-center gap-3 bg-white rounded-full px-6 py-3 shadow-lg">
-              <img src="https://flagcdn.com/w40/us.png" alt="USA" className="w-8 h-6 rounded" />
-              <span className="text-gray-700 font-medium">USA</span>
-            </div>
-          </div>
+          <CountrySelector />
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-8">
             <Button 
               size="lg" 
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-6"
+              className="bg-gradient-to-r from-blue-600 via-purple-600 to-orange-500 hover:from-orange-500 hover:via-purple-600 hover:to-blue-600 text-white text-lg px-10 py-6 rounded-2xl font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 border-0"
               onClick={handleGetStarted}
             >
-              {user ? 'Go to Dashboard' : 'Get Started'} <ArrowRight className="ml-2" size={20} />
+              {user ? '🚀 Go to Dashboard' : '🎯 Get Started'} 
+              <ArrowRight className="ml-3" size={24} />
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-6 border-2 hover:bg-gray-50">
-              Watch Demo
+            
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="text-lg px-10 py-6 rounded-2xl font-semibold border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 hover:scale-105 hover:shadow-lg bg-white/80 backdrop-blur-sm"
+            >
+              🎬 Watch Demo
             </Button>
+          </div>
+
+          <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <Heart className="text-red-500" size={16} />
+              <span>Trusted by 10,000+ families</span>
+            </div>
+            <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+            <div className="flex items-center gap-2">
+              <span>⭐ 4.9/5 rating</span>
+            </div>
           </div>
         </div>
       </div>
