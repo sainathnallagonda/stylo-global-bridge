@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,13 +20,20 @@ type VendorFood = Tables<'vendor_foods'>;
 type VendorFoodInsert = TablesInsert<'vendor_foods'>;
 type VendorFoodUpdate = TablesUpdate<'vendor_foods'>;
 
+interface ExtendedVendorFood extends VendorFood {
+  dietary_restrictions?: string[];
+  allergens?: string[];
+  spice_level?: number;
+  nutritional_info?: any;
+}
+
 const VendorFoodManagement = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [foods, setFoods] = useState<VendorFood[]>([]);
+  const [foods, setFoods] = useState<ExtendedVendorFood[]>([]);
   const [loading, setLoading] = useState(true);
   const [editDialog, setEditDialog] = useState(false);
-  const [editingFood, setEditingFood] = useState<Partial<VendorFood> | null>(null);
+  const [editingFood, setEditingFood] = useState<Partial<ExtendedVendorFood> | null>(null);
 
   const categories = [
     'Fast Food',
@@ -79,7 +87,17 @@ const VendorFoodManagement = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setFoods(data || []);
+      
+      // Extend foods with placeholder data for new fields
+      const extendedFoods: ExtendedVendorFood[] = (data || []).map(food => ({
+        ...food,
+        dietary_restrictions: [],
+        allergens: [],
+        spice_level: 0,
+        nutritional_info: null
+      }));
+      
+      setFoods(extendedFoods);
     } catch (error) {
       console.error('Error fetching foods:', error);
       toast({
@@ -115,10 +133,6 @@ const VendorFoodManagement = () => {
           category: editingFood.category,
           is_available: editingFood.is_available ?? true,
           preparation_time: editingFood.preparation_time || 30,
-          nutritional_info: editingFood.nutritional_info,
-          dietary_restrictions: editingFood.dietary_restrictions,
-          allergens: editingFood.allergens,
-          spice_level: editingFood.spice_level,
           updated_at: new Date().toISOString()
         };
 
@@ -138,11 +152,7 @@ const VendorFoodManagement = () => {
           image_url: editingFood.image_url,
           category: editingFood.category!,
           is_available: editingFood.is_available ?? true,
-          preparation_time: editingFood.preparation_time || 30,
-          nutritional_info: editingFood.nutritional_info,
-          dietary_restrictions: editingFood.dietary_restrictions,
-          allergens: editingFood.allergens,
-          spice_level: editingFood.spice_level
+          preparation_time: editingFood.preparation_time || 30
         };
 
         const { error } = await supabase

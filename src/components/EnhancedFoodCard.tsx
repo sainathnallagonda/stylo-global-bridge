@@ -14,6 +14,10 @@ interface EnhancedFoodCardProps {
       average_rating: number;
       total_reviews: number;
     };
+    dietary_restrictions?: string[];
+    allergens?: string[];
+    spice_level?: number;
+    nutritional_info?: any;
   };
   onAddToCart?: (food: VendorFood) => void;
   onQuickView?: (food: VendorFood) => void;
@@ -38,7 +42,7 @@ const EnhancedFoodCard = ({ food, onAddToCart, onQuickView }: EnhancedFoodCardPr
     }
   };
 
-  const getSpiceLevel = (level: number | null) => {
+  const getSpiceLevel = (level?: number) => {
     if (!level) return null;
     return Array.from({ length: level }, (_, i) => (
       <Flame key={i} className="h-3 w-3 text-red-500 fill-current" />
@@ -47,8 +51,9 @@ const EnhancedFoodCard = ({ food, onAddToCart, onQuickView }: EnhancedFoodCardPr
 
   const getDietaryBadges = () => {
     const badges = [];
+    const restrictions = food.dietary_restrictions || [];
     
-    if (food.dietary_restrictions?.includes('vegetarian')) {
+    if (restrictions.includes('vegetarian')) {
       badges.push(
         <Badge key="veg" className="bg-green-100 text-green-800 text-xs">
           <Leaf className="h-2 w-2 mr-1" />
@@ -57,7 +62,7 @@ const EnhancedFoodCard = ({ food, onAddToCart, onQuickView }: EnhancedFoodCardPr
       );
     }
     
-    if (food.dietary_restrictions?.includes('vegan')) {
+    if (restrictions.includes('vegan')) {
       badges.push(
         <Badge key="vegan" className="bg-green-100 text-green-800 text-xs">
           <Leaf className="h-2 w-2 mr-1" />
@@ -66,7 +71,7 @@ const EnhancedFoodCard = ({ food, onAddToCart, onQuickView }: EnhancedFoodCardPr
       );
     }
 
-    if (food.dietary_restrictions?.includes('gluten-free')) {
+    if (restrictions.includes('gluten-free')) {
       badges.push(
         <Badge key="gf" className="bg-blue-100 text-blue-800 text-xs">
           GF
