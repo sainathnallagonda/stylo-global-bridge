@@ -4,16 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-interface FavoriteItem {
-  id: number;
-  name: string;
-  image: string;
-  price: number;
-  currency: string;
-  category?: string;
-  restaurant?: string;
-}
-
 export const useFavorites = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -37,16 +27,20 @@ export const useFavorites = () => {
       if (error) throw error;
       
       const favoriteIds = data?.map(fav => {
-        const itemData = fav.item_data as any;
-        return itemData?.id?.toString() || '';
+        const itemData = fav.item_data;
+        if (itemData && typeof itemData === 'object' && 'id' in itemData) {
+          return String(itemData.id);
+        }
+        return '';
       }).filter(id => id) || [];
+      
       setFavorites(favoriteIds);
     } catch (error) {
       console.error('Error fetching favorites:', error);
     }
   };
 
-  const toggleFavorite = async (item: FavoriteItem, serviceType: string) => {
+  const toggleFavorite = async (item: any, serviceType: string) => {
     if (!user) {
       toast({
         title: "Sign in required",
@@ -55,7 +49,7 @@ export const useFavorites = () => {
       return;
     }
 
-    const itemId = item.id.toString();
+    const itemId = String(item.id);
     const isFavorite = favorites.includes(itemId);
 
     try {
@@ -75,15 +69,15 @@ export const useFavorites = () => {
           description: `${item.name} has been removed from your favorites`
         });
       } else {
-        // Add to favorites - convert item to plain object for JSON storage
+        // Add to favorites - create a plain object for JSON storage
         const itemData = {
           id: item.id,
           name: item.name,
           image: item.image,
           price: item.price,
           currency: item.currency,
-          category: item.category,
-          restaurant: item.restaurant
+          category: item.category || undefined,
+          restaurant: item.restaurant || undefined
         };
 
         const { error } = await supabase
@@ -113,7 +107,7 @@ export const useFavorites = () => {
   };
 
   const isFavorite = (itemId: number | string) => {
-    return favorites.includes(itemId.toString());
+    return favorites.includes(String(itemId));
   };
 
   return {

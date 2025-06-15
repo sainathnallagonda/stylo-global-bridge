@@ -48,21 +48,25 @@ const FavoritesSection = () => {
 
       if (error) throw error;
       
-      // Convert the data to proper types
+      // Convert the data to proper types with safe access
       const typedFavorites: Favorite[] = (data || []).map(fav => {
-        const itemData = fav.item_data as any;
+        const rawItemData = fav.item_data;
+        
+        // Safely extract item data
+        const itemData: FavoriteItemData = {
+          id: rawItemData && typeof rawItemData === 'object' && 'id' in rawItemData ? Number(rawItemData.id) : 0,
+          name: rawItemData && typeof rawItemData === 'object' && 'name' in rawItemData ? String(rawItemData.name) : '',
+          image: rawItemData && typeof rawItemData === 'object' && 'image' in rawItemData ? String(rawItemData.image) : '',
+          price: rawItemData && typeof rawItemData === 'object' && 'price' in rawItemData ? Number(rawItemData.price) : 0,
+          currency: rawItemData && typeof rawItemData === 'object' && 'currency' in rawItemData ? String(rawItemData.currency) : 'USD',
+          category: rawItemData && typeof rawItemData === 'object' && 'category' in rawItemData ? String(rawItemData.category) : undefined,
+          restaurant: rawItemData && typeof rawItemData === 'object' && 'restaurant' in rawItemData ? String(rawItemData.restaurant) : undefined
+        };
+        
         return {
           id: fav.id,
           service_type: fav.service_type,
-          item_data: {
-            id: itemData?.id || 0,
-            name: itemData?.name || '',
-            image: itemData?.image || '',
-            price: itemData?.price || 0,
-            currency: itemData?.currency || 'USD',
-            category: itemData?.category,
-            restaurant: itemData?.restaurant
-          } as FavoriteItemData,
+          item_data: itemData,
           created_at: fav.created_at
         };
       });
