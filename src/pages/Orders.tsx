@@ -1,272 +1,191 @@
 
-import { useState } from "react";
-import { ArrowLeft, Package, Clock, CheckCircle, Truck, Star, Camera, MessageSquare } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Package, Clock, CheckCircle, XCircle, Truck } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
+import { useEnhancedAuth } from "@/contexts/EnhancedAuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import CleanHeader from "@/components/navigation/CleanHeader";
+import BackButton from "@/components/BackButton";
+import type { Tables } from "@/integrations/supabase/types";
+
+type Order = Tables<'orders'>;
 
 const Orders = () => {
-  const navigate = useNavigate();
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [feedbackDialog, setFeedbackDialog] = useState(false);
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState("");
+  const { user } = useEnhancedAuth();
+  const { toast } = useToast();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const orders = [
-    {
-      id: "ORD-001",
-      type: "Food Delivery",
-      restaurant: "Punjabi Dhaba",
-      status: "delivered",
-      orderDate: "2024-06-14",
-      deliveryTime: "35 min",
-      amount: "₹299 ($3.59)",
-      items: ["Butter Chicken", "Naan", "Rice"],
-      progress: 100,
-      tracking: [
-        { status: "Order Placed", time: "2:00 PM", completed: true, description: "Your order has been received" },
-        { status: "Restaurant Confirmed", time: "2:05 PM", completed: true, description: "Restaurant is preparing your order" },
-        { status: "Food Prepared", time: "2:25 PM", completed: true, description: "Food is ready for pickup" },
-        { status: "Out for Delivery", time: "2:30 PM", completed: true, description: "Delivery partner is on the way" },
-        { status: "Delivered", time: "2:35 PM", completed: true, description: "Order delivered successfully" }
-      ]
-    },
-    {
-      id: "ORD-002",
-      type: "Groceries",
-      restaurant: "Zepto",
-      status: "preparing",
-      orderDate: "2024-06-15",
-      deliveryTime: "10 min",
-      amount: "₹450 ($5.41)",
-      items: ["Milk", "Bread", "Bananas", "Eggs"],
-      progress: 60,
-      tracking: [
-        { status: "Order Placed", time: "3:00 PM", completed: true, description: "Your grocery order is confirmed" },
-        { status: "Items Being Picked", time: "3:02 PM", completed: true, description: "Store staff is collecting items" },
-        { status: "Packed", time: "3:05 PM", completed: true, description: "Items packed and ready" },
-        { status: "Out for Delivery", time: "", completed: false, description: "Delivery partner will pick up soon" },
-        { status: "Delivered", time: "", completed: false, description: "Estimated delivery in 5 minutes" }
-      ]
-    },
-    {
-      id: "ORD-003",
-      type: "Gift",
-      restaurant: "Flower Boutique",
-      status: "confirmed",
-      orderDate: "2024-06-15",
-      deliveryTime: "2 hours",
-      amount: "₹1,200 ($14.41)",
-      items: ["Rose Bouquet", "Greeting Card"],
-      progress: 25,
-      tracking: [
-        { status: "Order Placed", time: "1:00 PM", completed: true, description: "Gift order received" },
-        { status: "Confirmed", time: "1:10 PM", completed: true, description: "Florist confirmed availability" },
-        { status: "Preparing", time: "", completed: false, description: "Creating your beautiful bouquet" },
-        { status: "Out for Delivery", time: "", completed: false, description: "Will be dispatched soon" },
-        { status: "Delivered", time: "", completed: false, description: "Expected by 3:00 PM" }
-      ]
+  useEffect(() => {
+    if (user) {
+      fetchOrders();
     }
-  ];
+  }, [user]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'delivered': return 'bg-green-100 text-green-800';
-      case 'preparing': return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const fetchOrders = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setOrders(data || []);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load orders",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'delivered': return <CheckCircle className="h-4 w-4" />;
-      case 'preparing': return <Clock className="h-4 w-4" />;
-      case 'confirmed': return <Package className="h-4 w-4" />;
-      default: return <Truck className="h-4 w-4" />;
+      case 'pending':
+        return <Clock className="h-4 w-4 text-yellow-500" />;
+      case 'confirmed':
+        return <CheckCircle className="h-4 w-4 text-blue-500" />;
+      case 'preparing':
+        return <Package className="h-4 w-4 text-orange-500" />;
+      case 'out_for_delivery':
+        return <Truck className="h-4 w-4 text-purple-500" />;
+      case 'delivered':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'cancelled':
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      default:
+        return <Clock className="h-4 w-4 text-gray-500" />;
     }
   };
 
-  const handleFeedback = (orderId: string) => {
-    setSelectedOrder(orderId);
-    setFeedbackDialog(true);
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+      'pending': 'outline',
+      'confirmed': 'default',
+      'preparing': 'secondary',
+      'out_for_delivery': 'default',
+      'delivered': 'default',
+      'cancelled': 'destructive'
+    };
+
+    return (
+      <Badge variant={variants[status] || 'outline'} className="flex items-center gap-1">
+        {getStatusIcon(status)}
+        {status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+      </Badge>
+    );
   };
 
-  const submitFeedback = () => {
-    console.log(`Feedback for ${selectedOrder}: ${rating} stars, "${comment}"`);
-    setFeedbackDialog(false);
-    setRating(0);
-    setComment("");
-    setSelectedOrder(null);
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-2xl font-bold text-gray-800">My Orders</h1>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+        <CleanHeader />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center gap-4 mb-6">
+            <BackButton fallbackPath="/" />
+            <h1 className="text-3xl font-bold text-gray-900">My Orders</h1>
+          </div>
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-white/50 animate-pulse rounded-xl h-32"></div>
+            ))}
           </div>
         </div>
       </div>
+    );
+  }
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="space-y-6">
-          {orders.map((order) => (
-            <Card key={order.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">{order.type}</h3>
-                    <p className="text-gray-600">{order.restaurant}</p>
-                    <p className="text-sm text-gray-500">Order #{order.id}</p>
-                  </div>
-                  <div className="text-right">
-                    <Badge className={`${getStatusColor(order.status)} mb-2`}>
-                      {getStatusIcon(order.status)}
-                      <span className="ml-1 capitalize">{order.status}</span>
-                    </Badge>
-                    <p className="text-lg font-bold">{order.amount}</p>
-                  </div>
-                </div>
-
-                {/* Real-time Progress Bar */}
-                <div className="mb-4">
-                  <div className="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>Order Progress</span>
-                    <span>{order.progress}%</span>
-                  </div>
-                  <Progress value={order.progress} className="h-2" />
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-medium mb-2">Order Items</h4>
-                    <ul className="text-gray-600 space-y-1">
-                      {order.items.map((item, index) => (
-                        <li key={index} className="text-sm">• {item}</li>
-                      ))}
-                    </ul>
-                    <div className="mt-4 text-sm text-gray-500">
-                      <p>Ordered on {order.orderDate}</p>
-                      <p>Expected delivery: {order.deliveryTime}</p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-medium mb-3">Real-time Tracking</h4>
-                    <div className="space-y-3">
-                      {order.tracking.map((step, index) => (
-                        <div key={index} className="flex items-start gap-3">
-                          <div className={`w-3 h-3 rounded-full mt-1 ${
-                            step.completed ? 'bg-green-500' : 'bg-gray-300'
-                          }`} />
-                          <div className="flex-1">
-                            <p className={`text-sm font-medium ${
-                              step.completed ? 'text-gray-900' : 'text-gray-500'
-                            }`}>
-                              {step.status}
-                            </p>
-                            <p className="text-xs text-gray-500">{step.description}</p>
-                            {step.time && (
-                              <p className="text-xs text-gray-400">{step.time}</p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 mt-4 pt-4 border-t">
-                  <Button variant="outline" size="sm">
-                    Track Live
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    Reorder
-                  </Button>
-                  {order.status === 'delivered' && (
-                    <Dialog open={feedbackDialog} onOpenChange={setFeedbackDialog}>
-                      <DialogTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleFeedback(order.id)}
-                        >
-                          <Star className="h-4 w-4 mr-1" />
-                          Rate Order
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Rate Your Order</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div className="text-center">
-                            <p className="text-sm text-gray-600 mb-3">How was your experience?</p>
-                            <div className="flex justify-center gap-1">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <button
-                                  key={star}
-                                  onClick={() => setRating(star)}
-                                  className="p-1"
-                                >
-                                  <Star 
-                                    className={`h-8 w-8 ${
-                                      star <= rating 
-                                        ? 'fill-yellow-400 text-yellow-400' 
-                                        : 'text-gray-300'
-                                    }`}
-                                  />
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <label className="text-sm font-medium">Comments (optional)</label>
-                            <Textarea
-                              placeholder="Share your feedback..."
-                              value={comment}
-                              onChange={(e) => setComment(e.target.value)}
-                              className="mt-1"
-                            />
-                          </div>
-
-                          <div className="flex gap-2">
-                            <Button variant="outline" className="flex-1">
-                              <Camera className="h-4 w-4 mr-2" />
-                              Add Photo
-                            </Button>
-                            <Button 
-                              onClick={submitFeedback}
-                              className="flex-1"
-                              disabled={rating === 0}
-                            >
-                              Submit
-                            </Button>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <CleanHeader />
+      
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <BackButton fallbackPath="/" />
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">My Orders</h1>
+            <p className="text-gray-600">Track your order history and status</p>
+          </div>
         </div>
+
+        {orders.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-sm border max-w-md mx-auto">
+              <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
+              <p className="text-gray-600">Start ordering to see your order history here.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {orders.map((order) => (
+              <Card key={order.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-sm hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Package className="h-5 w-5 text-blue-600" />
+                      Order #{order.id.slice(-8)}
+                    </CardTitle>
+                    {getStatusBadge(order.status)}
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <span>{order.service_type}</span>
+                    <span>•</span>
+                    <span>{new Date(order.created_at).toLocaleDateString()}</span>
+                    <span>•</span>
+                    <span className="font-medium">
+                      {order.currency} {order.total_amount}
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {/* Order Items */}
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Items:</h4>
+                      <div className="space-y-1">
+                        {Array.isArray(order.items) ? order.items.map((item: any, index: number) => (
+                          <div key={index} className="flex justify-between text-sm">
+                            <span>{item.name || 'Item'}</span>
+                            <span>{item.quantity || 1}x</span>
+                          </div>
+                        )) : (
+                          <div className="text-sm text-gray-600">Order details</div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Delivery Address */}
+                    {order.delivery_address && typeof order.delivery_address === 'object' && (order.delivery_address as any).address && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 mb-1">Delivery Address:</h4>
+                        <p className="text-sm text-gray-600">{(order.delivery_address as any).address}</p>
+                      </div>
+                    )}
+
+                    {/* Special Instructions */}
+                    {order.special_instructions && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 mb-1">Special Instructions:</h4>
+                        <p className="text-sm text-gray-600">{order.special_instructions}</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

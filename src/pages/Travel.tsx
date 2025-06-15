@@ -1,182 +1,234 @@
 
-import { useState, useEffect } from "react";
-import { ArrowLeft, Plane, Calendar, Users, Star } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState } from "react";
+import { ArrowLeft, Plane, Calendar, MapPin, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLocation } from "@/contexts/LocationContext";
+import { useToast } from "@/hooks/use-toast";
+import CleanHeader from "@/components/navigation/CleanHeader";
+import BackButton from "@/components/BackButton";
 
 const Travel = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { fromCountry, toCountry, getCurrencyDisplay } = useLocation();
-  
-  const [filters, setFilters] = useState({
-    travelDate: "",
-    route: "",
-    gender: ""
+  const { toCountry, getCurrencyDisplay } = useLocation();
+  const { toast } = useToast();
+  const [searchData, setSearchData] = useState({
+    from: "",
+    to: "",
+    departure: "",
+    passengers: "1"
   });
 
-  // Load preferences from URL parameters
-  useEffect(() => {
-    const date = searchParams.get('date') || '';
-    const route = searchParams.get('route') || '';
-    const gender = searchParams.get('gender') || '';
-    
-    setFilters({
-      travelDate: date,
-      route: route,
-      gender: gender
-    });
-  }, [searchParams]);
-
-  const travelCompanions = [
+  const flightOffers = toCountry === 'USA' ? [
     {
-      id: 1,
-      name: "Priya Sharma",
-      route: `${fromCountry} → ${toCountry}`,
-      date: "June 20, 2024",
-      airline: "Emirates",
-      verified: true,
-      rating: 4.8,
-      trips: 15,
-      price: fromCountry === 'India' ? 2500 : 35,
-      bio: "Experienced traveler, always happy to help with customs and connections."
+      id: "f1",
+      airline: "American Airlines",
+      from: "New York",
+      to: "Los Angeles",
+      departure: "08:30",
+      arrival: "11:45",
+      duration: "5h 15m",
+      price: 299,
+      currency: "USD" as const,
+      stops: "Direct"
     },
     {
-      id: 2,
-      name: "John Davis",
-      route: `${fromCountry} → ${toCountry}`,
-      date: "June 22, 2024",
-      airline: "British Airways",
-      verified: true,
-      rating: 4.9,
-      trips: 23,
-      price: fromCountry === 'India' ? 2000 : 30,
-      bio: "Business traveler who can assist with document guidance."
+      id: "f2",
+      airline: "Delta",
+      from: "Chicago",
+      to: "Miami",
+      departure: "14:20",
+      arrival: "18:30",
+      duration: "3h 10m",
+      price: 189,
+      currency: "USD" as const,
+      stops: "Direct"
     },
     {
-      id: 3,
-      name: "Sarah Wilson",
-      route: `${fromCountry} → ${toCountry}`,
-      date: "June 25, 2024",
+      id: "f3",
+      airline: "United",
+      from: "San Francisco",
+      to: "Seattle",
+      departure: "11:15",
+      arrival: "13:45",
+      duration: "2h 30m",
+      price: 149,
+      currency: "USD" as const,
+      stops: "Direct"
+    }
+  ] : [
+    {
+      id: "f1",
+      airline: "IndiGo",
+      from: "Delhi",
+      to: "Mumbai",
+      departure: "09:30",
+      arrival: "11:45",
+      duration: "2h 15m",
+      price: 4500,
+      currency: "INR" as const,
+      stops: "Direct"
+    },
+    {
+      id: "f2",
       airline: "Air India",
-      verified: true,
-      rating: 4.7,
-      trips: 12,
-      price: fromCountry === 'India' ? 1800 : 25,
-      bio: "Friendly companion, great for first-time travelers."
+      from: "Bangalore",
+      to: "Chennai",
+      departure: "15:20",
+      arrival: "16:30",
+      duration: "1h 10m",
+      price: 3200,
+      currency: "INR" as const,
+      stops: "Direct"
+    },
+    {
+      id: "f3",
+      airline: "SpiceJet",
+      from: "Pune",
+      to: "Goa",
+      departure: "12:15",
+      arrival: "13:45",
+      duration: "1h 30m",
+      price: 2800,
+      currency: "INR" as const,
+      stops: "Direct"
     }
   ];
 
+  const handleBookFlight = (flight: typeof flightOffers[0]) => {
+    navigate("/payment", {
+      state: {
+        itemName: `${flight.airline} Flight`,
+        price: flight.price,
+        currency: flight.currency,
+        details: {
+          from: flight.from,
+          to: flight.to,
+          departure: flight.departure,
+          arrival: flight.arrival,
+          duration: flight.duration,
+          passengers: searchData.passengers
+        }
+      }
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-2xl font-bold text-gray-800">Travel Companions</h1>
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50">
+      <CleanHeader />
+      
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <BackButton fallbackPath="/" />
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Flight Booking</h1>
+            <p className="text-gray-600">Find and book your perfect flight</p>
           </div>
         </div>
-      </div>
 
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="grid md:grid-cols-3 gap-4">
+        {/* Search Form */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-sm border mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="relative">
-              <Plane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500 h-5 w-5" />
-              <Input placeholder="From" className="pl-10" defaultValue={fromCountry} readOnly />
-            </div>
-            <div className="relative">
-              <Plane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500 h-5 w-5" />
-              <Input placeholder="To" className="pl-10" defaultValue={toCountry} readOnly />
-            </div>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input 
-                placeholder="Travel date" 
-                className="pl-10" 
-                value={filters.travelDate}
-                onChange={(e) => setFilters(prev => ({ ...prev, travelDate: e.target.value }))}
+              <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-500 h-5 w-5" />
+              <Input
+                placeholder="From"
+                value={searchData.from}
+                onChange={(e) => setSearchData(prev => ({ ...prev, from: e.target.value }))}
+                className="pl-12 py-3 rounded-xl border-gray-200 focus:border-blue-400 focus:ring-blue-200"
               />
             </div>
-          </div>
-          
-          {/* Display applied filters */}
-          {(filters.route || filters.gender) && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              <span className="text-sm text-gray-600">Applied filters:</span>
-              {filters.route && (
-                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                  Route: {filters.route}
-                </span>
-              )}
-              {filters.gender && (
-                <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-                  Gender: {filters.gender}
-                </span>
-              )}
+            <div className="relative">
+              <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-red-500 h-5 w-5" />
+              <Input
+                placeholder="To"
+                value={searchData.to}
+                onChange={(e) => setSearchData(prev => ({ ...prev, to: e.target.value }))}
+                className="pl-12 py-3 rounded-xl border-gray-200 focus:border-blue-400 focus:ring-blue-200"
+              />
             </div>
-          )}
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold">Available Travel Companions</h2>
-          <div className="text-sm text-gray-600 bg-teal-50 px-3 py-1 rounded-full">
-            Verified Network
+            <div className="relative">
+              <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
+              <Input
+                type="date"
+                value={searchData.departure}
+                onChange={(e) => setSearchData(prev => ({ ...prev, departure: e.target.value }))}
+                className="pl-12 py-3 rounded-xl border-gray-200 focus:border-blue-400 focus:ring-blue-200"
+              />
+            </div>
+            <div className="relative">
+              <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
+              <select
+                value={searchData.passengers}
+                onChange={(e) => setSearchData(prev => ({ ...prev, passengers: e.target.value }))}
+                className="w-full pl-12 py-3 rounded-xl border border-gray-200 focus:border-blue-400 focus:ring-blue-200 bg-white"
+              >
+                <option value="1">1 Passenger</option>
+                <option value="2">2 Passengers</option>
+                <option value="3">3 Passengers</option>
+                <option value="4">4 Passengers</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <div className="space-y-6">
-          {travelCompanions.map((companion) => (
-            <Card key={companion.id} className="hover:shadow-lg transition-shadow">
+        {/* Flight Results */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Available Flights</h2>
+          {flightOffers.map((flight) => (
+            <Card key={flight.id} className="hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-sm border-0 shadow-md">
               <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-r from-teal-400 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                      {companion.name.split(' ').map(n => n[0]).join('')}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-6">
+                    <div className="text-center">
+                      <Plane className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600">{flight.airline}</p>
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-lg font-semibold">{companion.name}</h3>
-                        {companion.verified && (
-                          <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                            <span className="text-white text-xs">✓</span>
-                          </div>
-                        )}
+                    <div className="flex items-center gap-8">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-gray-900">{flight.departure}</p>
+                        <p className="text-sm text-gray-600">{flight.from}</p>
                       </div>
-                      <p className="text-gray-600 mb-2">{companion.route}</p>
-                      <p className="text-sm text-gray-500 mb-2">{companion.airline} • {companion.date}</p>
-                      <p className="text-sm text-gray-700 mb-3">{companion.bio}</p>
-                      <div className="flex items-center gap-4 text-sm">
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span>{companion.rating}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Users className="h-4 w-4 text-gray-400" />
-                          <span>{companion.trips} trips</span>
-                        </div>
+                      <div className="text-center px-4">
+                        <p className="text-sm text-gray-500">{flight.duration}</p>
+                        <div className="w-20 h-px bg-gray-300 my-2"></div>
+                        <p className="text-xs text-gray-500">{flight.stops}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-gray-900">{flight.arrival}</p>
+                        <p className="text-sm text-gray-600">{flight.to}</p>
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-bold text-teal-600 mb-2">
-                      {getCurrencyDisplay(companion.price, fromCountry === 'India' ? 'INR' : 'USD')}
-                    </p>
-                    <Button className="bg-teal-600 hover:bg-teal-700">
-                      Connect
+                    <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-sky-600 bg-clip-text text-transparent mb-2">
+                      {getCurrencyDisplay(flight.price, flight.currency)}
+                    </div>
+                    <Button 
+                      onClick={() => handleBookFlight(flight)}
+                      className="bg-gradient-to-r from-blue-500 to-sky-500 hover:from-blue-600 hover:to-sky-600 text-white rounded-xl px-8 py-3 shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      Book Flight
                     </Button>
                   </div>
                 </div>
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Travel Tips */}
+        <div className="mt-8 bg-sky-50 rounded-xl p-6">
+          <h3 className="font-semibold text-gray-900 mb-2">Travel Tips</h3>
+          <ul className="text-sm text-gray-600 space-y-1">
+            <li>• Check-in online 24 hours before departure</li>
+            <li>• Arrive at airport 2 hours early for domestic flights</li>
+            <li>• Keep your ID and boarding pass handy</li>
+            <li>• Check baggage allowance before packing</li>
+          </ul>
         </div>
       </div>
     </div>

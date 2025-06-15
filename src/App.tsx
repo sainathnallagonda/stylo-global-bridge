@@ -9,6 +9,7 @@ import { LocationProvider } from "@/contexts/LocationContext";
 import { LanguageProvider } from "@/components/MultiLanguageSupport";
 import { AppStateProvider } from "@/contexts/AppStateContext";
 import { NavigationProvider } from "@/components/navigation/NavigationProvider";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import CustomerAuth from "./pages/CustomerAuth";
@@ -33,84 +34,86 @@ import ImprovedCartModal from "./components/cart/ImprovedCartModal";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <EnhancedAuthProvider>
-          <LocationProvider>
-            <LanguageProvider>
-              <AppStateProvider>
-                <NavigationProvider>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/customer-auth" element={<CustomerAuth />} />
-                    <Route path="/vendor-auth" element={<VendorAuth />} />
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <EnhancedAuthProvider>
+            <LocationProvider>
+              <LanguageProvider>
+                <AppStateProvider>
+                  <NavigationProvider>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/auth" element={<Auth />} />
+                      <Route path="/customer-auth" element={<CustomerAuth />} />
+                      <Route path="/vendor-auth" element={<VendorAuth />} />
+                      
+                      {/* Customer Routes */}
+                      <Route 
+                        path="/dashboard" 
+                        element={
+                          <EnhancedAuthGuard requiredRole="customer">
+                            <CustomerDashboard />
+                          </EnhancedAuthGuard>
+                        } 
+                      />
+                      
+                      {/* Vendor Routes */}
+                      <Route 
+                        path="/vendor-dashboard" 
+                        element={
+                          <EnhancedAuthGuard requiredRole="vendor">
+                            <VendorDashboard />
+                          </EnhancedAuthGuard>
+                        } 
+                      />
+                      
+                      {/* Shared Protected Routes */}
+                      <Route 
+                        path="/profile" 
+                        element={
+                          <EnhancedAuthGuard>
+                            <Profile />
+                          </EnhancedAuthGuard>
+                        } 
+                      />
+                      <Route 
+                        path="/orders" 
+                        element={
+                          <EnhancedAuthGuard>
+                            <Orders />
+                          </EnhancedAuthGuard>
+                        } 
+                      />
+                      
+                      {/* Service Routes */}
+                      <Route path="/food-delivery" element={<ImprovedFoodDelivery />} />
+                      <Route path="/groceries" element={<Groceries />} />
+                      <Route path="/gifts" element={<Gifts />} />
+                      <Route path="/rides" element={<Rides />} />
+                      <Route path="/travel" element={<Travel />} />
+                      <Route path="/care" element={<Care />} />
+                      <Route path="/payment" element={<Payment />} />
+                      
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
                     
-                    {/* Customer Routes */}
-                    <Route 
-                      path="/dashboard" 
-                      element={
-                        <EnhancedAuthGuard requiredRole="customer">
-                          <CustomerDashboard />
-                        </EnhancedAuthGuard>
-                      } 
-                    />
-                    
-                    {/* Vendor Routes */}
-                    <Route 
-                      path="/vendor-dashboard" 
-                      element={
-                        <EnhancedAuthGuard requiredRole="vendor">
-                          <VendorDashboard />
-                        </EnhancedAuthGuard>
-                      } 
-                    />
-                    
-                    {/* Shared Protected Routes */}
-                    <Route 
-                      path="/profile" 
-                      element={
-                        <EnhancedAuthGuard>
-                          <Profile />
-                        </EnhancedAuthGuard>
-                      } 
-                    />
-                    <Route 
-                      path="/orders" 
-                      element={
-                        <EnhancedAuthGuard>
-                          <Orders />
-                        </EnhancedAuthGuard>
-                      } 
-                    />
-                    
-                    {/* Service Routes */}
-                    <Route path="/food-delivery" element={<ImprovedFoodDelivery />} />
-                    <Route path="/groceries" element={<Groceries />} />
-                    <Route path="/gifts" element={<Gifts />} />
-                    <Route path="/rides" element={<Rides />} />
-                    <Route path="/travel" element={<Travel />} />
-                    <Route path="/care" element={<Care />} />
-                    <Route path="/payment" element={<Payment />} />
-                    
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                  
-                  {/* Global Components */}
-                  <ImprovedCartModal />
-                  <FloatingActionButton />
-                  <Chatbot />
-                </NavigationProvider>
-              </AppStateProvider>
-            </LanguageProvider>
-          </LocationProvider>
-        </EnhancedAuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+                    {/* Global Components */}
+                    <ImprovedCartModal />
+                    <FloatingActionButton />
+                    <Chatbot />
+                  </NavigationProvider>
+                </AppStateProvider>
+              </LanguageProvider>
+            </LocationProvider>
+          </EnhancedAuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

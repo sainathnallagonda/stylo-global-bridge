@@ -1,237 +1,170 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  ShoppingCart, 
+  Heart, 
+  Clock, 
+  MapPin, 
+  Gift, 
+  Utensils,
+  Car,
+  Plane,
+  Users,
+  Package
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useNavigate } from 'react-router-dom';
 import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { useAppState } from '@/contexts/AppStateContext';
 import CleanHeader from '@/components/navigation/CleanHeader';
-import { 
-  ShoppingBag, 
-  Clock, 
-  Star, 
-  Utensils, 
-  Car, 
-  Gift,
-  Wallet,
-  User,
-  Bell,
-  TrendingUp
-} from 'lucide-react';
-
-interface RecentOrder {
-  id: string;
-  service_type: string;
-  total_amount: number;
-  currency: string;
-  status: string;
-  created_at: string;
-  items: any;
-}
 
 const CustomerDashboard = () => {
-  const { profile, user } = useEnhancedAuth();
   const navigate = useNavigate();
-  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
-  const [walletBalance, setWalletBalance] = useState({ usd: 0, inr: 0 });
-  const [loyaltyPoints, setLoyaltyPoints] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const { profile } = useEnhancedAuth();
+  const { cartCount, openCart } = useAppState();
 
-  useEffect(() => {
-    if (user) {
-      fetchDashboardData();
-    }
-  }, [user]);
-
-  const fetchDashboardData = async () => {
-    if (!user) return;
-
-    try {
-      console.log('Fetching dashboard data for user:', user.id);
-      
-      // Fetch recent orders
-      const { data: orders } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      if (orders) setRecentOrders(orders);
-
-      // Fetch wallet balance
-      const { data: wallet } = await supabase
-        .from('user_wallets')
-        .select('usd_balance, inr_balance')
-        .eq('user_id', user.id)
-        .single();
-
-      if (wallet) {
-        setWalletBalance({
-          usd: wallet.usd_balance || 0,
-          inr: wallet.inr_balance || 0
-        });
-      }
-
-      // Fetch loyalty points
-      const { data: points } = await supabase
-        .rpc('get_user_loyalty_points', { user_uuid: user.id });
-
-      if (points) setLoyaltyPoints(points);
-
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const serviceCards = [
+  const services = [
     {
       title: 'Food Delivery',
-      description: 'Order from your favorite restaurants',
+      description: 'Order delicious meals from local restaurants',
       icon: Utensils,
-      color: 'bg-orange-500',
-      route: '/food-delivery'
+      path: '/food-delivery',
+      color: 'from-orange-500 to-red-500'
     },
     {
       title: 'Groceries',
       description: 'Fresh groceries delivered to your door',
-      icon: ShoppingBag,
-      color: 'bg-green-500',
-      route: '/groceries'
+      icon: ShoppingCart,
+      path: '/groceries',
+      color: 'from-green-500 to-emerald-500'
     },
     {
-      title: 'Gifts',
-      description: 'Send gifts to your loved ones',
+      title: 'Gifts & Flowers',
+      description: 'Send gifts and flowers to your loved ones',
       icon: Gift,
-      color: 'bg-purple-500',
-      route: '/gifts'
+      path: '/gifts',
+      color: 'from-pink-500 to-rose-500'
     },
     {
       title: 'Rides',
-      description: 'Book rides anywhere, anytime',
+      description: 'Book a ride to your destination',
       icon: Car,
-      color: 'bg-blue-500',
-      route: '/rides'
+      path: '/rides',
+      color: 'from-blue-500 to-cyan-500'
+    },
+    {
+      title: 'Travel',
+      description: 'Book flights and plan your trips',
+      icon: Plane,
+      path: '/travel',
+      color: 'from-purple-500 to-violet-500'
+    },
+    {
+      title: 'Care Services',
+      description: 'Healthcare and wellness services',
+      icon: Users,
+      path: '/care',
+      color: 'from-teal-500 to-green-500'
     }
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'processing': return 'bg-blue-100 text-blue-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const quickActions = [
+    {
+      title: 'View Cart',
+      description: `${cartCount} items in cart`,
+      icon: ShoppingCart,
+      action: openCart,
+      color: 'bg-blue-500'
+    },
+    {
+      title: 'Order History',
+      description: 'View past orders',
+      icon: Package,
+      action: () => navigate('/orders'),
+      color: 'bg-green-500'
+    },
+    {
+      title: 'Favorites',
+      description: 'Your saved items',
+      icon: Heart,
+      action: () => navigate('/favorites'),
+      color: 'bg-red-500'
+    },
+    {
+      title: 'Track Orders',
+      description: 'Live order tracking',
+      icon: MapPin,
+      action: () => navigate('/orders'),
+      color: 'bg-purple-500'
     }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-        <CleanHeader />
-        <div className="p-6">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <CleanHeader />
       
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Welcome Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Welcome back, {profile?.full_name || 'Customer'}! 👋
-            </h1>
-            <p className="text-gray-600 mt-1">Ready to explore our services?</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => navigate('/profile')}>
-              <User className="h-4 w-4 mr-2" />
-              Profile
-            </Button>
-            <Button variant="outline">
-              <Bell className="h-4 w-4 mr-2" />
-              Notifications
-            </Button>
-          </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome back, {profile?.full_name || 'Customer'}!
+          </h1>
+          <p className="text-gray-600">
+            What would you like to order today?
+          </p>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Orders</p>
-                  <p className="text-2xl font-bold text-gray-900">{recentOrders.length}</p>
-                </div>
-                <TrendingUp className="h-8 w-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Wallet Balance</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    ${walletBalance.usd} | ₹{walletBalance.inr}
-                  </p>
-                </div>
-                <Wallet className="h-8 w-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Loyalty Points</p>
-                  <p className="text-2xl font-bold text-gray-900">{loyaltyPoints}</p>
-                </div>
-                <Star className="h-8 w-8 text-yellow-600" />
-              </div>
-            </CardContent>
-          </Card>
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {quickActions.map((action, index) => {
+            const IconComponent = action.icon;
+            return (
+              <Card 
+                key={index} 
+                className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-sm border-0"
+                onClick={action.action}
+              >
+                <CardContent className="p-4 text-center">
+                  <div className={`w-12 h-12 ${action.color} rounded-full flex items-center justify-center mx-auto mb-3`}>
+                    <IconComponent className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-sm mb-1">{action.title}</h3>
+                  <p className="text-xs text-gray-600">{action.description}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
-        {/* Service Cards */}
+        {/* Main Services */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Our Services</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {serviceCards.map((service, index) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((service, index) => {
               const IconComponent = service.icon;
               return (
                 <Card 
-                  key={index} 
-                  className="hover:shadow-lg transition-all duration-300 cursor-pointer group"
-                  onClick={() => navigate(service.route)}
+                  key={index}
+                  className="cursor-pointer hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0 overflow-hidden group"
+                  onClick={() => navigate(service.path)}
                 >
-                  <CardContent className="p-6">
-                    <div className="flex items-center mb-4">
-                      <div className={`p-3 rounded-lg ${service.color} text-white group-hover:scale-110 transition-transform`}>
-                        <IconComponent className="h-6 w-6" />
-                      </div>
+                  <CardContent className="p-0">
+                    <div className={`h-32 bg-gradient-to-r ${service.color} flex items-center justify-center relative overflow-hidden`}>
+                      <IconComponent className="h-16 w-16 text-white group-hover:scale-110 transition-transform duration-300" />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300"></div>
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">{service.title}</h3>
-                    <p className="text-sm text-gray-600">{service.description}</p>
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                        {service.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm mb-4">{service.description}</p>
+                      <Button 
+                        className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+                      >
+                        Explore Now
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               );
@@ -239,59 +172,17 @@ const CustomerDashboard = () => {
           </div>
         </div>
 
-        {/* Recent Orders */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-blue-600" />
-              Recent Orders
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {recentOrders.length === 0 ? (
-              <div className="text-center py-8">
-                <ShoppingBag className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No orders yet. Start exploring our services!</p>
-                <Button className="mt-4" onClick={() => navigate('/food-delivery')}>
-                  Order Now
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {recentOrders.map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <ShoppingBag className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 capitalize">
-                          {order.service_type.replace('-', ' ')}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {new Date(order.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <Badge className={getStatusColor(order.status)}>
-                        {order.status}
-                      </Badge>
-                      <p className="font-semibold text-gray-900">
-                        {order.currency} {order.total_amount}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                <div className="text-center pt-4">
-                  <Button variant="outline" onClick={() => navigate('/orders')}>
-                    View All Orders
-                  </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Recent Activity */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Activity</h2>
+          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
+            <CardContent className="p-8 text-center">
+              <Clock className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No recent activity</h3>
+              <p className="text-gray-600">Start ordering to see your activity here!</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
