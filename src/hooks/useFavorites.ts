@@ -37,8 +37,8 @@ export const useFavorites = () => {
       if (error) throw error;
       
       const favoriteIds = data?.map(fav => {
-        const itemData = fav.item_data as Record<string, any>;
-        return itemData.id?.toString() || '';
+        const itemData = fav.item_data as any;
+        return itemData?.id?.toString() || '';
       }).filter(id => id) || [];
       setFavorites(favoriteIds);
     } catch (error) {
@@ -75,13 +75,23 @@ export const useFavorites = () => {
           description: `${item.name} has been removed from your favorites`
         });
       } else {
-        // Add to favorites
+        // Add to favorites - convert item to plain object for JSON storage
+        const itemData = {
+          id: item.id,
+          name: item.name,
+          image: item.image,
+          price: item.price,
+          currency: item.currency,
+          category: item.category,
+          restaurant: item.restaurant
+        };
+
         const { error } = await supabase
           .from('favorites')
           .insert({
             user_id: user.id,
             service_type: serviceType,
-            item_data: item
+            item_data: itemData
           });
 
         if (error) throw error;

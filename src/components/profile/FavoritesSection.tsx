@@ -48,12 +48,24 @@ const FavoritesSection = () => {
 
       if (error) throw error;
       
-      const typedFavorites: Favorite[] = (data || []).map(fav => ({
-        id: fav.id,
-        service_type: fav.service_type,
-        item_data: fav.item_data as Record<string, any>,
-        created_at: fav.created_at
-      }));
+      // Convert the data to proper types
+      const typedFavorites: Favorite[] = (data || []).map(fav => {
+        const itemData = fav.item_data as any;
+        return {
+          id: fav.id,
+          service_type: fav.service_type,
+          item_data: {
+            id: itemData?.id || 0,
+            name: itemData?.name || '',
+            image: itemData?.image || '',
+            price: itemData?.price || 0,
+            currency: itemData?.currency || 'USD',
+            category: itemData?.category,
+            restaurant: itemData?.restaurant
+          } as FavoriteItemData,
+          created_at: fav.created_at
+        };
+      });
       
       setFavorites(typedFavorites);
     } catch (error) {
