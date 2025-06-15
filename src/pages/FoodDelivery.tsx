@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { ArrowLeft, Search, Star, Clock, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +16,7 @@ const FoodDelivery = () => {
     {
       id: 1,
       name: "McDonald's",
-      image: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=250&fit=crop&auto=format",
+      image: "https://images.unsplash.com/photo-1552566090-a52406b9d330?w=400&h=250&fit=crop&auto=format",
       rating: 4.2,
       deliveryTime: "20-30 min",
       cuisine: "Fast Food, Burgers",
@@ -25,7 +26,7 @@ const FoodDelivery = () => {
     {
       id: 2,
       name: "Chipotle Mexican Grill",
-      image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=250&fit=crop&auto=format",
+      image: "https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=400&h=250&fit=crop&auto=format",
       rating: 4.5,
       deliveryTime: "15-25 min",
       cuisine: "Mexican, Bowls",
@@ -35,7 +36,7 @@ const FoodDelivery = () => {
     {
       id: 3,
       name: "Pizza Hut",
-      image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=250&fit=crop&auto=format",
+      image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=250&fit=crop&auto=format",
       rating: 4.0,
       deliveryTime: "30-40 min",
       cuisine: "Italian, Pizza",
@@ -45,7 +46,7 @@ const FoodDelivery = () => {
     {
       id: 4,
       name: "Subway",
-      image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=250&fit=crop&auto=format",
+      image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=250&fit=crop&auto=format",
       rating: 4.1,
       deliveryTime: "10-20 min",
       cuisine: "Sandwiches, Healthy",
@@ -56,7 +57,7 @@ const FoodDelivery = () => {
     {
       id: 1,
       name: "Punjabi Dhaba",
-      image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&h=250&fit=crop&auto=format",
+      image: "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400&h=250&fit=crop&auto=format",
       rating: 4.2,
       deliveryTime: "30-35 min",
       cuisine: "North Indian, Punjabi",
@@ -66,7 +67,7 @@ const FoodDelivery = () => {
     {
       id: 2,
       name: "South Spice",
-      image: "https://images.unsplash.com/photo-1596797038530-2c107229654b?w=400&h=250&fit=crop&auto=format",
+      image: "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=400&h=250&fit=crop&auto=format",
       rating: 4.5,
       deliveryTime: "25-30 min",
       cuisine: "South Indian, Dosa",
@@ -76,7 +77,7 @@ const FoodDelivery = () => {
     {
       id: 3,
       name: "Pizza Corner",
-      image: "https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?w=400&h=250&fit=crop&auto=format",
+      image: "https://images.unsplash.com/photo-1579952363873-27d3bfad9c0d?w=400&h=250&fit=crop&auto=format",
       rating: 4.0,
       deliveryTime: "35-40 min",
       cuisine: "Italian, Pizza",
