@@ -100,12 +100,27 @@ export const useFavorites = (serviceType?: string) => {
     if (!user || !serviceType) return;
 
     try {
+      // First get all favorites to find the one to delete
+      const { data: existingFavorites, error: fetchError } = await supabase
+        .from('favorites')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('service_type', serviceType);
+
+      if (fetchError) throw fetchError;
+
+      // Find the favorite with matching item id
+      const favoriteToDelete = existingFavorites?.find(fav => {
+        const itemData = fav.item_data as any;
+        return itemData.id === itemId;
+      });
+
+      if (!favoriteToDelete) return;
+
       const { error } = await supabase
         .from('favorites')
         .delete()
-        .eq('user_id', user.id)
-        .eq('service_type', serviceType)
-        .eq('item_data->id', itemId);
+        .eq('id', favoriteToDelete.id);
 
       if (error) throw error;
       
