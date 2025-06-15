@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -49,9 +48,9 @@ const FavoritesSection = () => {
 
       if (error) throw error;
       
-      // Safely parse the item_data
+      // Safely parse the item_data with proper type casting
       const typedFavorites: Favorite[] = (data || []).map(fav => {
-        const rawItemData = fav.item_data;
+        const rawItemData = fav.item_data as any; // Type assertion to handle Json type
         
         // Safely extract item data with fallbacks
         const itemData: FavoriteItemData = {
