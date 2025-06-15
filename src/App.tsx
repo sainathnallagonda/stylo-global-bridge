@@ -8,6 +8,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import FoodDelivery from "./pages/FoodDelivery";
+import Groceries from "./pages/Groceries";
 import AuthGuard from "./components/AuthGuard";
 import NotFound from "./pages/NotFound";
 

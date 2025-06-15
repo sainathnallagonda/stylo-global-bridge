@@ -1,53 +1,72 @@
 
 import { ShoppingBag, Gift, Car, Coffee, Plane, Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 const services = [
   {
     icon: Coffee,
     title: "Food Delivery",
-    description: "Order from restaurants in USA/India for your loved ones",
+    description: "Order from restaurants via Zomato for your loved ones",
     price: "₹299 ($3.59)",
-    gradient: "from-orange-400 to-red-500"
+    gradient: "from-orange-400 to-red-500",
+    partner: "Powered by Zomato",
+    route: "/food-delivery"
   },
   {
     icon: ShoppingBag,
     title: "Groceries",
-    description: "Fresh groceries delivered to their doorstep",
+    description: "Fresh groceries delivered via Zepto in minutes",
     price: "₹899 ($10.79)",
-    gradient: "from-green-400 to-blue-500"
+    gradient: "from-green-400 to-blue-500",
+    partner: "Powered by Zepto",
+    route: "/groceries"
   },
   {
     icon: Gift,
     title: "Gifts & Cakes",
     description: "Surprise them with thoughtful gifts and fresh cakes",
     price: "₹1,499 ($17.99)",
-    gradient: "from-purple-400 to-pink-500"
+    gradient: "from-purple-400 to-pink-500",
+    partner: "Curated Selection",
+    route: "/gifts"
   },
   {
     icon: Car,
     title: "Ride Booking",
-    description: "Book rides for safe and comfortable travel",
+    description: "Book rides via Ola/Uber for safe travel",
     price: "₹399 ($4.79)",
-    gradient: "from-blue-400 to-indigo-500"
+    gradient: "from-blue-400 to-indigo-500",
+    partner: "Powered by Ola & Uber",
+    route: "/rides"
   },
   {
     icon: Plane,
     title: "Travel Companions",
     description: "Find trusted travel buddies for international flights",
     price: "₹2,999 ($35.99)",
-    gradient: "from-teal-400 to-cyan-500"
+    gradient: "from-teal-400 to-cyan-500",
+    partner: "Verified Network",
+    route: "/travel"
   },
   {
     icon: Heart,
     title: "Care Services",
     description: "Wellness checks and care services for elderly",
     price: "₹599 ($7.19)",
-    gradient: "from-rose-400 to-red-500"
+    gradient: "from-rose-400 to-red-500",
+    partner: "Trusted Partners",
+    route: "/care"
   }
 ];
 
 const Services = () => {
+  const navigate = useNavigate();
+
+  const handleOrderNow = (route: string) => {
+    navigate(route);
+  };
+
   return (
     <section id="services" className="py-20 px-4">
       <div className="container mx-auto">
@@ -56,7 +75,7 @@ const Services = () => {
             All Services, One Platform
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Everything your loved ones need, delivered with care across borders
+            Everything your loved ones need, delivered with love across borders
           </p>
         </div>
 
@@ -68,10 +87,14 @@ const Services = () => {
                   <service.icon className="text-white" size={28} />
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-gray-800">{service.title}</h3>
-                <p className="text-gray-600 mb-4 leading-relaxed">{service.description}</p>
+                <p className="text-gray-600 mb-2 leading-relaxed">{service.description}</p>
+                <p className="text-sm text-blue-600 font-medium mb-4">{service.partner}</p>
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold text-blue-600">{service.price}</span>
-                  <button className="text-orange-500 hover:text-orange-600 font-medium transition-colors">
+                  <button 
+                    onClick={() => handleOrderNow(service.route)}
+                    className="text-orange-500 hover:text-orange-600 font-medium transition-colors"
+                  >
                     Order Now →
                   </button>
                 </div>
