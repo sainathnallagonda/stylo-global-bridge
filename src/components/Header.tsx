@@ -172,7 +172,7 @@ const Header = () => {
                   <Button
                     onClick={() => {
                       handleSignOut();
-                      setIsMenuOut(false);
+                      setIsMenuOpen(false);
                     }}
                     variant="ghost"
                     className="justify-start text-red-600 hover:bg-red-50"
