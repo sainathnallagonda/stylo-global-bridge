@@ -120,5 +120,32 @@
   .bg-blue-25 {
     background-color: #f8faff;
   }
+
+  /* Hero section animations */
+  .hero-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .hero-float-delayed {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: -3s;
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  /* Gradient backgrounds */
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  }
+  
+  .bg-gradient-secondary {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  }
 }
-</lov-utilities>
