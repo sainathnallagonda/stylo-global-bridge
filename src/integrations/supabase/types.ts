@@ -122,6 +122,42 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       order_tracking: {
         Row: {
           delivery_notes: string | null
@@ -393,6 +429,75 @@ export type Database = {
         }
         Relationships: []
       }
+      user_wallets: {
+        Row: {
+          created_at: string
+          id: string
+          inr_balance: number | null
+          updated_at: string
+          usd_balance: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inr_balance?: number | null
+          updated_at?: string
+          usd_balance?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inr_balance?: number | null
+          updated_at?: string
+          usd_balance?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vendor_analytics: {
+        Row: {
+          average_rating: number | null
+          created_at: string
+          currency: string
+          customer_count: number | null
+          date: string
+          id: string
+          popular_items: Json | null
+          total_orders: number | null
+          total_revenue: number | null
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          average_rating?: number | null
+          created_at?: string
+          currency?: string
+          customer_count?: number | null
+          date: string
+          id?: string
+          popular_items?: Json | null
+          total_orders?: number | null
+          total_revenue?: number | null
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          average_rating?: number | null
+          created_at?: string
+          currency?: string
+          customer_count?: number | null
+          date?: string
+          id?: string
+          popular_items?: Json | null
+          total_orders?: number | null
+          total_revenue?: number | null
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: []
+      }
       vendor_foods: {
         Row: {
           category: string
@@ -435,6 +540,78 @@ export type Database = {
           price?: number
           updated_at?: string
           vendor_id?: string
+        }
+        Relationships: []
+      }
+      vendor_reviews: {
+        Row: {
+          created_at: string
+          id: string
+          is_verified: boolean | null
+          order_id: string | null
+          rating: number
+          review_text: string | null
+          updated_at: string
+          user_id: string
+          vendor_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_verified?: boolean | null
+          order_id?: string | null
+          rating: number
+          review_text?: string | null
+          updated_at?: string
+          user_id: string
+          vendor_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_verified?: boolean | null
+          order_id?: string | null
+          rating?: number
+          review_text?: string | null
+          updated_at?: string
+          user_id?: string
+          vendor_id?: string
+        }
+        Relationships: []
+      }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          currency: string
+          id: string
+          reference_id: string | null
+          transaction_reason: string
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string
+          currency: string
+          id?: string
+          reference_id?: string | null
+          transaction_reason: string
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          reference_id?: string | null
+          transaction_reason?: string
+          transaction_type?: string
+          user_id?: string
         }
         Relationships: []
       }

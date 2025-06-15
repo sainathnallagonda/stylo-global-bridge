@@ -47,40 +47,54 @@ const VendorReviews = ({ vendorId, allowReview = false, orderId }: VendorReviews
 
   const fetchReviews = async () => {
     try {
-      // For now, since vendor_reviews table might not be available in types yet,
-      // we'll use mock data and show the UI structure
-      const mockReviews: Review[] = [
-        {
-          id: '1',
-          vendor_id: vendorId,
-          user_id: 'user1',
-          order_id: 'order1',
-          rating: 5,
-          review_text: 'Amazing food! The flavors were incredible and delivery was fast.',
-          is_verified: true,
-          created_at: new Date().toISOString(),
-          profiles: {
-            full_name: 'John Doe'
-          }
-        },
-        {
-          id: '2',
-          vendor_id: vendorId,
-          user_id: 'user2',
-          order_id: null,
-          rating: 4,
-          review_text: 'Good quality food, will order again.',
-          is_verified: false,
-          created_at: new Date(Date.now() - 86400000).toISOString(),
-          profiles: {
-            full_name: 'Jane Smith'
-          }
-        }
-      ];
+      const { data, error } = await supabase
+        .from('vendor_reviews')
+        .select(`
+          *,
+          profiles:user_id (full_name)
+        `)
+        .eq('vendor_id', vendorId)
+        .order('created_at', { ascending: false });
 
-      setReviews(mockReviews);
-      
-      if (mockReviews.length > 0) {
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        setReviews(data);
+        const avg = data.reduce((sum, review) => sum + review.rating, 0) / data.length;
+        setAverageRating(Number(avg.toFixed(1)));
+        setTotalReviews(data.length);
+      } else {
+        // Show mock reviews for demonstration
+        const mockReviews: Review[] = [
+          {
+            id: '1',
+            vendor_id: vendorId,
+            user_id: 'user1',
+            order_id: 'order1',
+            rating: 5,
+            review_text: 'Amazing food! The flavors were incredible and delivery was fast.',
+            is_verified: true,
+            created_at: new Date().toISOString(),
+            profiles: {
+              full_name: 'John Doe'
+            }
+          },
+          {
+            id: '2',
+            vendor_id: vendorId,
+            user_id: 'user2',
+            order_id: null,
+            rating: 4,
+            review_text: 'Good quality food, will order again.',
+            is_verified: false,
+            created_at: new Date(Date.now() - 86400000).toISOString(),
+            profiles: {
+              full_name: 'Jane Smith'
+            }
+          }
+        ];
+
+        setReviews(mockReviews);
         const avg = mockReviews.reduce((sum, review) => sum + review.rating, 0) / mockReviews.length;
         setAverageRating(Number(avg.toFixed(1)));
         setTotalReviews(mockReviews.length);
@@ -102,24 +116,19 @@ const VendorReviews = ({ vendorId, allowReview = false, orderId }: VendorReviews
 
     setSubmitting(true);
     try {
-      // For now, we'll simulate the review submission
-      // Once the database migration is complete, this will use the actual table
-      const newReview: Review = {
-        id: Date.now().toString(),
-        vendor_id: vendorId,
-        user_id: user.id,
-        order_id: orderId || null,
-        rating,
-        review_text: reviewText.trim() || null,
-        is_verified: !!orderId,
-        created_at: new Date().toISOString(),
-        profiles: {
-          full_name: 'Current User'
-        }
-      };
+      const { error } = await supabase
+        .from('vendor_reviews')
+        .insert({
+          vendor_id: vendorId,
+          user_id: user.id,
+          order_id: orderId || null,
+          rating,
+          review_text: reviewText.trim() || null,
+          is_verified: !!orderId
+        });
 
-      setReviews(prev => [newReview, ...prev]);
-      
+      if (error) throw error;
+
       toast({
         title: "Review Submitted",
         description: "Thank you for your feedback!",
@@ -128,12 +137,7 @@ const VendorReviews = ({ vendorId, allowReview = false, orderId }: VendorReviews
       setShowReviewForm(false);
       setReviewText('');
       setRating(5);
-      
-      // Recalculate averages
-      const allReviews = [newReview, ...reviews];
-      const avg = allReviews.reduce((sum, review) => sum + review.rating, 0) / allReviews.length;
-      setAverageRating(Number(avg.toFixed(1)));
-      setTotalReviews(allReviews.length);
+      fetchReviews();
     } catch (error) {
       console.error('Error submitting review:', error);
       toast({

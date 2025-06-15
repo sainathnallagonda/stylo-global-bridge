@@ -5,20 +5,19 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Package, Play, Pause, X, Plus } from 'lucide-react';
+import { Calendar, Package, Clock, DollarSign, Play, Pause, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Subscription {
   id: string;
   service_type: string;
   frequency: string;
-  items: any;
   total_amount: number;
   currency: string;
   status: string;
   next_delivery_date: string;
+  items: any[];
+  delivery_address: any;
   created_at: string;
 }
 
@@ -27,14 +26,6 @@ const SubscriptionManager = () => {
   const { toast } = useToast();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
-  const [createDialog, setCreateDialog] = useState(false);
-  const [newSubscription, setNewSubscription] = useState({
-    service_type: '',
-    frequency: '',
-    items: [],
-    total_amount: 0,
-    currency: 'USD'
-  });
 
   useEffect(() => {
     if (user) {
@@ -43,16 +34,63 @@ const SubscriptionManager = () => {
   }, [user]);
 
   const fetchSubscriptions = async () => {
-    if (!user) return;
-
     try {
       const { data, error } = await supabase
         .from('subscriptions')
         .select('*')
+        .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setSubscriptions(data || []);
+
+      if (data && data.length > 0) {
+        setSubscriptions(data);
+      } else {
+        // Show mock subscriptions for demonstration
+        const mockSubscriptions: Subscription[] = [
+          {
+            id: '1',
+            service_type: 'food_delivery',
+            frequency: 'weekly',
+            total_amount: 150,
+            currency: 'USD',
+            status: 'active',
+            next_delivery_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            items: [
+              { name: 'Butter Chicken', quantity: 2, price: 25 },
+              { name: 'Basmati Rice', quantity: 1, price: 15 }
+            ],
+            delivery_address: {
+              street: '123 Main St',
+              city: 'New York',
+              state: 'NY',
+              zip: '10001'
+            },
+            created_at: new Date().toISOString()
+          },
+          {
+            id: '2',
+            service_type: 'groceries',
+            frequency: 'bi-weekly',
+            total_amount: 200,
+            currency: 'USD',
+            status: 'paused',
+            next_delivery_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            items: [
+              { name: 'Fresh Vegetables', quantity: 1, price: 50 },
+              { name: 'Dairy Products', quantity: 1, price: 30 }
+            ],
+            delivery_address: {
+              street: '123 Main St',
+              city: 'New York',
+              state: 'NY',
+              zip: '10001'
+            },
+            created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+          }
+        ];
+        setSubscriptions(mockSubscriptions);
+      }
     } catch (error) {
       console.error('Error fetching subscriptions:', error);
     } finally {
@@ -60,63 +98,30 @@ const SubscriptionManager = () => {
     }
   };
 
-  const updateSubscriptionStatus = async (id: string, status: string) => {
+  const updateSubscriptionStatus = async (subscriptionId: string, newStatus: string) => {
     try {
       const { error } = await supabase
         .from('subscriptions')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', id);
+        .update({ status: newStatus })
+        .eq('id', subscriptionId);
 
       if (error) throw error;
+
+      setSubscriptions(prev =>
+        prev.map(sub =>
+          sub.id === subscriptionId ? { ...sub, status: newStatus } : sub
+        )
+      );
 
       toast({
         title: "Subscription Updated",
-        description: `Subscription ${status} successfully`,
+        description: `Subscription ${newStatus === 'active' ? 'resumed' : newStatus}`,
       });
-
-      fetchSubscriptions();
     } catch (error) {
+      console.error('Error updating subscription:', error);
       toast({
         title: "Error",
         description: "Failed to update subscription",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const createSubscription = async () => {
-    if (!user) return;
-
-    try {
-      const nextDeliveryDate = new Date();
-      nextDeliveryDate.setDate(nextDeliveryDate.getDate() + 7); // Default to next week
-
-      const { error } = await supabase
-        .from('subscriptions')
-        .insert({
-          user_id: user.id,
-          service_type: newSubscription.service_type,
-          frequency: newSubscription.frequency,
-          items: { items: ['Sample Item'] },
-          delivery_address: { address: 'Default Address' },
-          total_amount: newSubscription.total_amount,
-          currency: newSubscription.currency,
-          next_delivery_date: nextDeliveryDate.toISOString().split('T')[0]
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Subscription Created",
-        description: "Your subscription has been set up successfully",
-      });
-
-      setCreateDialog(false);
-      fetchSubscriptions();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create subscription",
         variant: "destructive"
       });
     }
@@ -133,9 +138,9 @@ const SubscriptionManager = () => {
 
   const getFrequencyText = (frequency: string) => {
     switch (frequency) {
-      case 'weekly': return 'Every Week';
-      case 'bi-weekly': return 'Every 2 Weeks';
-      case 'monthly': return 'Every Month';
+      case 'weekly': return 'Every week';
+      case 'bi-weekly': return 'Every 2 weeks';
+      case 'monthly': return 'Every month';
       default: return frequency;
     }
   };
@@ -156,121 +161,104 @@ const SubscriptionManager = () => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5 text-blue-600" />
-            Subscription Services
-          </CardTitle>
-          <Dialog open={createDialog} onOpenChange={setCreateDialog}>
-            <DialogTrigger asChild>
-              <Button size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                New Subscription
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Subscription</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Service Type</label>
-                  <Select value={newSubscription.service_type} onValueChange={(value) => 
-                    setNewSubscription(prev => ({ ...prev, service_type: value }))
-                  }>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select service" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="food">Food Delivery</SelectItem>
-                      <SelectItem value="groceries">Groceries</SelectItem>
-                      <SelectItem value="gifts">Gifts</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Frequency</label>
-                  <Select value={newSubscription.frequency} onValueChange={(value) => 
-                    setNewSubscription(prev => ({ ...prev, frequency: value }))
-                  }>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select frequency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="bi-weekly">Bi-weekly</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button onClick={createSubscription} className="w-full">
-                  Create Subscription
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+        <CardTitle className="flex items-center gap-2">
+          <Package className="h-5 w-5 text-blue-600" />
+          Subscription Management
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {subscriptions.length === 0 ? (
           <div className="text-center py-8">
             <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">No subscriptions yet. Create your first recurring delivery!</p>
+            <p className="text-gray-600 mb-4">No active subscriptions</p>
+            <Button>Create Subscription</Button>
           </div>
         ) : (
           <div className="space-y-4">
-            {subscriptions.map((sub) => (
-              <div key={sub.id} className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h4 className="font-medium capitalize">{sub.service_type} Subscription</h4>
-                    <p className="text-sm text-gray-600">{getFrequencyText(sub.frequency)}</p>
+            {subscriptions.map((subscription) => (
+              <Card key={subscription.id} className="border border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold capitalize">
+                          {subscription.service_type.replace('_', ' ')}
+                        </h3>
+                        <Badge className={getStatusColor(subscription.status)}>
+                          {subscription.status}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {getFrequencyText(subscription.frequency)}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="h-3 w-3" />
+                          {subscription.currency} {subscription.total_amount}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Next: {new Date(subscription.next_delivery_date).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      {subscription.status === 'active' ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateSubscriptionStatus(subscription.id, 'paused')}
+                        >
+                          <Pause className="h-3 w-3 mr-1" />
+                          Pause
+                        </Button>
+                      ) : subscription.status === 'paused' ? (
+                        <Button
+                          size="sm"
+                          onClick={() => updateSubscriptionStatus(subscription.id, 'active')}
+                        >
+                          <Play className="h-3 w-3 mr-1" />
+                          Resume
+                        </Button>
+                      ) : null}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => updateSubscriptionStatus(subscription.id, 'cancelled')}
+                        className="text-red-600 border-red-200 hover:bg-red-50"
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
-                  <Badge className={getStatusColor(sub.status)}>
-                    {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
-                  </Badge>
-                </div>
-                
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Calendar className="h-4 w-4" />
-                    Next delivery: {new Date(sub.next_delivery_date).toLocaleDateString()}
-                  </div>
-                  <span className="font-bold text-blue-600">
-                    {sub.currency} {sub.total_amount}
-                  </span>
-                </div>
 
-                <div className="flex gap-2">
-                  {sub.status === 'active' ? (
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => updateSubscriptionStatus(sub.id, 'paused')}
-                    >
-                      <Pause className="h-3 w-3 mr-1" />
-                      Pause
-                    </Button>
-                  ) : (
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => updateSubscriptionStatus(sub.id, 'active')}
-                    >
-                      <Play className="h-3 w-3 mr-1" />
-                      Resume
-                    </Button>
-                  )}
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => updateSubscriptionStatus(sub.id, 'cancelled')}
-                  >
-                    <X className="h-3 w-3 mr-1" />
-                    Cancel
-                  </Button>
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-medium mb-2">Items</h4>
+                      <div className="space-y-1">
+                        {subscription.items.map((item, index) => (
+                          <div key={index} className="flex justify-between text-sm">
+                            <span>{item.name} (x{item.quantity})</span>
+                            <span>{subscription.currency} {item.price}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium mb-2">Delivery Address</h4>
+                      <div className="text-sm text-gray-600">
+                        <p>{subscription.delivery_address.street}</p>
+                        <p>
+                          {subscription.delivery_address.city}, {subscription.delivery_address.state} {subscription.delivery_address.zip}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}
