@@ -54,14 +54,28 @@ export const useFavorites = () => {
 
     try {
       if (isFavorite) {
-        // Remove from favorites
-        const { error } = await supabase
+        // Remove from favorites - use a simpler approach
+        const { data: existingFavorites, error: fetchError } = await supabase
           .from('favorites')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('item_data->id', item.id);
+          .select('id, item_data')
+          .eq('user_id', user.id);
 
-        if (error) throw error;
+        if (fetchError) throw fetchError;
+
+        // Find the favorite to delete by matching the item ID
+        const favoriteToDelete = existingFavorites?.find(fav => {
+          const itemData = fav.item_data;
+          return itemData && typeof itemData === 'object' && 'id' in itemData && String(itemData.id) === itemId;
+        });
+
+        if (favoriteToDelete) {
+          const { error } = await supabase
+            .from('favorites')
+            .delete()
+            .eq('id', favoriteToDelete.id);
+
+          if (error) throw error;
+        }
 
         setFavorites(prev => prev.filter(id => id !== itemId));
         toast({
