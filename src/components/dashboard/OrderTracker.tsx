@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Package, Truck, CheckCircle } from "lucide-react";
+import { Clock, Package, Truck, CheckCircle, Camera } from "lucide-react";
 
 interface OrderTrackerProps {
   orders: Array<{
@@ -11,6 +11,7 @@ interface OrderTrackerProps {
     status: string;
     progress: number;
     estimatedDelivery: string;
+    photoConfirmation?: string;
   }>;
 }
 
@@ -54,9 +55,26 @@ const OrderTracker = ({ orders }: OrderTrackerProps) => {
               </Badge>
             </div>
             <Progress value={order.progress} className="mb-2" />
-            <p className="text-sm text-gray-600">
-              Estimated delivery: {order.estimatedDelivery}
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-600">
+                Estimated delivery: {order.estimatedDelivery}
+              </p>
+              {order.status === 'delivered' && (
+                <div className="flex items-center gap-1 text-xs text-green-600">
+                  <Camera className="h-3 w-3" />
+                  Photo confirmed
+                </div>
+              )}
+            </div>
+            {order.photoConfirmation && (
+              <div className="mt-2">
+                <img 
+                  src={order.photoConfirmation} 
+                  alt="Delivery confirmation" 
+                  className="w-16 h-16 object-cover rounded border"
+                />
+              </div>
+            )}
           </div>
         ))}
       </CardContent>

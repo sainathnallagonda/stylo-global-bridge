@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,6 +8,7 @@ import { Package, Clock, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import RealTimeTracker from '@/components/RealTimeTracker';
 
 interface Order {
   id: string;
@@ -33,7 +33,6 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [tracking, setTracking] = useState<OrderTracking[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -58,25 +57,6 @@ const Dashboard = () => {
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchTracking = async (orderId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('order_tracking')
-        .select('*')
-        .eq('order_id', orderId)
-        .order('timestamp', { ascending: false });
-
-      if (error) throw error;
-      setTracking(data || []);
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch tracking information",
-        variant: "destructive"
-      });
     }
   };
 
@@ -159,10 +139,7 @@ const Dashboard = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => {
-                            setSelectedOrder(order);
-                            fetchTracking(order.id);
-                          }}
+                          onClick={() => setSelectedOrder(order)}
                         >
                           <Eye className="h-4 w-4 mr-2" />
                           Track
@@ -187,52 +164,16 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* Order Tracking */}
+          {/* Real-time Order Tracking */}
           <div>
             <h2 className="text-2xl font-bold mb-4">Order Tracking</h2>
             {selectedOrder ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Order #{selectedOrder.id.slice(0, 8)}</CardTitle>
-                  <CardDescription>
-                    {selectedOrder.service_type} delivery to {selectedOrder.recipient_country}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {tracking.length === 0 ? (
-                    <p className="text-gray-600 text-center py-8">
-                      No tracking information available yet.
-                    </p>
-                  ) : (
-                    <div className="space-y-4">
-                      {tracking.map((track, index) => (
-                        <div key={track.id} className="flex items-start space-x-4">
-                          <div className={`w-3 h-3 rounded-full mt-2 ${getStatusColor(track.status)}`}></div>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <h4 className="font-semibold">{track.status.charAt(0).toUpperCase() + track.status.slice(1)}</h4>
-                              <span className="text-sm text-gray-500">
-                                {new Date(track.timestamp).toLocaleString()}
-                              </span>
-                            </div>
-                            {track.message && (
-                              <p className="text-gray-600 mt-1">{track.message}</p>
-                            )}
-                            {track.location && (
-                              <p className="text-sm text-gray-500 mt-1">📍 {track.location}</p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <RealTimeTracker orderId={selectedOrder.id} />
             ) : (
               <Card>
                 <CardContent className="p-8 text-center">
                   <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">Select an order to view tracking information</p>
+                  <p className="text-gray-600">Select an order to view real-time tracking</p>
                 </CardContent>
               </Card>
             )}

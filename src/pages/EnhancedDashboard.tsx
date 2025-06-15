@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "@/contexts/LocationContext";
@@ -8,6 +7,9 @@ import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import ServiceCard from "@/components/dashboard/ServiceCard";
 import OrderTracker from "@/components/dashboard/OrderTracker";
 import WalletCard from "@/components/dashboard/WalletCard";
+import SmartRecommendations from "@/components/SmartRecommendations";
+import SubscriptionManager from "@/components/SubscriptionManager";
+import AddressBook from "@/components/AddressBook";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Gift, Car, Coffee, Plane, Heart, MapPin, Star } from "lucide-react";
@@ -155,8 +157,13 @@ const EnhancedDashboard = () => {
             <WalletCard />
           </div>
 
+          {/* Smart Recommendations */}
+          <div className="mb-8">
+            <SmartRecommendations />
+          </div>
+
           {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             {/* Services Section */}
             <div className="lg:col-span-2">
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
@@ -224,6 +231,12 @@ const EnhancedDashboard = () => {
                 </CardContent>
               </Card>
             </div>
+          </div>
+
+          {/* Additional Features Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <SubscriptionManager />
+            <AddressBook />
           </div>
         </div>
       </div>

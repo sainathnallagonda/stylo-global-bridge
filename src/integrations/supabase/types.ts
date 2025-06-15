@@ -124,29 +124,35 @@ export type Database = {
       }
       order_tracking: {
         Row: {
+          delivery_notes: string | null
           id: string
           location: string | null
           message: string | null
           metadata: Json | null
           order_id: string
+          photo_url: string | null
           status: string
           timestamp: string
         }
         Insert: {
+          delivery_notes?: string | null
           id?: string
           location?: string | null
           message?: string | null
           metadata?: Json | null
           order_id: string
+          photo_url?: string | null
           status: string
           timestamp?: string
         }
         Update: {
+          delivery_notes?: string | null
           id?: string
           location?: string | null
           message?: string | null
           metadata?: Json | null
           order_id?: string
+          photo_url?: string | null
           status?: string
           timestamp?: string
         }
@@ -262,6 +268,39 @@ export type Database = {
         }
         Relationships: []
       }
+      recommendations: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          item_data: Json
+          reason: string | null
+          score: number
+          service_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          item_data: Json
+          reason?: string | null
+          score?: number
+          service_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          item_data?: Json
+          reason?: string | null
+          score?: number
+          service_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           created_at: string
@@ -306,6 +345,51 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          created_at: string
+          currency: string
+          delivery_address: Json
+          frequency: string
+          id: string
+          items: Json
+          next_delivery_date: string
+          service_type: string
+          status: string
+          total_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency: string
+          delivery_address: Json
+          frequency: string
+          id?: string
+          items: Json
+          next_delivery_date: string
+          service_type: string
+          status?: string
+          total_amount: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          delivery_address?: Json
+          frequency?: string
+          id?: string
+          items?: Json
+          next_delivery_date?: string
+          service_type?: string
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -319,6 +403,10 @@ export type Database = {
           location?: string
         }
         Returns: string
+      }
+      generate_recommendations: {
+        Args: { user_uuid: string }
+        Returns: undefined
       }
       get_user_loyalty_points: {
         Args: { user_uuid: string }
