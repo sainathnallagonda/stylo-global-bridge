@@ -45,10 +45,10 @@ const Features = () => {
     <section className="py-20 px-4 bg-white">
       <div className="container mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4 text-gray-800">
+          <h2 className="text-4xl font-bold mb-4 text-gray-800 animate-fade-in">
             Why Choose Stylo
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto animate-fade-in">
             Experience the best cross-border delivery service with features designed for your peace of mind.
           </p>
         </div>
@@ -58,12 +58,13 @@ const Features = () => {
           {features.map((feature, index) => (
             <div 
               key={index} 
-              className="text-center p-6 rounded-lg border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300"
+              className="text-center p-6 rounded-lg border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-500 transform hover:scale-105 animate-fade-in group"
+              style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="w-12 h-12 mx-auto mb-4 bg-blue-50 rounded-lg flex items-center justify-center">
-                <feature.icon className={feature.color} size={24} />
+              <div className="w-12 h-12 mx-auto mb-4 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-300 group-hover:scale-110 transform">
+                <feature.icon className={`${feature.color} transition-transform duration-300 group-hover:scale-110`} size={24} />
               </div>
-              <h3 className="text-lg font-semibold mb-3 text-gray-800">
+              <h3 className="text-lg font-semibold mb-3 text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
                 {feature.title}
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>

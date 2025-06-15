@@ -1,14 +1,25 @@
 
+import { useState, useEffect } from "react";
 import { ShoppingBag, Gift, Car, Coffee, Plane, Heart, ArrowRight, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "@/contexts/LocationContext";
+import SkeletonCard from "@/components/ui/skeleton-card";
 
 const Services = () => {
   const navigate = useNavigate();
   const { toCountry, getCurrencyDisplay } = useLocation();
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate loading state
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const services = [
     {
@@ -99,76 +110,85 @@ const Services = () => {
     <section id="services-section" className="py-20 px-4 bg-gray-50">
       <div className="container mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4 text-gray-900">
+          <h2 className="text-4xl font-bold mb-4 text-gray-900 animate-fade-in">
             Our Services
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto animate-fade-in">
             Send anything from anywhere to your loved ones with just a few clicks, regardless of where you are.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => (
-            <Card 
-              key={index} 
-              className="group hover:shadow-xl transition-all duration-300 border-0 shadow-sm bg-white cursor-pointer overflow-hidden relative transform hover:scale-105"
-              onClick={() => handleOrderNow(service.route)}
-            >
-              {service.popular && (
-                <Badge className="absolute top-4 right-4 z-10 bg-blue-600 hover:bg-blue-600">
-                  Popular
-                </Badge>
-              )}
-              
-              <div className="relative h-48 overflow-hidden">
-                <img 
-                  src={service.image} 
-                  alt={service.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className={`absolute top-4 left-4 w-12 h-12 rounded-xl ${service.bgColor} flex items-center justify-center shadow-lg`}>
-                  <service.icon className={service.iconColor} size={24} />
-                </div>
-              </div>
-              
-              <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-xl font-semibold text-gray-900">
-                    {service.title}
-                  </h3>
-                </div>
+          {isLoading ? (
+            // Loading skeleton
+            Array.from({ length: 6 }).map((_, index) => (
+              <SkeletonCard key={index} />
+            ))
+          ) : (
+            services.map((service, index) => (
+              <Card 
+                key={index} 
+                className="group hover:shadow-xl transition-all duration-500 border-0 shadow-sm bg-white cursor-pointer overflow-hidden relative transform hover:scale-105 animate-fade-in"
+                style={{ animationDelay: `${index * 150}ms` }}
+                onClick={() => handleOrderNow(service.route)}
+              >
+                {service.popular && (
+                  <Badge className="absolute top-4 right-4 z-10 bg-blue-600 hover:bg-blue-600 animate-pulse">
+                    Popular
+                  </Badge>
+                )}
                 
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm text-gray-600">{service.rating}</span>
+                <div className="relative h-48 overflow-hidden">
+                  <img 
+                    src={service.image} 
+                    alt={service.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                  <div className={`absolute top-4 left-4 w-12 h-12 rounded-xl ${service.bgColor} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <service.icon className={service.iconColor} size={24} />
                   </div>
-                  <span className="text-sm text-gray-400">•</span>
-                  <span className="text-sm text-gray-600">{service.deliveryTime}</span>
                 </div>
                 
-                <p className="text-gray-600 mb-4 text-sm leading-relaxed">
-                  {service.description}
-                </p>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Starting from</div>
-                    <div className="text-lg font-semibold text-gray-900">
-                      {service.price}
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
+                      {service.title}
+                    </h3>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <span className="text-sm text-gray-600">{service.rating}</span>
                     </div>
+                    <span className="text-sm text-gray-400">•</span>
+                    <span className="text-sm text-gray-600">{service.deliveryTime}</span>
                   </div>
-                  <Button 
-                    size="sm"
-                    className="bg-blue-600 hover:bg-blue-700 text-white group-hover:bg-blue-700"
-                  >
-                    Order Now
-                    <ArrowRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  
+                  <p className="text-gray-600 mb-4 text-sm leading-relaxed">
+                    {service.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Starting from</div>
+                      <div className="text-lg font-semibold text-gray-900">
+                        {service.price}
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm"
+                      className="bg-blue-600 hover:bg-blue-700 text-white group-hover:bg-blue-700 transform group-hover:translate-x-1 transition-all duration-300"
+                    >
+                      Order Now
+                      <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform duration-300" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </div>
     </section>

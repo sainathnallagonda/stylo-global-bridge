@@ -11,6 +11,7 @@ import TravelCompanions from "@/components/TravelCompanions";
 import FlightServiceBundle from "@/components/FlightServiceBundle";
 import TrustSecurity from "@/components/TrustSecurity";
 import Footer from "@/components/Footer";
+import FloatingActionButton from "@/components/FloatingActionButton";
 
 const Index = () => {
   const { user } = useAuth();
@@ -26,6 +27,7 @@ const Index = () => {
       <FlightServiceBundle />
       <TrustSecurity />
       <Footer />
+      <FloatingActionButton />
     </div>
   );
 };
