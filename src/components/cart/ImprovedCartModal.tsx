@@ -23,6 +23,9 @@ const ImprovedCartModal = () => {
   const handleCheckout = () => {
     if (cartItems.length === 0) return;
     
+    console.log('Proceeding to checkout with items:', cartItems);
+    console.log('Total amount:', cartTotal);
+    
     closeCart();
     navigate('/payment', { 
       state: { 
@@ -33,16 +36,19 @@ const ImprovedCartModal = () => {
     });
   };
 
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      closeCart();
+    }
+  };
+
   if (!isCartOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" 
-        onClick={closeCart}
-      />
-      
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
+      onClick={handleOverlayClick}
+    >
       {/* Modal */}
       <Card className="relative w-full max-w-md max-h-[85vh] mx-auto flex flex-col animate-scale-in shadow-2xl">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b">
@@ -109,7 +115,7 @@ const ImprovedCartModal = () => {
                           size="icon"
                           variant="ghost"
                           className="h-7 w-7"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}
                         >
                           <Minus className="h-3 w-3" />
                         </Button>
@@ -159,6 +165,7 @@ const ImprovedCartModal = () => {
                   <Button 
                     onClick={handleCheckout}
                     className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+                    disabled={cartItems.length === 0}
                   >
                     <CreditCard className="h-4 w-4" />
                     Checkout

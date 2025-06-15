@@ -28,6 +28,7 @@ import EnhancedAuthGuard from "./components/enhanced-auth/EnhancedAuthGuard";
 import NotFound from "./pages/NotFound";
 import FloatingActionButton from "./components/FloatingActionButton";
 import Chatbot from "./components/Chatbot";
+import ImprovedCartModal from "./components/cart/ImprovedCartModal";
 
 const queryClient = new QueryClient();
 
@@ -97,6 +98,9 @@ const App = () => (
                     
                     <Route path="*" element={<NotFound />} />
                   </Routes>
+                  
+                  {/* Global Components */}
+                  <ImprovedCartModal />
                   <FloatingActionButton />
                   <Chatbot />
                 </NavigationProvider>

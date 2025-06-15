@@ -6,15 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import CleanHeader from '@/components/navigation/CleanHeader';
 import { 
   ShoppingBag, 
   Clock, 
-  MapPin, 
   Star, 
   Utensils, 
   Car, 
   Gift,
-  Heart,
   Wallet,
   User,
   Bell,
@@ -49,6 +48,8 @@ const CustomerDashboard = () => {
     if (!user) return;
 
     try {
+      console.log('Fetching dashboard data for user:', user.id);
+      
       // Fetch recent orders
       const { data: orders } = await supabase
         .from('orders')
@@ -129,13 +130,16 @@ const CustomerDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
-            ))}
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+        <CleanHeader />
+        <div className="p-6">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -143,8 +147,10 @@ const CustomerDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <CleanHeader />
+      
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Welcome Header */}
         <div className="flex items-center justify-between">
           <div>

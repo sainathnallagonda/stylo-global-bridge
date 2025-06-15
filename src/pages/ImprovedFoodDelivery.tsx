@@ -1,15 +1,16 @@
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, MapPin, Filter, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
 import CleanHeader from '@/components/navigation/CleanHeader';
 import ImprovedCartModal from '@/components/cart/ImprovedCartModal';
+import BackButton from '@/components/BackButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAppState } from '@/contexts/AppStateContext';
 import ImprovedFoodCard from '@/components/food/ImprovedFoodCard';
+import { Button } from '@/components/ui/button';
+import { MapPin, Filter, Search } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
 
 type VendorFood = Tables<'vendor_foods'>;
@@ -123,10 +124,6 @@ const ImprovedFoodDelivery = () => {
     }
   };
 
-  const handleBack = () => {
-    navigate(-1);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <CleanHeader />
@@ -136,14 +133,7 @@ const ImprovedFoodDelivery = () => {
         {/* Header Section */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              className="flex items-center gap-2 hover:bg-white/80"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
+            <BackButton fallbackPath="/" />
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Food Delivery</h1>
               <div className="flex items-center gap-2 text-gray-600 mt-1">

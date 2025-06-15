@@ -1,85 +1,46 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Slider } from '@/components/ui/slider';
-import { Plus, Edit, Trash2, Clock, DollarSign, Flame } from 'lucide-react';
+import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import { Plus, Edit2, Trash2, Eye, EyeOff } from 'lucide-react';
+import type { Tables } from '@/integrations/supabase/types';
 
 type VendorFood = Tables<'vendor_foods'>;
-type VendorFoodInsert = TablesInsert<'vendor_foods'>;
-type VendorFoodUpdate = TablesUpdate<'vendor_foods'>;
-
-interface ExtendedVendorFood extends VendorFood {
-  dietary_restrictions?: string[];
-  allergens?: string[];
-  spice_level?: number;
-  nutritional_info?: any;
-}
 
 const VendorFoodManagement = () => {
-  const { user } = useAuth();
+  const { user } = useEnhancedAuth();
   const { toast } = useToast();
-  const [foods, setFoods] = useState<ExtendedVendorFood[]>([]);
+  const [foods, setFoods] = useState<VendorFood[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editDialog, setEditDialog] = useState(false);
-  const [editingFood, setEditingFood] = useState<Partial<ExtendedVendorFood> | null>(null);
-
-  const categories = [
-    'Fast Food',
-    'Indian',
-    'Chinese',
-    'Italian',
-    'Mexican',
-    'Desserts',
-    'Beverages',
-    'Healthy',
-    'Pizza',
-    'Burgers'
-  ];
-
-  const dietaryOptions = [
-    'vegetarian',
-    'vegan',
-    'gluten-free',
-    'dairy-free',
-    'nut-free',
-    'keto',
-    'low-carb',
-    'organic'
-  ];
-
-  const allergenOptions = [
-    'nuts',
-    'dairy',
-    'eggs',
-    'soy',
-    'wheat',
-    'shellfish',
-    'fish',
-    'sesame'
-  ];
+  const [isAddingFood, setIsAddingFood] = useState(false);
+  const [editingFood, setEditingFood] = useState<VendorFood | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    price: '',
+    category: '',
+    image_url: '',
+    preparation_time: '30',
+    currency: 'USD'
+  });
 
   useEffect(() => {
     if (user) {
-      fetchFoods();
+      fetchVendorFoods();
     }
   }, [user]);
 
-  const fetchFoods = async () => {
+  const fetchVendorFoods = async () => {
     if (!user) return;
 
     try {
+      console.log('Fetching vendor foods for vendor:', user.id);
       const { data, error } = await supabase
         .from('vendor_foods')
         .select('*')
@@ -88,21 +49,12 @@ const VendorFoodManagement = () => {
 
       if (error) throw error;
       
-      // Extend foods with placeholder data for new fields
-      const extendedFoods: ExtendedVendorFood[] = (data || []).map(food => ({
-        ...food,
-        dietary_restrictions: [],
-        allergens: [],
-        spice_level: 0,
-        nutritional_info: null
-      }));
-      
-      setFoods(extendedFoods);
+      setFoods(data || []);
     } catch (error) {
-      console.error('Error fetching foods:', error);
+      console.error('Error fetching vendor foods:', error);
       toast({
         title: "Error",
-        description: "Failed to load your food items",
+        description: "Failed to load food items",
         variant: "destructive"
       });
     } finally {
@@ -110,66 +62,55 @@ const VendorFoodManagement = () => {
     }
   };
 
-  const saveFood = async () => {
-    if (!user || !editingFood) return;
-
-    if (!editingFood.name || !editingFood.price || !editingFood.category) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
-      return;
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
 
     try {
-      if (editingFood.id) {
-        const updateData: VendorFoodUpdate = {
-          name: editingFood.name,
-          description: editingFood.description,
-          price: editingFood.price,
-          currency: editingFood.currency || 'USD',
-          image_url: editingFood.image_url,
-          category: editingFood.category,
-          is_available: editingFood.is_available ?? true,
-          preparation_time: editingFood.preparation_time || 30,
-          updated_at: new Date().toISOString()
-        };
+      const foodData = {
+        vendor_id: user.id,
+        name: formData.name,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        category: formData.category,
+        image_url: formData.image_url || null,
+        preparation_time: parseInt(formData.preparation_time),
+        currency: formData.currency,
+        is_available: true
+      };
 
-        const { error } = await supabase
+      let error;
+      
+      if (editingFood) {
+        ({ error } = await supabase
           .from('vendor_foods')
-          .update(updateData)
-          .eq('id', editingFood.id);
-
-        if (error) throw error;
+          .update(foodData)
+          .eq('id', editingFood.id));
       } else {
-        const insertData: VendorFoodInsert = {
-          vendor_id: user.id,
-          name: editingFood.name,
-          description: editingFood.description,
-          price: editingFood.price!,
-          currency: editingFood.currency || 'USD',
-          image_url: editingFood.image_url,
-          category: editingFood.category!,
-          is_available: editingFood.is_available ?? true,
-          preparation_time: editingFood.preparation_time || 30
-        };
-
-        const { error } = await supabase
+        ({ error } = await supabase
           .from('vendor_foods')
-          .insert(insertData);
-
-        if (error) throw error;
+          .insert([foodData]));
       }
 
+      if (error) throw error;
+
       toast({
-        title: "Food Item Saved",
-        description: "Food item has been saved successfully",
+        title: "Success",
+        description: `Food item ${editingFood ? 'updated' : 'added'} successfully`
       });
 
-      setEditDialog(false);
+      setFormData({
+        name: '',
+        description: '',
+        price: '',
+        category: '',
+        image_url: '',
+        preparation_time: '30',
+        currency: 'USD'
+      });
+      setIsAddingFood(false);
       setEditingFood(null);
-      fetchFoods();
+      fetchVendorFoods();
     } catch (error) {
       console.error('Error saving food item:', error);
       toast({
@@ -180,21 +121,35 @@ const VendorFoodManagement = () => {
     }
   };
 
-  const deleteFood = async (id: string) => {
+  const handleEdit = (food: VendorFood) => {
+    setEditingFood(food);
+    setFormData({
+      name: food.name || '',
+      description: food.description || '',
+      price: food.price?.toString() || '',
+      category: food.category || '',
+      image_url: food.image_url || '',
+      preparation_time: food.preparation_time?.toString() || '30',
+      currency: food.currency || 'USD'
+    });
+    setIsAddingFood(true);
+  };
+
+  const handleDelete = async (foodId: string) => {
     try {
       const { error } = await supabase
         .from('vendor_foods')
         .delete()
-        .eq('id', id);
+        .eq('id', foodId);
 
       if (error) throw error;
 
       toast({
-        title: "Food Item Deleted",
-        description: "Food item has been removed",
+        title: "Success",
+        description: "Food item deleted successfully"
       });
 
-      fetchFoods();
+      fetchVendorFoods();
     } catch (error) {
       console.error('Error deleting food item:', error);
       toast({
@@ -205,26 +160,23 @@ const VendorFoodManagement = () => {
     }
   };
 
-  const toggleAvailability = async (id: string, currentStatus: boolean) => {
+  const toggleAvailability = async (food: VendorFood) => {
     try {
       const { error } = await supabase
         .from('vendor_foods')
-        .update({ 
-          is_available: !currentStatus,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id);
+        .update({ is_available: !food.is_available })
+        .eq('id', food.id);
 
       if (error) throw error;
 
       toast({
-        title: "Availability Updated",
-        description: `Food item is now ${!currentStatus ? 'available' : 'unavailable'}`,
+        title: "Success",
+        description: `Food item ${!food.is_available ? 'enabled' : 'disabled'}`
       });
 
-      fetchFoods();
+      fetchVendorFoods();
     } catch (error) {
-      console.error('Error updating availability:', error);
+      console.error('Error toggling availability:', error);
       toast({
         title: "Error",
         description: "Failed to update availability",
@@ -233,312 +185,219 @@ const VendorFoodManagement = () => {
     }
   };
 
-  const toggleDietaryRestriction = (restriction: string) => {
-    const current = editingFood?.dietary_restrictions || [];
-    const updated = current.includes(restriction)
-      ? current.filter(r => r !== restriction)
-      : [...current, restriction];
-    setEditingFood(prev => ({ ...prev, dietary_restrictions: updated }));
-  };
-
-  const toggleAllergen = (allergen: string) => {
-    const current = editingFood?.allergens || [];
-    const updated = current.includes(allergen)
-      ? current.filter(a => a !== allergen)
-      : [...current, allergen];
-    setEditingFood(prev => ({ ...prev, allergens: updated }));
-  };
+  const categories = ['Fast Food', 'Indian', 'Chinese', 'Italian', 'Mexican', 'Desserts', 'Beverages'];
 
   if (loading) {
     return (
       <Card>
-        <CardContent className="p-6">
-          <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-          </div>
+        <CardContent className="p-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading menu items...</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <DollarSign className="h-5 w-5 text-green-600" />
-            Food Management
-          </CardTitle>
-          <Dialog open={editDialog} onOpenChange={setEditDialog}>
-            <DialogTrigger asChild>
-              <Button 
-                size="sm"
-                onClick={() => {
-                  setEditingFood({
-                    name: '',
-                    description: '',
-                    price: 0,
-                    currency: 'USD',
-                    category: '',
-                    is_available: true,
-                    preparation_time: 30,
-                    dietary_restrictions: [],
-                    allergens: [],
-                    spice_level: 0
-                  });
-                }}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Food Item
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingFood?.id ? 'Edit Food Item' : 'Add New Food Item'}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                {/* Basic Information */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium">Name *</label>
-                    <Input
-                      value={editingFood?.name || ''}
-                      onChange={(e) => setEditingFood(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="Food item name"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Category *</label>
-                    <Select 
-                      value={editingFood?.category || ''} 
-                      onValueChange={(value) => setEditingFood(prev => ({ ...prev, category: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map(category => (
-                          <SelectItem key={category} value={category}>{category}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">Menu Management</h2>
+        <Button 
+          onClick={() => {
+            setIsAddingFood(true);
+            setEditingFood(null);
+            setFormData({
+              name: '',
+              description: '',
+              price: '',
+              category: '',
+              image_url: '',
+              preparation_time: '30',
+              currency: 'USD'
+            });
+          }}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Food Item
+        </Button>
+      </div>
 
+      {/* Add/Edit Form */}
+      {isAddingFood && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{editingFood ? 'Edit' : 'Add'} Food Item</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium">Description</label>
-                  <Textarea
-                    value={editingFood?.description || ''}
-                    onChange={(e) => setEditingFood(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Describe your food item"
-                  />
-                </div>
-
-                {/* Price and Time */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-sm font-medium">Price *</label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={editingFood?.price || ''}
-                      onChange={(e) => setEditingFood(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Currency</label>
-                    <Select 
-                      value={editingFood?.currency || 'USD'} 
-                      onValueChange={(value) => setEditingFood(prev => ({ ...prev, currency: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="USD">USD</SelectItem>
-                        <SelectItem value="INR">INR</SelectItem>
-                        <SelectItem value="EUR">EUR</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Prep Time (min)</label>
-                    <Input
-                      type="number"
-                      value={editingFood?.preparation_time || 30}
-                      onChange={(e) => setEditingFood(prev => ({ ...prev, preparation_time: parseInt(e.target.value) }))}
-                    />
-                  </div>
-                </div>
-
-                {/* Spice Level */}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    Spice Level: {editingFood?.spice_level || 0} 
-                    {editingFood?.spice_level && editingFood.spice_level > 0 && (
-                      <span className="ml-2">
-                        {Array.from({ length: editingFood.spice_level }, (_, i) => (
-                          <Flame key={i} className="inline h-3 w-3 text-red-500 fill-current" />
-                        ))}
-                      </span>
-                    )}
-                  </label>
-                  <Slider
-                    value={[editingFood?.spice_level || 0]}
-                    onValueChange={(value) => setEditingFood(prev => ({ ...prev, spice_level: value[0] }))}
-                    max={5}
-                    step={1}
-                    className="mt-2"
-                  />
-                </div>
-
-                {/* Dietary Restrictions */}
-                <div>
-                  <label className="text-sm font-medium mb-3 block">Dietary Information</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {dietaryOptions.map(option => (
-                      <div key={option} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`diet-${option}`}
-                          checked={editingFood?.dietary_restrictions?.includes(option) || false}
-                          onCheckedChange={() => toggleDietaryRestriction(option)}
-                        />
-                        <label htmlFor={`diet-${option}`} className="text-sm capitalize">
-                          {option.replace('-', ' ')}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Allergens */}
-                <div>
-                  <label className="text-sm font-medium mb-3 block">Contains Allergens</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {allergenOptions.map(allergen => (
-                      <div key={allergen} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`allergen-${allergen}`}
-                          checked={editingFood?.allergens?.includes(allergen) || false}
-                          onCheckedChange={() => toggleAllergen(allergen)}
-                        />
-                        <label htmlFor={`allergen-${allergen}`} className="text-sm capitalize">
-                          {allergen}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Image URL</label>
+                  <label className="block text-sm font-medium mb-2">Name</label>
                   <Input
-                    value={editingFood?.image_url || ''}
-                    onChange={(e) => setEditingFood(prev => ({ ...prev, image_url: e.target.value }))}
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    placeholder="Food item name"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Category</label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => setFormData({...formData, category: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    required
+                  >
+                    <option value="">Select category</option>
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Price</label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.price}
+                    onChange={(e) => setFormData({...formData, price: e.target.value})}
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Currency</label>
+                  <select
+                    value={formData.currency}
+                    onChange={(e) => setFormData({...formData, currency: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="USD">USD</option>
+                    <option value="INR">INR</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Preparation Time (minutes)</label>
+                  <Input
+                    type="number"
+                    value={formData.preparation_time}
+                    onChange={(e) => setFormData({...formData, preparation_time: e.target.value})}
+                    placeholder="30"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Image URL</label>
+                  <Input
+                    value={formData.image_url}
+                    onChange={(e) => setFormData({...formData, image_url: e.target.value})}
                     placeholder="https://example.com/image.jpg"
                   />
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    checked={editingFood?.is_available ?? true}
-                    onCheckedChange={(checked) => setEditingFood(prev => ({ ...prev, is_available: checked }))}
-                  />
-                  <label className="text-sm font-medium">Available</label>
-                </div>
-
-                <Button onClick={saveFood} className="w-full">
-                  {editingFood?.id ? 'Update Food Item' : 'Add Food Item'}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Description</label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  placeholder="Describe your food item"
+                  rows={3}
+                />
+              </div>
+              <div className="flex gap-4">
+                <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                  {editingFood ? 'Update' : 'Add'} Item
+                </Button>
+                <Button type="button" variant="outline" onClick={() => {
+                  setIsAddingFood(false);
+                  setEditingFood(null);
+                }}>
+                  Cancel
                 </Button>
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {foods.length === 0 ? (
-          <div className="text-center py-8">
-            <DollarSign className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">No food items added yet. Add your first item!</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {foods.map((food) => (
-              <div key={food.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <h4 className="font-medium">{food.name}</h4>
-                    <p className="text-gray-600 text-sm">{food.description}</p>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        setEditingFood(food);
-                        setEditDialog(true);
-                      }}
-                    >
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => deleteFood(food.id)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <Badge variant="outline">{food.category}</Badge>
-                  <Badge className={food.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Food Items List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {foods.map((food) => (
+          <Card key={food.id} className={`${!food.is_available ? 'opacity-50' : ''}`}>
+            <CardContent className="p-4">
+              {food.image_url && (
+                <img 
+                  src={food.image_url} 
+                  alt={food.name || 'Food item'} 
+                  className="w-full h-32 object-cover rounded-lg mb-4"
+                />
+              )}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold">{food.name}</h3>
+                  <Badge variant={food.is_available ? "default" : "secondary"}>
                     {food.is_available ? 'Available' : 'Unavailable'}
                   </Badge>
-                  {food.dietary_restrictions?.map(restriction => (
-                    <Badge key={restriction} className="bg-blue-100 text-blue-800 text-xs">
-                      {restriction}
-                    </Badge>
-                  ))}
-                  {food.spice_level && food.spice_level > 0 && (
-                    <Badge className="bg-red-100 text-red-800 text-xs">
-                      {Array.from({ length: food.spice_level }, (_, i) => '🌶️').join('')}
-                    </Badge>
-                  )}
                 </div>
-                
+                <p className="text-sm text-gray-600">{food.description}</p>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <span className="font-bold text-blue-600">
-                      {food.currency} {food.price}
-                    </span>
-                    <span className="text-sm text-gray-500 flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {food.preparation_time} min
-                    </span>
-                  </div>
-                  <Switch
-                    checked={food.is_available}
-                    onCheckedChange={() => toggleAvailability(food.id, food.is_available)}
-                  />
+                  <span className="font-bold text-blue-600">
+                    {food.currency} {food.price}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    {food.preparation_time}min
+                  </span>
                 </div>
-                
-                {food.allergens && food.allergens.length > 0 && (
-                  <div className="mt-2 text-xs text-orange-600">
-                    ⚠️ Contains: {food.allergens.join(', ')}
-                  </div>
-                )}
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleEdit(food)}
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => toggleAvailability(food)}
+                  >
+                    {food.is_available ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDelete(food.id)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {foods.length === 0 && (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <div className="text-gray-400 mb-4">
+              <Plus className="h-16 w-16 mx-auto" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No menu items yet</h3>
+            <p className="text-gray-600 mb-4">Start building your menu by adding your first food item.</p>
+            <Button onClick={() => {
+              setIsAddingFood(true);
+              setEditingFood(null);
+            }}>
+              Add Your First Item
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 };
 
