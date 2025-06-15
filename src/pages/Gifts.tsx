@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { ArrowLeft, Search, Heart, Star, Gift as GiftIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +20,8 @@ const Gifts = () => {
       price: 45,
       category: "Flowers",
       rating: 4.8,
-      delivery: "Same day"
+      delivery: "Same day",
+      currency: "USD" as const
     },
     {
       id: 2,
@@ -28,7 +30,8 @@ const Gifts = () => {
       price: 35,
       category: "Cakes",
       rating: 4.6,
-      delivery: "2 hours"
+      delivery: "2 hours",
+      currency: "USD" as const
     },
     {
       id: 3,
@@ -37,7 +40,8 @@ const Gifts = () => {
       price: 25,
       category: "Soft Toys",
       rating: 4.7,
-      delivery: "Next day"
+      delivery: "Next day",
+      currency: "USD" as const
     },
     {
       id: 4,
@@ -46,7 +50,8 @@ const Gifts = () => {
       price: 65,
       category: "Gift Hampers",
       rating: 4.9,
-      delivery: "Same day"
+      delivery: "Same day",
+      currency: "USD" as const
     }
   ] : [
     {
@@ -56,7 +61,8 @@ const Gifts = () => {
       price: 1200,
       category: "Flowers",
       rating: 4.8,
-      delivery: "Same day"
+      delivery: "Same day",
+      currency: "INR" as const
     },
     {
       id: 2,
@@ -65,7 +71,8 @@ const Gifts = () => {
       price: 899,
       category: "Cakes",
       rating: 4.6,
-      delivery: "2 hours"
+      delivery: "2 hours",
+      currency: "INR" as const
     },
     {
       id: 3,
@@ -74,7 +81,8 @@ const Gifts = () => {
       price: 799,
       category: "Soft Toys",
       rating: 4.7,
-      delivery: "Next day"
+      delivery: "Next day",
+      currency: "INR" as const
     },
     {
       id: 4,
@@ -83,7 +91,8 @@ const Gifts = () => {
       price: 1499,
       category: "Traditional Sweets",
       rating: 4.5,
-      delivery: "Same day"
+      delivery: "Same day",
+      currency: "INR" as const
     }
   ];
 
@@ -155,7 +164,7 @@ const Gifts = () => {
                   </p>
                   <div className="flex items-center justify-between">
                     <span className="text-xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                      {getCurrencyDisplay(gift.price, toCountry === 'USA' ? 'USD' : 'INR')}
+                      {getCurrencyDisplay(gift.price, gift.currency)}
                     </span>
                     <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-xl px-6 shadow-lg hover:shadow-xl transition-all duration-300">
                       <Heart className="h-4 w-4 mr-2" />

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { ArrowLeft, Search, Plus, Minus, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -29,7 +30,8 @@ const Groceries = () => {
       image: "https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=200&h=200&fit=crop&auto=format",
       price: 3,
       unit: "per bunch",
-      category: "Fruits & Vegetables"
+      category: "Fruits & Vegetables",
+      currency: "USD" as const
     },
     {
       id: 2,
@@ -37,7 +39,8 @@ const Groceries = () => {
       image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200&h=200&fit=crop&auto=format",
       price: 4,
       unit: "1 gallon",
-      category: "Dairy & Bakery"
+      category: "Dairy & Bakery",
+      currency: "USD" as const
     },
     {
       id: 3,
@@ -45,7 +48,8 @@ const Groceries = () => {
       image: "https://images.unsplash.com/photo-1613919113640-25732ec5e61f?w=200&h=200&fit=crop&auto=format",
       price: 2,
       unit: "per pack",
-      category: "Snacks & Beverages"
+      category: "Snacks & Beverages",
+      currency: "USD" as const
     },
     {
       id: 4,
@@ -53,7 +57,8 @@ const Groceries = () => {
       image: "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=200&h=200&fit=crop&auto=format",
       price: 5,
       unit: "4oz tube",
-      category: "Personal Care"
+      category: "Personal Care",
+      currency: "USD" as const
     }
   ] : [
     {
@@ -62,7 +67,8 @@ const Groceries = () => {
       image: "https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=200&h=200&fit=crop&auto=format",
       price: 40,
       unit: "per dozen",
-      category: "Fruits & Vegetables"
+      category: "Fruits & Vegetables",
+      currency: "INR" as const
     },
     {
       id: 2,
@@ -70,7 +76,8 @@ const Groceries = () => {
       image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200&h=200&fit=crop&auto=format",
       price: 25,
       unit: "500ml",
-      category: "Dairy & Bakery"
+      category: "Dairy & Bakery",
+      currency: "INR" as const
     },
     {
       id: 3,
@@ -78,7 +85,8 @@ const Groceries = () => {
       image: "https://images.unsplash.com/photo-1613919113640-25732ec5e61f?w=200&h=200&fit=crop&auto=format",
       price: 20,
       unit: "per pack",
-      category: "Snacks & Beverages"
+      category: "Snacks & Beverages",
+      currency: "INR" as const
     },
     {
       id: 4,
@@ -86,7 +94,8 @@ const Groceries = () => {
       image: "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=200&h=200&fit=crop&auto=format",
       price: 85,
       unit: "100g",
-      category: "Personal Care"
+      category: "Personal Care",
+      currency: "INR" as const
     }
   ];
 
@@ -204,7 +213,7 @@ const Groceries = () => {
                 <p className="text-xs text-gray-600 mb-2">{product.unit}</p>
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-lg">
-                    {getCurrencyDisplay(product.price, toCountry === 'USA' ? 'USD' : 'INR')}
+                    {getCurrencyDisplay(product.price, product.currency)}
                   </span>
                   {cart[product.id] > 0 ? (
                     <div className="flex items-center gap-2 bg-purple-100 rounded-lg px-2 py-1">
