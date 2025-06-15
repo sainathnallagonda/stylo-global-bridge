@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,6 +7,7 @@ import { ShoppingCart } from 'lucide-react';
 import EnhancedFoodCard from './EnhancedFoodCard';
 import SearchAndFilter from './SearchAndFilter';
 import { useToast } from '@/hooks/use-toast';
+import { useAppState } from '@/contexts/AppStateContext';
 import type { Tables } from '@/integrations/supabase/types';
 
 type VendorFood = Tables<'vendor_foods'>;
@@ -37,7 +39,7 @@ const CustomerFoodDisplay = () => {
   const [foods, setFoods] = useState<ExtendedVendorFood[]>([]);
   const [filteredFoods, setFilteredFoods] = useState<ExtendedVendorFood[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cartItems, setCartItems] = useState<VendorFood[]>([]);
+  const { addToCart, cartCount, openCart } = useAppState();
   const { toast } = useToast();
 
   const [filters, setFilters] = useState<SearchFilters>({
@@ -188,9 +190,9 @@ const CustomerFoodDisplay = () => {
     }
   };
 
-  const addToCart = (food: VendorFood) => {
+  const handleAddToCart = (food: VendorFood) => {
     try {
-      setCartItems(prev => [...prev, food]);
+      addToCart(food);
       toast({
         title: "Added to Cart",
         description: `${food.name} has been added to your cart`,
@@ -224,12 +226,15 @@ const CustomerFoodDisplay = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-800">Available Food Items</h2>
-        <div className="flex items-center gap-2">
+        <button 
+          onClick={openCart}
+          className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-lg transition-colors"
+        >
           <ShoppingCart className="h-5 w-5 text-gray-600" />
           <Badge variant="outline">
-            {cartItems.length} items in cart
+            {cartCount} items in cart
           </Badge>
-        </div>
+        </button>
       </div>
 
       <SearchAndFilter 
@@ -262,7 +267,7 @@ const CustomerFoodDisplay = () => {
             <EnhancedFoodCard 
               key={food.id} 
               food={food} 
-              onAddToCart={addToCart}
+              onAddToCart={handleAddToCart}
             />
           ))}
         </div>

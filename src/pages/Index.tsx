@@ -1,5 +1,6 @@
 
 import { useAuth } from "@/contexts/AuthContext";
+import { AppStateProvider } from "@/contexts/AppStateContext";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import AnimatedStats from "@/components/AnimatedStats";
@@ -12,6 +13,7 @@ import TrustSecurity from "@/components/TrustSecurity";
 import Footer from "@/components/Footer";
 import Chatbot from "@/components/Chatbot";
 import FloatingActionButton from "@/components/FloatingActionButton";
+import CartModal from "@/components/CartModal";
 
 const Index = () => {
   const { loading } = useAuth();
@@ -30,20 +32,23 @@ const Index = () => {
 
   // Always show the homepage - don't redirect based on auth status
   return (
-    <div className="min-h-screen">
-      <Header />
-      <Hero />
-      <AnimatedStats />
-      <TrustBadges />
-      <Services />
-      <TestimonialsCarousel />
-      <Features />
-      <HowItWorks />
-      <TrustSecurity />
-      <Footer />
-      <Chatbot />
-      <FloatingActionButton />
-    </div>
+    <AppStateProvider>
+      <div className="min-h-screen">
+        <Header />
+        <Hero />
+        <AnimatedStats />
+        <TrustBadges />
+        <Services />
+        <TestimonialsCarousel />
+        <Features />
+        <HowItWorks />
+        <TrustSecurity />
+        <Footer />
+        <Chatbot />
+        <FloatingActionButton />
+        <CartModal />
+      </div>
+    </AppStateProvider>
   );
 };
 

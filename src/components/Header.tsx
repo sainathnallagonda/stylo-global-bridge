@@ -1,14 +1,17 @@
 
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAppState } from "@/contexts/AppStateContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Menu, X, User, LogOut, ShoppingCart, LayoutDashboard } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import EnhancedNotificationSystem from "./EnhancedNotificationSystem";
 import LanguageSelector from "./MultiLanguageSupport";
 
 const Header = () => {
   const { user, profile, signOut } = useAuth();
+  const { cartCount, openCart } = useAppState();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -75,12 +78,17 @@ const Header = () => {
                 variant="ghost" 
                 size="icon" 
                 className="relative hover:bg-gray-100"
-                onClick={() => navigate("/orders")}
+                onClick={openCart}
               >
                 <ShoppingCart className="h-5 w-5 text-gray-600" />
-                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  3
-                </span>
+                {cartCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                  >
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </Badge>
+                )}
               </Button>
               
               {user ? (
@@ -92,7 +100,7 @@ const Header = () => {
                     className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
                   >
                     <LayoutDashboard className="h-4 w-4 mr-2" />
-                    Dashboard
+                    {profile?.role === 'vendor' ? 'Vendor Dashboard' : 'Dashboard'}
                   </Button>
                   <Button
                     onClick={() => navigate("/profile")}
@@ -114,12 +122,22 @@ const Header = () => {
                   </Button>
                 </div>
               ) : (
-                <Button 
-                  onClick={() => navigate("/auth")}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  Get Started
-                </Button>
+                <div className="flex items-center space-x-2">
+                  <Button 
+                    onClick={() => navigate("/customer-auth")}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Customer Login
+                  </Button>
+                  <Button 
+                    onClick={() => navigate("/vendor-auth")}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    size="sm"
+                  >
+                    Vendor Login
+                  </Button>
+                </div>
               )}
             </div>
           </div>
@@ -141,6 +159,19 @@ const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden mt-4 py-4 border-t border-gray-100 bg-white">
             <div className="flex flex-col space-y-4">
+              {/* Cart for mobile */}
+              <Button
+                onClick={() => {
+                  openCart();
+                  setIsMenuOpen(false);
+                }}
+                variant="ghost"
+                className="justify-start hover:bg-blue-50"
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Cart ({cartCount})
+              </Button>
+              
               {navItems.map((item) => (
                 <button
                   key={item.name}
@@ -165,7 +196,7 @@ const Header = () => {
                     className="justify-start hover:bg-blue-50"
                   >
                     <LayoutDashboard className="h-4 w-4 mr-2" />
-                    Dashboard
+                    {profile?.role === 'vendor' ? 'Vendor Dashboard' : 'Dashboard'}
                   </Button>
                   <Button
                     onClick={() => {
@@ -191,15 +222,26 @@ const Header = () => {
                   </Button>
                 </div>
               ) : (
-                <Button 
-                  onClick={() => {
-                    navigate("/auth");
-                    setIsMenuOpen(false);
-                  }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  Get Started
-                </Button>
+                <div className="flex flex-col space-y-2">
+                  <Button 
+                    onClick={() => {
+                      navigate("/customer-auth");
+                      setIsMenuOpen(false);
+                    }}
+                    variant="outline"
+                  >
+                    Customer Login
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      navigate("/vendor-auth");
+                      setIsMenuOpen(false);
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Vendor Login
+                  </Button>
+                </div>
               )}
             </div>
           </div>

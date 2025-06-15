@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Plus, MessageCircle, Phone, Mail, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAppState } from "@/contexts/AppStateContext";
 
 interface ActionItem {
   icon: React.ElementType;
@@ -13,30 +14,43 @@ interface ActionItem {
 
 const FloatingActionButton = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { openChat, isChatOpen } = useAppState();
 
   const actions: ActionItem[] = [
     {
       icon: MessageCircle,
       label: "Live Chat",
-      action: () => console.log("Open chat"),
+      action: () => {
+        openChat();
+        setIsOpen(false);
+      },
       color: "bg-green-500 hover:bg-green-600"
     },
     {
       icon: Phone,
       label: "Call Support",
-      action: () => window.open("tel:+1234567890"),
+      action: () => {
+        window.open("tel:+1234567890");
+        setIsOpen(false);
+      },
       color: "bg-blue-500 hover:bg-blue-600"
     },
     {
       icon: Mail,
       label: "Email Us",
-      action: () => window.open("mailto:support@stylo.com"),
+      action: () => {
+        window.open("mailto:support@stylo.com");
+        setIsOpen(false);
+      },
       color: "bg-purple-500 hover:bg-purple-600"
     }
   ];
 
+  // Don't show if chat is already open
+  if (isChatOpen) return null;
+
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-40">
       {/* Action items */}
       <div className={cn(
         "flex flex-col items-end gap-3 mb-3 transition-all duration-300",
