@@ -21,7 +21,9 @@ const FoodDelivery = () => {
       deliveryTime: "20-30 min",
       cuisine: "Fast Food, Burgers",
       location: "New York, NY",
-      priceForTwo: getCurrencyDisplay(25, 'USD')
+      priceForTwo: getCurrencyDisplay(25, 'USD'),
+      avgPrice: 25,
+      currency: "USD" as const
     },
     {
       id: 2,
@@ -31,7 +33,9 @@ const FoodDelivery = () => {
       deliveryTime: "15-25 min",
       cuisine: "Mexican, Bowls",
       location: "Manhattan, NY",
-      priceForTwo: getCurrencyDisplay(18, 'USD')
+      priceForTwo: getCurrencyDisplay(18, 'USD'),
+      avgPrice: 18,
+      currency: "USD" as const
     },
     {
       id: 3,
@@ -41,7 +45,9 @@ const FoodDelivery = () => {
       deliveryTime: "30-40 min",
       cuisine: "Italian, Pizza",
       location: "Brooklyn, NY",
-      priceForTwo: getCurrencyDisplay(22, 'USD')
+      priceForTwo: getCurrencyDisplay(22, 'USD'),
+      avgPrice: 22,
+      currency: "USD" as const
     },
     {
       id: 4,
@@ -51,7 +57,9 @@ const FoodDelivery = () => {
       deliveryTime: "10-20 min",
       cuisine: "Sandwiches, Healthy",
       location: "Queens, NY",
-      priceForTwo: getCurrencyDisplay(15, 'USD')
+      priceForTwo: getCurrencyDisplay(15, 'USD'),
+      avgPrice: 15,
+      currency: "USD" as const
     }
   ] : [
     {
@@ -62,7 +70,9 @@ const FoodDelivery = () => {
       deliveryTime: "30-35 min",
       cuisine: "North Indian, Punjabi",
       location: "Mumbai Central",
-      priceForTwo: getCurrencyDisplay(300, 'INR')
+      priceForTwo: getCurrencyDisplay(300, 'INR'),
+      avgPrice: 300,
+      currency: "INR" as const
     },
     {
       id: 2,
@@ -72,7 +82,9 @@ const FoodDelivery = () => {
       deliveryTime: "25-30 min",
       cuisine: "South Indian, Dosa",
       location: "Bandra West",
-      priceForTwo: getCurrencyDisplay(250, 'INR')
+      priceForTwo: getCurrencyDisplay(250, 'INR'),
+      avgPrice: 250,
+      currency: "INR" as const
     },
     {
       id: 3,
@@ -82,7 +94,9 @@ const FoodDelivery = () => {
       deliveryTime: "35-40 min",
       cuisine: "Italian, Pizza",
       location: "Andheri East",
-      priceForTwo: getCurrencyDisplay(400, 'INR')
+      priceForTwo: getCurrencyDisplay(400, 'INR'),
+      avgPrice: 400,
+      currency: "INR" as const
     },
     {
       id: 4,
@@ -92,7 +106,9 @@ const FoodDelivery = () => {
       deliveryTime: "40-45 min",
       cuisine: "Biryani, Mughlai",
       location: "Powai",
-      priceForTwo: getCurrencyDisplay(350, 'INR')
+      priceForTwo: getCurrencyDisplay(350, 'INR'),
+      avgPrice: 350,
+      currency: "INR" as const
     }
   ];
 
@@ -103,6 +119,16 @@ const FoodDelivery = () => {
 
   const partnerName = toCountry === 'USA' ? 'DoorDash' : 'Zomato';
   const locationName = toCountry === 'USA' ? 'New York, USA' : 'Mumbai, India';
+
+  const handleOrderNow = (restaurant: typeof restaurants[0]) => {
+    navigate("/payment", {
+      state: {
+        itemName: `Food from ${restaurant.name}`,
+        price: restaurant.avgPrice,
+        currency: restaurant.currency
+      }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
@@ -191,7 +217,10 @@ const FoodDelivery = () => {
                       {restaurant.priceForTwo} for two
                     </div>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                  <Button 
+                    onClick={() => handleOrderNow(restaurant)}
+                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
                     Order Now
                   </Button>
                 </div>

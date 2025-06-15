@@ -101,6 +101,16 @@ const Gifts = () => {
     gift.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleSendGift = (gift: typeof gifts[0]) => {
+    navigate("/payment", {
+      state: {
+        itemName: gift.name,
+        price: gift.price,
+        currency: gift.currency
+      }
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-rose-50">
       {/* Header */}
@@ -166,7 +176,10 @@ const Gifts = () => {
                     <span className="text-xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
                       {getCurrencyDisplay(gift.price, gift.currency)}
                     </span>
-                    <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-xl px-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <Button 
+                      onClick={() => handleSendGift(gift)}
+                      className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-xl px-6 shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
                       <Heart className="h-4 w-4 mr-2" />
                       Send Gift
                     </Button>

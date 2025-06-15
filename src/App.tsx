@@ -16,6 +16,7 @@ import Rides from "./pages/Rides";
 import Travel from "./pages/Travel";
 import Care from "./pages/Care";
 import Orders from "./pages/Orders";
+import Payment from "./pages/Payment";
 import AuthGuard from "./components/AuthGuard";
 import NotFound from "./pages/NotFound";
 
@@ -47,6 +48,7 @@ const App = () => (
               <Route path="/travel" element={<Travel />} />
               <Route path="/care" element={<Care />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/payment" element={<Payment />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </LocationProvider>
