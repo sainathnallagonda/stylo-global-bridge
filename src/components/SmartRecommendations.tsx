@@ -8,15 +8,17 @@ import { Badge } from '@/components/ui/badge';
 import { Star, TrendingUp, ShoppingBag, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+interface RecommendationItemData {
+  title: string;
+  description: string;
+  price: number;
+  currency: string;
+}
+
 interface Recommendation {
   id: string;
   service_type: string;
-  item_data: {
-    title: string;
-    description: string;
-    price: number;
-    currency: string;
-  };
+  item_data: RecommendationItemData;
   score: number;
   reason: string;
   created_at: string;
@@ -60,7 +62,18 @@ const SmartRecommendations = () => {
         .limit(6);
 
       if (error) throw error;
-      setRecommendations(data || []);
+      
+      // Transform the data to match our interface
+      const transformedData: Recommendation[] = (data || []).map(item => ({
+        id: item.id,
+        service_type: item.service_type,
+        item_data: item.item_data as RecommendationItemData,
+        score: item.score,
+        reason: item.reason || '',
+        created_at: item.created_at
+      }));
+      
+      setRecommendations(transformedData);
     } catch (error) {
       console.error('Error fetching recommendations:', error);
     } finally {

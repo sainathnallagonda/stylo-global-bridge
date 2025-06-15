@@ -60,12 +60,32 @@ const AddressBook = () => {
   const saveAddress = async () => {
     if (!user || !editingAddress) return;
 
+    // Validate required fields
+    if (!editingAddress.label || !editingAddress.street_address || !editingAddress.city || 
+        !editingAddress.state_province || !editingAddress.postal_code || !editingAddress.country) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       if (editingAddress.id) {
         const { error } = await supabase
           .from('addresses')
           .update({
-            ...editingAddress,
+            label: editingAddress.label,
+            type: editingAddress.type || 'home',
+            street_address: editingAddress.street_address,
+            apartment_unit: editingAddress.apartment_unit,
+            city: editingAddress.city,
+            state_province: editingAddress.state_province,
+            postal_code: editingAddress.postal_code,
+            country: editingAddress.country,
+            phone: editingAddress.phone,
+            is_default: editingAddress.is_default || false,
             updated_at: new Date().toISOString()
           })
           .eq('id', editingAddress.id);
@@ -75,7 +95,16 @@ const AddressBook = () => {
         const { error } = await supabase
           .from('addresses')
           .insert({
-            ...editingAddress,
+            label: editingAddress.label,
+            type: editingAddress.type || 'home',
+            street_address: editingAddress.street_address,
+            apartment_unit: editingAddress.apartment_unit,
+            city: editingAddress.city,
+            state_province: editingAddress.state_province,
+            postal_code: editingAddress.postal_code,
+            country: editingAddress.country,
+            phone: editingAddress.phone,
+            is_default: editingAddress.is_default || false,
             user_id: user.id
           });
 
