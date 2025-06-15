@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Globe, ArrowLeft, ShoppingCart, Utensils } from 'lucide-react';
+import { Globe, ArrowLeft, ShoppingCart, Utensils, Heart, Gift, Clock, Star } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -44,10 +44,10 @@ const CustomerAuth = () => {
           });
         } else {
           toast({
-            title: "Welcome back!",
-            description: "You have successfully logged in."
+            title: "Welcome back, Foodie!",
+            description: "Ready to explore delicious options?"
           });
-          navigate('/'); // Redirect to home page, not dashboard
+          navigate('/'); // Redirect to home page
         }
       } else {
         const { error } = await signUp(email, password, fullName, 'customer');
@@ -60,7 +60,7 @@ const CustomerAuth = () => {
         } else {
           toast({
             title: "Account Created!",
-            description: "Please check your email to verify your account."
+            description: "Please check your email to verify your account and start ordering."
           });
           setIsLogin(true);
         }
@@ -78,7 +78,7 @@ const CustomerAuth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-4xl">
         <div className="flex items-center justify-center mb-8">
           <Button
             variant="ghost"
@@ -86,7 +86,7 @@ const CustomerAuth = () => {
             className="absolute left-4 top-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
+            Back to Home
           </Button>
           <div className="flex items-center space-x-2">
             <Globe className="h-8 w-8 text-orange-600" />
@@ -96,92 +96,140 @@ const CustomerAuth = () => {
           </div>
         </div>
 
-        <Card className="border-orange-200">
-          <CardHeader className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <ShoppingCart className="h-6 w-6 text-orange-600" />
-              <Utensils className="h-6 w-6 text-orange-600" />
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+          {/* Left side - Benefits */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Satisfy Your Cravings, Share the Love
+              </h2>
+              <p className="text-lg text-gray-600">
+                Order from your favorite restaurants and send delicious meals, groceries, and gifts to your loved ones anywhere.
+              </p>
             </div>
-            <CardTitle className="text-orange-800">
-              {isLogin ? 'Welcome Back, Foodie!' : 'Start Your Food Journey'}
-            </CardTitle>
-            <CardDescription>
-              {isLogin ? 'Sign in to order delicious food' : 'Create your account to start ordering'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {!isLogin && (
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-orange-100">
+                <Utensils className="h-8 w-8 text-orange-600 mb-2" />
+                <h3 className="font-semibold text-gray-900">Fresh Food</h3>
+                <p className="text-sm text-gray-600">From top-rated local restaurants</p>
+              </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-green-100">
+                <Clock className="h-8 w-8 text-green-600 mb-2" />
+                <h3 className="font-semibold text-gray-900">Fast Delivery</h3>
+                <p className="text-sm text-gray-600">Average 30-min delivery time</p>
+              </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-purple-100">
+                <Gift className="h-8 w-8 text-purple-600 mb-2" />
+                <h3 className="font-semibold text-gray-900">Send Gifts</h3>
+                <p className="text-sm text-gray-600">Surprise your loved ones</p>
+              </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-blue-100">
+                <Star className="h-8 w-8 text-blue-600 mb-2" />
+                <h3 className="font-semibold text-gray-900">Quality Assured</h3>
+                <p className="text-sm text-gray-600">Verified vendors only</p>
+              </div>
+            </div>
+
+            <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+              <h4 className="font-semibold text-orange-900 mb-2">🎉 Welcome Offer</h4>
+              <p className="text-sm text-orange-800">
+                <Heart className="h-4 w-4 inline mr-1" />
+                Get 20% off your first 3 orders + free delivery!
+              </p>
+            </div>
+          </div>
+
+          {/* Right side - Form */}
+          <Card className="border-orange-200 shadow-lg">
+            <CardHeader className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <ShoppingCart className="h-6 w-6 text-orange-600" />
+                <Utensils className="h-6 w-6 text-orange-600" />
+              </div>
+              <CardTitle className="text-orange-800">
+                {isLogin ? 'Welcome Back, Foodie!' : 'Join the Stylo Family'}
+              </CardTitle>
+              <CardDescription>
+                {isLogin ? 'Sign in to continue your food journey' : 'Create your account to start ordering delicious food'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {!isLogin && (
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required={!isLogin}
+                      placeholder="Enter your full name"
+                      disabled={loading}
+                    />
+                  </div>
+                )}
+                
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
+                  <Label htmlFor="email">Email</Label>
                   <Input
-                    id="fullName"
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required={!isLogin}
-                    placeholder="Enter your full name"
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="Enter your email"
                     disabled={loading}
                   />
                 </div>
-              )}
-              
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder="Enter your email"
+                
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="Enter your password"
+                    minLength={6}
+                    disabled={loading}
+                  />
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full bg-orange-600 hover:bg-orange-700" 
                   disabled={loading}
-                />
-              </div>
+                >
+                  {loading ? 'Loading...' : (isLogin ? 'Sign In & Order' : 'Create Account')}
+                </Button>
+              </form>
               
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  placeholder="Enter your password"
-                  minLength={6}
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-orange-600 hover:underline"
                   disabled={loading}
-                />
+                >
+                  {isLogin ? "New to Stylo? Create account" : "Already have an account? Sign in"}
+                </button>
               </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full bg-orange-600 hover:bg-orange-700" 
-                disabled={loading}
-              >
-                {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
-              </Button>
-            </form>
-            
-            <div className="mt-4 text-center">
-              <button
-                type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-orange-600 hover:underline"
-                disabled={loading}
-              >
-                {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-              </button>
-            </div>
 
-            {!isLogin && (
-              <div className="mt-4 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                <p className="text-sm text-orange-800 text-center">
-                  🍕 Order from local restaurants • 🛒 Get groceries delivered • 🎁 Send gifts to loved ones
-                </p>
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => navigate('/vendor-auth')}
+                  className="text-sm text-gray-600 hover:text-gray-800"
+                >
+                  Want to sell food? Vendor registration →
+                </button>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

@@ -40,8 +40,8 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/customer-login" element={<CustomerAuth />} />
-                <Route path="/vendor-login" element={<VendorAuth />} />
+                <Route path="/customer-auth" element={<CustomerAuth />} />
+                <Route path="/vendor-auth" element={<VendorAuth />} />
                 <Route 
                   path="/dashboard" 
                   element={
