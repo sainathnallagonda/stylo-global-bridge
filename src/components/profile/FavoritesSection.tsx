@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { Heart, Trash, ShoppingCart, UtensilsCrossed, Gift, Car, Plane } from 'l
 import { useNavigate } from 'react-router-dom';
 
 interface FavoriteItemData {
-  id: number;
+  id: string | number;
   name: string;
   image: string;
   price: number;
@@ -26,7 +27,7 @@ interface Favorite {
 }
 
 const FavoritesSection = () => {
-  const { user } = useAuth();
+  const { user } = useEnhancedAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [favorites, setFavorites] = useState<Favorite[]>([]);
@@ -48,19 +49,19 @@ const FavoritesSection = () => {
 
       if (error) throw error;
       
-      // Convert the data to proper types with safe access
+      // Safely parse the item_data
       const typedFavorites: Favorite[] = (data || []).map(fav => {
         const rawItemData = fav.item_data;
         
-        // Safely extract item data
+        // Safely extract item data with fallbacks
         const itemData: FavoriteItemData = {
-          id: rawItemData && typeof rawItemData === 'object' && 'id' in rawItemData ? Number(rawItemData.id) : 0,
-          name: rawItemData && typeof rawItemData === 'object' && 'name' in rawItemData ? String(rawItemData.name) : '',
-          image: rawItemData && typeof rawItemData === 'object' && 'image' in rawItemData ? String(rawItemData.image) : '',
-          price: rawItemData && typeof rawItemData === 'object' && 'price' in rawItemData ? Number(rawItemData.price) : 0,
-          currency: rawItemData && typeof rawItemData === 'object' && 'currency' in rawItemData ? String(rawItemData.currency) : 'USD',
-          category: rawItemData && typeof rawItemData === 'object' && 'category' in rawItemData ? String(rawItemData.category) : undefined,
-          restaurant: rawItemData && typeof rawItemData === 'object' && 'restaurant' in rawItemData ? String(rawItemData.restaurant) : undefined
+          id: rawItemData?.id || '0',
+          name: rawItemData?.name || 'Unknown Item',
+          image: rawItemData?.image || '/placeholder.svg',
+          price: Number(rawItemData?.price) || 0,
+          currency: rawItemData?.currency || 'USD',
+          category: rawItemData?.category,
+          restaurant: rawItemData?.restaurant
         };
         
         return {
@@ -142,7 +143,12 @@ const FavoritesSection = () => {
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading favorites...</div>;
+    return (
+      <div className="text-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p>Loading favorites...</p>
+      </div>
+    );
   }
 
   return (
@@ -166,6 +172,9 @@ const FavoritesSection = () => {
                   src={favorite.item_data.image} 
                   alt={favorite.item_data.name}
                   className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/placeholder.svg';
+                  }}
                 />
                 <Button
                   variant="ghost"

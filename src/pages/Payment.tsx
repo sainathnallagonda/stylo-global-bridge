@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ArrowLeft, CreditCard, Wallet, Building2, Smartphone, Shield, CheckCircle, RefreshCw, Info } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -9,14 +8,17 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useLocation as useLocationContext } from "@/contexts/LocationContext";
+import { useToast } from "@/hooks/use-toast";
 
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toCountry, getCurrencyDisplay } = useLocationContext();
+  const { toast } = useToast();
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [exchangeRate, setExchangeRate] = useState(83.25);
   const [isLoadingRate, setIsLoadingRate] = useState(false);
+  const [exchangeRateError, setExchangeRateError] = useState(false);
   const [cardDetails, setCardDetails] = useState({
     number: "",
     expiry: "",
@@ -35,15 +37,30 @@ const Payment = () => {
   const usdAmount = orderDetails.currency === 'USD' ? orderDetails.price : orderDetails.price / exchangeRate;
   const inrAmount = orderDetails.currency === 'INR' ? orderDetails.price : orderDetails.price * exchangeRate;
 
-  // Fetch real-time exchange rate
+  // Fetch real-time exchange rate with better error handling
   const fetchExchangeRate = async () => {
     setIsLoadingRate(true);
+    setExchangeRateError(false);
     try {
       const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+      if (!response.ok) {
+        throw new Error('Failed to fetch exchange rate');
+      }
       const data = await response.json();
-      setExchangeRate(data.rates.INR);
+      if (data.rates && data.rates.INR) {
+        setExchangeRate(data.rates.INR);
+      } else {
+        throw new Error('Invalid exchange rate data');
+      }
     } catch (error) {
       console.error('Failed to fetch exchange rate:', error);
+      setExchangeRateError(true);
+      // Keep the fallback rate of 83.25
+      toast({
+        title: "Exchange Rate Error",
+        description: "Using fallback rate. Please try refreshing.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoadingRate(false);
     }
@@ -119,13 +136,23 @@ const Payment = () => {
 
   const handlePayment = () => {
     if (!selectedPaymentMethod) {
-      alert("Please select a payment method");
+      toast({
+        title: "Payment Method Required",
+        description: "Please select a payment method to continue.",
+        variant: "destructive"
+      });
       return;
     }
     
     // Simulate payment processing
-    alert(`Payment processed successfully!\nUSD: $${usdAmount.toFixed(2)}\nINR: ₹${inrAmount.toFixed(2)}`);
-    navigate("/orders");
+    toast({
+      title: "Payment Successful!",
+      description: `Payment of ${getCurrencyDisplay(orderDetails.price, orderDetails.currency)} processed successfully.`
+    });
+    
+    setTimeout(() => {
+      navigate("/orders");
+    }, 1500);
   };
 
   return (
@@ -274,7 +301,12 @@ const Payment = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Exchange Rate</span>
-                    <span className="font-semibold">1 USD = ₹{exchangeRate.toFixed(2)}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">1 USD = ₹{exchangeRate.toFixed(2)}</span>
+                      {exchangeRateError && (
+                        <span className="text-xs text-orange-600">(Fallback)</span>
+                      )}
+                    </div>
                   </div>
                   <div className="border-t pt-3">
                     <div className="text-center space-y-2">

@@ -16,6 +16,7 @@ const Profile = () => {
   const { toast } = useToast();
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [favoritesCount, setFavoritesCount] = useState(0);
   const [formData, setFormData] = useState({
     full_name: '',
     phone: '',
@@ -33,6 +34,26 @@ const Profile = () => {
       });
     }
   }, [profile]);
+
+  useEffect(() => {
+    fetchFavoritesCount();
+  }, [user]);
+
+  const fetchFavoritesCount = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('favorites')
+        .select('id')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      setFavoritesCount(data?.length || 0);
+    } catch (error) {
+      console.error('Error fetching favorites count:', error);
+    }
+  };
 
   const handleSave = async () => {
     if (!user) return;
@@ -224,7 +245,7 @@ const Profile = () => {
           </Card>
           <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-sm">
             <CardContent className="p-4 text-center">
-              <h3 className="text-lg font-semibold text-gray-900">0</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{favoritesCount}</h3>
               <p className="text-sm text-gray-600">Favorites</p>
             </CardContent>
           </Card>
