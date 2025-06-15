@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const companions = [
   {
@@ -40,6 +41,21 @@ const companions = [
 
 const TravelCompanions = () => {
   const navigate = useNavigate();
+  const [preferences, setPreferences] = useState({
+    travelDate: "",
+    route: "India to USA",
+    gender: "Any Gender"
+  });
+
+  const handleFindCompanions = () => {
+    // Navigate to travel page with preferences as URL params
+    const searchParams = new URLSearchParams({
+      date: preferences.travelDate,
+      route: preferences.route,
+      gender: preferences.gender
+    });
+    navigate(`/travel?${searchParams.toString()}`);
+  };
 
   return (
     <section className="py-20 px-4 bg-gray-50">
@@ -61,14 +77,23 @@ const TravelCompanions = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Travel Dates</label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <Input placeholder="mm/dd/yyyy" className="pl-10 h-12" />
+                <Input 
+                  placeholder="mm/dd/yyyy" 
+                  className="pl-10 h-12"
+                  value={preferences.travelDate}
+                  onChange={(e) => setPreferences(prev => ({ ...prev, travelDate: e.target.value }))}
+                />
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Route</label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <select className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <select 
+                  className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={preferences.route}
+                  onChange={(e) => setPreferences(prev => ({ ...prev, route: e.target.value }))}
+                >
                   <option>India to USA</option>
                   <option>USA to India</option>
                 </select>
@@ -78,7 +103,11 @@ const TravelCompanions = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Preferences</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <select className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <select 
+                  className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={preferences.gender}
+                  onChange={(e) => setPreferences(prev => ({ ...prev, gender: e.target.value }))}
+                >
                   <option>Any Gender</option>
                   <option>Male</option>
                   <option>Female</option>
@@ -86,7 +115,10 @@ const TravelCompanions = () => {
               </div>
             </div>
             <div className="flex items-end">
-              <Button className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium">
+              <Button 
+                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                onClick={handleFindCompanions}
+              >
                 Find Companions
               </Button>
             </div>
@@ -150,7 +182,7 @@ const TravelCompanions = () => {
 
                 <Button 
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={() => navigate('/travel')}
+                  onClick={handleFindCompanions}
                 >
                   Contact {companion.name.split(' ')[0]}
                 </Button>
@@ -164,7 +196,7 @@ const TravelCompanions = () => {
             size="lg" 
             variant="outline" 
             className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
-            onClick={() => navigate('/travel')}
+            onClick={handleFindCompanions}
           >
             View All Companions
           </Button>

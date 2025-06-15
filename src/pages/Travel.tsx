@@ -1,7 +1,7 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Plane, Calendar, Users, Star } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,7 +9,27 @@ import { useLocation } from "@/contexts/LocationContext";
 
 const Travel = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { fromCountry, toCountry, getCurrencyDisplay } = useLocation();
+  
+  const [filters, setFilters] = useState({
+    travelDate: "",
+    route: "",
+    gender: ""
+  });
+
+  // Load preferences from URL parameters
+  useEffect(() => {
+    const date = searchParams.get('date') || '';
+    const route = searchParams.get('route') || '';
+    const gender = searchParams.get('gender') || '';
+    
+    setFilters({
+      travelDate: date,
+      route: route,
+      gender: gender
+    });
+  }, [searchParams]);
 
   const travelCompanions = [
     {
@@ -76,9 +96,31 @@ const Travel = () => {
             </div>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input placeholder="Travel date" className="pl-10" />
+              <Input 
+                placeholder="Travel date" 
+                className="pl-10" 
+                value={filters.travelDate}
+                onChange={(e) => setFilters(prev => ({ ...prev, travelDate: e.target.value }))}
+              />
             </div>
           </div>
+          
+          {/* Display applied filters */}
+          {(filters.route || filters.gender) && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="text-sm text-gray-600">Applied filters:</span>
+              {filters.route && (
+                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                  Route: {filters.route}
+                </span>
+              )}
+              {filters.gender && (
+                <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                  Gender: {filters.gender}
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
