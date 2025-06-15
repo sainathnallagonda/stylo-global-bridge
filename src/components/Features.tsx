@@ -46,30 +46,11 @@ const Features = () => {
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4 text-gray-800">
-            How It Works
+            Why Choose Stylo
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Sending love across borders has never been easier. Follow these simple steps to make someone's day special.
+            Experience the best cross-border delivery service with features designed for your peace of mind.
           </p>
-        </div>
-
-        {/* Steps */}
-        <div className="flex flex-wrap justify-center items-center gap-8 mb-16">
-          {[
-            { number: "1", title: "Select Service & Location", description: "Choose what you want to send and where" },
-            { number: "2", title: "Choose Products", description: "Browse and select from local options" },
-            { number: "3", title: "Schedule Delivery", description: "Pick the perfect time for delivery" },
-            { number: "4", title: "Pay in Local Currency", description: "Secure payment in INR or USD" },
-            { number: "5", title: "Track & Receive", description: "Real-time updates until delivery" }
-          ].map((step, index) => (
-            <div key={index} className="flex flex-col items-center text-center max-w-xs">
-              <div className="w-12 h-12 bg-primary-blue text-white rounded-full flex items-center justify-center font-bold text-lg mb-3">
-                {step.number}
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2">{step.title}</h3>
-              <p className="text-sm text-gray-600">{step.description}</p>
-            </div>
-          ))}
         </div>
 
         {/* Features Grid */}

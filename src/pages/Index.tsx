@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Services from "@/components/Services";
+import HowItWorks from "@/components/HowItWorks";
 import Features from "@/components/Features";
 import TravelCompanions from "@/components/TravelCompanions";
 import FlightServiceBundle from "@/components/FlightServiceBundle";
@@ -19,6 +20,7 @@ const Index = () => {
       <Header />
       <Hero />
       <Services />
+      <HowItWorks />
       <Features />
       <TravelCompanions />
       <FlightServiceBundle />
