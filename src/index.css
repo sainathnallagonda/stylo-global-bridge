@@ -89,7 +89,7 @@
   }
 }
 
-/* Clean utility classes */
+/* Custom color extensions */
 @layer utilities {
   .text-shadow {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -107,4 +107,18 @@
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
+
+  /* Custom pink variations */
+  .bg-pink-25 {
+    background-color: #fef7f7;
+  }
+  
+  .bg-orange-25 {
+    background-color: #fffaf5;
+  }
+  
+  .bg-blue-25 {
+    background-color: #f8faff;
+  }
 }
+</lov-utilities>

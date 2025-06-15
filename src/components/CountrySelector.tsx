@@ -7,10 +7,10 @@ const CountrySelector = () => {
   const { fromCountry, toCountry, swapCountries } = useLocation();
 
   return (
-    <div className="flex items-center justify-start gap-4 mb-8">
-      <div className="flex items-center gap-4 bg-white rounded-xl px-6 py-3 shadow-sm border border-gray-100">
-        <div className="flex flex-col">
-          <div className="text-xs text-gray-500 mb-1">From Country</div>
+    <div className="flex items-center justify-start gap-1 max-w-md">
+      <div className="flex items-center bg-white rounded-2xl px-6 py-4 shadow-sm border border-gray-100">
+        <div className="flex flex-col items-center">
+          <div className="text-xs text-gray-500 mb-2">From Country</div>
           <div className="flex items-center gap-2">
             <img 
               src={fromCountry === 'India' ? "https://flagcdn.com/w40/in.png" : "https://flagcdn.com/w40/us.png"} 
@@ -25,13 +25,13 @@ const CountrySelector = () => {
           variant="outline"
           size="icon"
           onClick={swapCountries}
-          className="rounded-full w-8 h-8 border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
+          className="rounded-full w-10 h-10 border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 mx-4"
         >
-          <ArrowLeftRight className="h-3 w-3" />
+          <ArrowLeftRight className="h-4 w-4" />
         </Button>
         
-        <div className="flex flex-col">
-          <div className="text-xs text-gray-500 mb-1">To Country</div>
+        <div className="flex flex-col items-center">
+          <div className="text-xs text-gray-500 mb-2">To Country</div>
           <div className="flex items-center gap-2">
             <img 
               src={toCountry === 'India' ? "https://flagcdn.com/w40/in.png" : "https://flagcdn.com/w40/us.png"} 
