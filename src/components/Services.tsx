@@ -1,5 +1,5 @@
 
-import { ShoppingBag, Gift, Car, Coffee, Plane, Heart, Package, Star } from "lucide-react";
+import { ShoppingBag, Gift, Car, Coffee, Plane, Heart, Package, Star, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "@/contexts/LocationContext";
