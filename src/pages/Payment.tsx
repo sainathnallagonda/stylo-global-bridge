@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -71,19 +70,16 @@ const Payment = () => {
       return;
     }
 
-    // Simulate getting exchange rate (in real app, you'd call an API)
     fetchExchangeRate();
   }, [paymentData, navigate, toast]);
 
   const fetchExchangeRate = async () => {
     setLoadingRate(true);
     try {
-      // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mock exchange rate (USD to INR)
       if (paymentData?.currency === 'USD') {
-        setExchangeRate(83.12); // 1 USD = 83.12 INR (mock rate)
+        setExchangeRate(83.12);
       } else {
         setExchangeRate(1);
       }
@@ -176,7 +172,6 @@ const Payment = () => {
 
     setLoading(true);
     try {
-      // Calculate totals
       const baseAmount = paymentData.cartItems 
         ? paymentData.total || 0
         : paymentData.price || 0;
@@ -185,7 +180,7 @@ const Payment = () => {
         ? baseAmount * exchangeRate 
         : baseAmount;
 
-      // Prepare order items
+      // Prepare order items - ensure they match the expected JSON structure
       const orderItems = paymentData.cartItems || [{
         id: '1',
         name: paymentData.itemName || 'Unknown Item',
@@ -194,13 +189,13 @@ const Payment = () => {
         quantity: 1
       }];
 
-      // Create order in database
+      // Create order in database with proper JSON typing
       const { data: order, error } = await supabase
         .from('orders')
         .insert({
           user_id: user.id,
           service_type: paymentData.serviceType || 'general',
-          items: orderItems,
+          items: orderItems as any, // Cast to any to match Json type
           total_amount: baseAmount,
           currency: paymentData.currency || 'USD',
           converted_amount: convertedAmount,
@@ -211,11 +206,11 @@ const Payment = () => {
             address: deliveryInfo.address,
             city: deliveryInfo.city,
             zipCode: deliveryInfo.zipCode
-          },
+          } as any, // Cast to any to match Json type
           recipient_info: {
             name: deliveryInfo.fullName,
             phone: deliveryInfo.phone
-          },
+          } as any, // Cast to any to match Json type
           recipient_country: paymentData.currency === 'USD' ? 'USA' : 'India',
           status: 'pending'
         })
@@ -232,7 +227,6 @@ const Payment = () => {
         description: `Order #${order.id.slice(0, 8)} has been placed successfully`,
       });
 
-      // Navigate to orders page or success page
       navigate('/orders', { 
         state: { 
           newOrderId: order.id,
@@ -300,7 +294,6 @@ const Payment = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 {paymentData.cartItems ? (
-                  // Multiple items from cart
                   paymentData.cartItems.map((item) => (
                     <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
                       <div className="flex-1">
@@ -313,7 +306,6 @@ const Payment = () => {
                     </div>
                   ))
                 ) : (
-                  // Single item
                   <div className="flex justify-between items-center py-2">
                     <div>
                       <h4 className="font-medium">{paymentData.itemName}</h4>
