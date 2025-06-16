@@ -46,12 +46,12 @@ const ImprovedCartModal = () => {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
       onClick={handleOverlayClick}
     >
       {/* Modal */}
-      <Card className="relative w-full max-w-md max-h-[85vh] mx-auto flex flex-col animate-scale-in shadow-2xl">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b">
+      <Card className="relative w-full max-w-md max-h-[85vh] mx-auto flex flex-col animate-scale-in shadow-2xl bg-white border border-gray-200">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b bg-white rounded-t-lg">
           <CardTitle className="flex items-center gap-2 text-lg">
             <ShoppingCart className="h-5 w-5 text-blue-600" />
             Your Cart
@@ -71,7 +71,7 @@ const ImprovedCartModal = () => {
           </Button>
         </CardHeader>
         
-        <CardContent className="flex-1 overflow-hidden flex flex-col p-4">
+        <CardContent className="flex-1 overflow-hidden flex flex-col p-4 bg-white">
           {cartItems.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center py-8 space-y-4">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center">
@@ -145,7 +145,7 @@ const ImprovedCartModal = () => {
               </div>
 
               {/* Cart Summary */}
-              <div className="border-t pt-4 space-y-4">
+              <div className="border-t pt-4 space-y-4 bg-white">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-semibold">Total:</span>
                   <span className="text-xl font-bold text-blue-600">
